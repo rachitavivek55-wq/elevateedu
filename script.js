@@ -394,3 +394,88 @@ var elevatePremium = (function () {
   return { init, checkPremium, markPremiumUI };
 })();
 elevatePremium.init();
+
+// ===== PREMIUM FEATURES & FILE UPLOAD =====
+// Check if user has premium access
+async function checkPremium() {
+  if (!session || !session.user) return false;
+  try {
+    const { data, error } = await supabase.from('profiles').select('is_premium').eq('id', session.user.id).single();
+    return !error && data && data.is_premium;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Mark premium UI elements
+function markPremiumUI() {
+  const premiumElements = document.querySelectorAll('[data-premium="true"]');
+  premiumElements.forEach(el => {
+    el.style.opacity = '0.5';
+    el.style.pointerEvents = 'none';
+    el.innerHTML += '<span style="color: gold; font-size: 12px; margin-left: 5px;">⭐ PREMIUM</span>';
+  });
+}
+
+// File upload handler
+async function handleFileUpload(event) {
+  const file = event.target.files?.[0];
+  if (!file || !session?.user) return;
+  
+  const MAX_SIZE_FREE = 5 * 1024 * 1024; // 5MB
+  const MAX_SIZE_PREMIUM = 100 * 1024 * 1024; // 100MB
+  
+  const isPremium = await checkPremium();
+  const maxSize = isPremium ? MAX_SIZE_PREMIUM : MAX_SIZE_FREE;
+  
+  if (file.size > maxSize) {
+    alert(`File too large! Max: ${isPremium ? '100MB' : '5MB'}`);
+    return;
+  }
+  
+  try {
+    const fileName = `${session.user.id}/${Date.now()}-${file.name}`;
+    const { error } = await supabase.storage.from('user-files').upload(fileName, file);
+    
+    if (error) throw error;
+    
+    // Record in database
+    const { error: dbError } = await supabase.from('files').insert({
+      user_id: session.user.id,
+      file_name: file.name,
+      file_url: fileName,
+      file_size: file.size
+    });
+    
+    if (!dbError) alert('File uploaded successfully!');
+  } catch (e) {
+    alert('Upload failed: ' + e.message);
+  }
+}
+
+// Load user files
+async function loadUserFiles() {
+  if (!session?.user) return;
+  try {
+    const { data } = await supabase.from('files').select('*').eq('user_id', session.user.id);
+    const container = document.getElementById('filesContainer');
+    if (container && data?.length > 0) {
+      container.innerHTML = data.map(f => `
+        <div style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
+          <p><strong>${f.file_name}</strong> (${(f.file_size / 1024 / 1024).toFixed(2)}MB)</p>
+          <small style="color: gray;">${new Date(f.created_at).toLocaleDateString()}</small>
+        </div>
+      `).join('');
+    }
+  } catch (e) {
+    console.error('Failed to load files:', e);
+  }
+}
+
+// Initialize file upload on page load
+document.addEventListener('DOMContentLoaded', () => {
+  const fileInput = document.getElementById('fileUpload');
+  if (fileInput) fileInput.addEventListener('change', handleFileUpload);
+  loadUserFiles();
+  markPremiumUI();
+});
