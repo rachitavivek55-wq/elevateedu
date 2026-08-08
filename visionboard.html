@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Vision Boar d — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="visionboard.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="mindset.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Vision Board</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen vb-screen">
+        <p class="vb-intro" id="vbIntro">
+          Create boards for anything — goals, achievements, dreams. Tap one to
+          open it.
+        </p>
+
+        <!-- ===== BOARDS LIST VIEW ===== -->
+        <section class="vb-boards-view" id="vbBoardsView">
+          <div class="vb-boards-grid" id="vbBoardsGrid"></div>
+        </section>
+
+        <!-- ===== BOARD DETAIL VIEW ===== -->
+        <section class="vb-detail-view" id="vbDetailView" hidden>
+          <div class="vb-detail-head">
+            <button
+              class="vb-back-boards"
+              id="vbBackBoards"
+              aria-label="All boards"
+            >
+              <i data-lucide="chevron-left"></i><span>Boards</span>
+            </button>
+            <button
+              class="vb-board-menu"
+              id="vbBoardMenu"
+              aria-label="Board settings"
+            >
+              <i data-lucide="sliders-horizontal"></i>
+            </button>
+          </div>
+          <h2 class="vb-board-title" id="vbBoardTitle">Board</h2>
+
+          <div class="vb-decorbar" id="vbDecorbar">
+            <span class="vb-decor-label">Paper</span>
+            <div class="vb-styles" id="vbStyles">
+              <button class="vb-style-chip" data-style="board">Plain</button>
+              <button class="vb-style-chip" data-style="cork">Cork</button>
+              <button class="vb-style-chip" data-style="binder">Lined</button>
+              <button class="vb-style-chip" data-style="bulletin">Felt</button>
+            </div>
+          </div>
+
+          <div
+            class="vb-board"
+            id="vbBoard"
+            data-style="board"
+            data-theme="coffee"
+          >
+            <div class="vb-grid" id="vbGrid"></div>
+            <div class="vb-empty" id="vbEmpty">
+              <i data-lucide="image-plus"></i>
+              <p class="vb-empty-title">Nothing here yet</p>
+              <p class="vb-empty-sub">
+                Tap the + button to add a goal, photo, certificate or note.
+              </p>
+            </div>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item active" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+
+      <button class="vb-fab" id="vbAddBoardFab" aria-label="New board">
+        <i data-lucide="plus"></i>
+      </button>
+      <button class="vb-fab" id="vbAddItemFab" aria-label="Add to board" hidden>
+        <i data-lucide="plus"></i>
+      </button>
+
+      <div class="vb-sheet-backdrop" id="vbBackdrop" hidden></div>
+      <div class="vb-sheet" id="vbSheet" hidden>
+        <div class="vb-sheet-handle"></div>
+        <div class="vb-sheet-head">
+          <h2 class="vb-sheet-title" id="vbSheetTitle">New item</h2>
+          <button
+            class="vb-sheet-close"
+            id="vbClose"
+            aria-label="Close"
+            type="button"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <div class="vb-sheet-body">
+          <label class="vb-field-label">Type</label>
+          <div class="vb-type-row" id="vbTypeRow">
+            <button
+              class="vb-type-chip is-active"
+              data-type="goal"
+              type="button"
+            >
+              Goal
+            </button>
+            <button class="vb-type-chip" data-type="milestone" type="button">
+              Milestone
+            </button>
+            <button class="vb-type-chip" data-type="achievement" type="button">
+              Achievement
+            </button>
+            <button class="vb-type-chip" data-type="certificate" type="button">
+              Certificate
+            </button>
+            <button class="vb-type-chip" data-type="note" type="button">
+              Note
+            </button>
+          </div>
+
+          <label class="vb-field-label" for="vbTitle">Title</label>
+          <input
+            class="vb-input"
+            id="vbTitle"
+            type="text"
+            maxlength="80"
+            placeholder="e.g. Make the honor roll"
+          />
+
+          <label class="vb-field-label" for="vbNotes"
+            >Notes <span class="vb-opt">(optional)</span></label
+          >
+          <textarea
+            class="vb-textarea"
+            id="vbNotes"
+            maxlength="400"
+            rows="3"
+            placeholder="Add details, why it matters, next steps..."
+          ></textarea>
+
+          <label class="vb-field-label" for="vbDate"
+            >Date <span class="vb-opt">(optional)</span></label
+          >
+          <input class="vb-input" id="vbDate" type="date" />
+
+          <label class="vb-field-label"
+            >Picture
+            <span class="vb-opt">(optional — certificates, photos)</span></label
+          >
+          <div class="vb-image-row">
+            <button class="vb-image-btn" id="vbImageBtn" type="button">
+              <i data-lucide="image-plus"></i>
+              <span id="vbImageBtnText">Add picture</span>
+            </button>
+            <input
+              class="vb-file-input"
+              id="vbFile"
+              type="file"
+              accept="image/*"
+              hidden
+            />
+            <div class="vb-image-preview" id="vbImagePreview" hidden>
+              <img id="vbImageImg" alt="Preview" />
+              <button
+                class="vb-image-remove"
+                id="vbImageRemove"
+                type="button"
+                aria-label="Remove picture"
+              >
+                <i data-lucide="x"></i>
+              </button>
+            </div>
+          </div>
+
+          <label class="vb-field-label">Pin</label>
+          <div class="vb-pins" id="vbPins">
+            <button
+              class="vb-pin is-active"
+              data-pin="coffee"
+              style="--pin: #6f4e37"
+              type="button"
+              aria-label="Coffee pin"
+            ></button>
+            <button
+              class="vb-pin"
+              data-pin="clay"
+              style="--pin: #b07d62"
+              type="button"
+              aria-label="Clay pin"
+            ></button>
+            <button
+              class="vb-pin"
+              data-pin="sage"
+              style="--pin: #7d8471"
+              type="button"
+              aria-label="Sage pin"
+            ></button>
+            <button
+              class="vb-pin"
+              data-pin="plum"
+              style="--pin: #7a6583"
+              type="button"
+              aria-label="Plum pin"
+            ></button>
+            <button
+              class="vb-pin"
+              data-pin="gold"
+              style="--pin: #c2a14d"
+              type="button"
+              aria-label="Gold pin"
+            ></button>
+          </div>
+        </div>
+
+        <div class="vb-sheet-actions">
+          <button class="vb-delete-btn" id="vbDelete" type="button" hidden>
+            <i data-lucide="trash-2"></i><span>Delete</span>
+          </button>
+          <button class="vb-save-btn" id="vbSave" type="button">
+            Save to board
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm overlay -->
+      <div class="vb-confirm-wrap" id="vbConfirmWrap" hidden>
+        <div class="vb-confirm">
+          <p class="vb-confirm-msg" id="vbConfirmMsg">Delete this item?</p>
+          <div class="vb-confirm-row">
+            <button class="vb-confirm-no" id="vbConfirmNo" type="button">
+              Cancel
+            </button>
+            <button class="vb-confirm-yes" id="vbConfirmYes" type="button">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ===== NEW / EDIT BOARD SHEET ===== -->
+      <div class="vb-sheet-backdrop" id="vbBoardBackdrop" hidden></div>
+      <div class="vb-sheet" id="vbBoardSheet" hidden>
+        <div class="vb-sheet-handle"></div>
+        <div class="vb-sheet-head">
+          <h2 class="vb-sheet-title" id="vbBoardSheetTitle">New board</h2>
+          <button class="vb-sheet-close" id="vbBoardClose" aria-label="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+
+        <label class="vb-field-label" for="vbBoardName">Board name</label>
+        <input
+          class="vb-input"
+          id="vbBoardName"
+          type="text"
+          maxlength="40"
+          placeholder="e.g. My Goals, Achievements, Dream College"
+        />
+
+        <span class="vb-field-label">Paper style</span>
+        <div class="vb-styles vb-styles-sheet" id="vbBoardStyleRow">
+          <button class="vb-style-chip" data-style="board" type="button">
+            Plain
+          </button>
+          <button class="vb-style-chip" data-style="cork" type="button">
+            Cork
+          </button>
+          <button class="vb-style-chip" data-style="binder" type="button">
+            Lined
+          </button>
+          <button class="vb-style-chip" data-style="bulletin" type="button">
+            Felt
+          </button>
+        </div>
+
+        <span class="vb-field-label">Board colour</span>
+        <div class="vb-color-control">
+          <div class="vb-swatch-row" id="vbBoardColorRow">
+            <button
+              class="vb-swatch"
+              type="button"
+              data-color="#f5e6ca"
+              style="--sw: #f5e6ca"
+              aria-label="#f5e6ca"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#e9d9c0"
+              style="--sw: #e9d9c0"
+              aria-label="#e9d9c0"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#dfeae0"
+              style="--sw: #dfeae0"
+              aria-label="#dfeae0"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#e7dbe9"
+              style="--sw: #e7dbe9"
+              aria-label="#e7dbe9"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#f0e2d0"
+              style="--sw: #f0e2d0"
+              aria-label="#f0e2d0"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#dfe6ee"
+              style="--sw: #dfe6ee"
+              aria-label="#dfe6ee"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#f3dede"
+              style="--sw: #f3dede"
+              aria-label="#f3dede"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#e5e9d6"
+              style="--sw: #e5e9d6"
+              aria-label="#e5e9d6"
+            ></button>
+          </div>
+          <label class="vb-wheel-btn" aria-label="Custom board colour">
+            <i data-lucide="pipette"></i>
+            <input type="color" id="vbBoardColorPicker" value="#f5e6ca" />
+          </label>
+        </div>
+
+        <span class="vb-field-label">Highlight colour</span>
+        <div class="vb-color-control">
+          <div class="vb-swatch-row" id="vbHiColorRow">
+            <button
+              class="vb-swatch"
+              type="button"
+              data-color="#6f4e37"
+              style="--sw: #6f4e37"
+              aria-label="#6f4e37"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#b07d62"
+              style="--sw: #b07d62"
+              aria-label="#b07d62"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#7d8471"
+              style="--sw: #7d8471"
+              aria-label="#7d8471"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#7a6583"
+              style="--sw: #7a6583"
+              aria-label="#7a6583"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#c2a14d"
+              style="--sw: #c2a14d"
+              aria-label="#c2a14d"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#a0522d"
+              style="--sw: #a0522d"
+              aria-label="#a0522d"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#5c8a8a"
+              style="--sw: #5c8a8a"
+              aria-label="#5c8a8a"
+            ></button
+            ><button
+              class="vb-swatch"
+              type="button"
+              data-color="#9c5d6b"
+              style="--sw: #9c5d6b"
+              aria-label="#9c5d6b"
+            ></button>
+          </div>
+          <label class="vb-wheel-btn" aria-label="Custom highlight colour">
+            <i data-lucide="pipette"></i>
+            <input type="color" id="vbHiColorPicker" value="#6f4e37" />
+          </label>
+        </div>
+
+        <button class="vb-delete-btn" id="vbBoardDelete" type="button" hidden>
+          <i data-lucide="trash-2"></i> Delete board
+        </button>
+        <button class="vb-save-btn" id="vbBoardSave" type="button">
+          Create board
+        </button>
+      </div>
+
+      <div class="vb-toast" id="vbToast" hidden></div>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="visionboard.js"></script>
+  </body>
+</html>

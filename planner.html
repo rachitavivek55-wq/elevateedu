@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planner — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="index.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Planner</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">—</span>
+          <span class="date-month" id="dateMonth">—</span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- System intro card -->
+        <section class="greeting-card">
+          <p class="greeting-eyebrow">Planner</p>
+          <h2 class="greeting-title">Stay Organized</h2>
+          <p class="greeting-sub">
+            Your schedule, grades, and thoughts in one calm place
+          </p>
+        </section>
+
+        <!-- Mini apps -->
+        <section class="systems">
+          <h3 class="section-label">Tools</h3>
+          <div class="grid">
+            <article class="app-card" data-href="calendar.html">
+              <span class="app-icon"><i data-lucide="calendar-days"></i></span>
+              <div class="app-text">
+                <span class="app-name">Calendar</span>
+                <span class="app-desc"
+                  >See your whole schedule at a glance</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article class="app-card" data-href="checklists.html">
+              <span class="app-icon"><i data-lucide="list-checks"></i></span>
+              <div class="app-text">
+                <span class="app-name">Checklists</span>
+                <span class="app-desc"
+                  >Routines that reset on your schedule</span
+                >
+              </div>
+            </article>
+            <article class="app-card" data-href="assignments.html">
+              <span class="app-icon"><i data-lucide="clipboard-list"></i></span>
+              <div class="app-text">
+                <span class="app-name">Assignments</span>
+                <span class="app-desc"
+                  >Assignments, exams &amp; your class schedule</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article class="app-card" data-href="gradebook.html">
+              <span class="app-icon"><i data-lucide="line-chart"></i></span>
+              <div class="app-text">
+                <span class="app-name">Gradebook</span>
+                <span class="app-desc"
+                  >Track grades by class &amp; see your progress</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article data-href="notes.html" class="app-card">
+              <span class="app-icon"><i data-lucide="notebook-pen"></i></span>
+              <div class="app-text">
+                <span class="app-name">Notes</span>
+                <span class="app-desc"
+                  >Organize thoughts into sections &amp; notes</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="dumbbell"></i></span>
+          <span class="nav-label">Fitness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

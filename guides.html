@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Guides — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="index.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Guides</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- System intro card -->
+        <section class="greeting-card">
+          <p class="greeting-eyebrow">Guides</p>
+          <h2 class="greeting-title">Little Life Wins</h2>
+          <p class="greeting-sub">
+            Simple tips for looking, focusing, and living your best
+          </p>
+        </section>
+
+        <!-- Tools -->
+        <section class="systems">
+          <h3 class="section-label">Tools</h3>
+          <div class="grid">
+            <article data-href="lookbest.html" class="app-card">
+              <span class="app-icon"><i data-lucide="wand-sparkles"></i></span>
+              <div class="app-text">
+                <span class="app-name">Looking Your Best</span>
+                <span class="app-desc"
+                  >Skincare, hygiene, hair, style, food & scent tips</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+
+            <article class="app-card" data-href="focus.html">
+              <span class="app-icon"><i data-lucide="target"></i></span>
+              <div class="app-text">
+                <span class="app-name">Focus & Study</span>
+                <span class="app-desc"
+                  >Study hacks and ways to hold your attention</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+
+            <article class="app-card" data-href="social.html">
+              <span class="app-icon"><i data-lucide="users-round"></i></span>
+              <div class="app-text">
+                <span class="app-name">Social Smarts</span>
+                <span class="app-desc"
+                  >Confidence, social tricks & things to watch for</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item active" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

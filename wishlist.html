@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wishlist — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="wishlist.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wallet.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Wishlist</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+
+      <main class="screen wl-screen">
+        <!-- Summary strip -->
+        <section class="wl-summary" id="wlSummary">
+          <div class="wl-sum-block">
+            <span class="wl-sum-label">In piggy bank</span>
+            <span class="wl-sum-value" id="wlPiggy">$0.00</span>
+          </div>
+          <div class="wl-sum-divider"></div>
+          <div class="wl-sum-block">
+            <span class="wl-sum-label">Saving toward</span>
+            <span class="wl-sum-value" id="wlTotalOpen">$0.00</span>
+          </div>
+          <div class="wl-sum-divider"></div>
+          <div class="wl-sum-block wl-sum-narrow">
+            <span class="wl-sum-label">Items</span>
+            <span class="wl-sum-value" id="wlCountOpen">0</span>
+          </div>
+        </section>
+
+        <!-- Filter chips -->
+        <div class="wl-filters" id="wlFilters">
+          <button class="wl-chip active" data-filter="all">All</button>
+          <button class="wl-chip" data-filter="high">Must have</button>
+          <button class="wl-chip" data-filter="open">Want</button>
+          <button class="wl-chip" data-filter="got">Got it</button>
+        </div>
+
+        <!-- List -->
+        <ul class="wl-list" id="wlList"></ul>
+
+        <!-- Empty state -->
+        <div class="wl-empty" id="wlEmpty">
+          <i data-lucide="gift"></i>
+          <p>Your wishlist is empty.</p>
+          <span
+            >Tap the + to save something you're dreaming about — a hoodie, a
+            game, concert tickets.</span
+          >
+        </div>
+      </main>
+
+      <!-- FAB -->
+      <button class="wl-fab" id="wlFab" title="Add an item">
+        <i data-lucide="plus"></i>
+      </button>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item active" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Backdrop + sheet for add/edit -->
+    <div class="wl-backdrop" id="wlBackdrop" hidden></div>
+    <div class="wl-sheet" id="wlSheet" hidden>
+      <div class="wl-sheet-head">
+        <span class="wl-sheet-title" id="wlSheetTitle">Add to wishlist</span>
+        <button class="wl-icon-btn" id="wlSheetClose">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="wl-sheet-body" id="wlSheetBody"></div>
+    </div>
+
+    <!-- Custom confirm -->
+    <div class="wl-confirm-wrap" id="wlConfirmWrap" hidden>
+      <div class="wl-confirm">
+        <p class="wl-confirm-msg" id="wlConfirmMsg">Remove this item?</p>
+        <div class="wl-confirm-actions">
+          <button class="wl-btn wl-btn-ghost" id="wlConfirmNo">Cancel</button>
+          <button class="wl-btn wl-btn-danger" id="wlConfirmYes">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="wishlist.js"></script>
+    <!-- x -->
+    <!-- s2 -->
+  </body>
+</html>

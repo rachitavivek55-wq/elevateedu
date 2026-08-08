@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Checklists — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="checklists.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a href="planner.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Checklists</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen tool-screen">
+        <p class="vb-intro ck-intro">
+          Build routines that reset on your schedule. Check things off, watch
+          them cross out, and start fresh each cycle.
+        </p>
+
+        <div id="ckListView">
+          <div class="ck-lists" id="ckLists"></div>
+          <p class="ck-empty" id="ckEmpty" hidden>
+            No checklists yet. Tap the button below to make your first one.
+          </p>
+          <button class="ck-add-btn" id="ckAddBtn">
+            <i data-lucide="plus"></i><span>New checklist</span>
+          </button>
+        </div>
+
+        <div id="ckDetailView" hidden>
+          <button class="ck-back-link" id="ckBackLink">
+            <i data-lucide="chevron-left"></i><span>All checklists</span>
+          </button>
+          <div class="ck-detail-head">
+            <div>
+              <h2 class="ck-detail-title" id="ckDetailTitle">List</h2>
+              <p class="ck-detail-meta" id="ckDetailMeta"></p>
+            </div>
+            <button class="ck-icon-btn" id="ckEditBtn" title="Edit checklist">
+              <i data-lucide="settings-2"></i>
+            </button>
+          </div>
+          <div class="ck-progress-wrap">
+            <div class="ck-progress-bar"><span id="ckProgressFill"></span></div>
+            <span class="ck-progress-text" id="ckProgressText">0 / 0</span>
+          </div>
+          <div class="ck-tasks" id="ckTasks"></div>
+          <p class="ck-empty" id="ckTasksEmpty" hidden>
+            No tasks yet. Add one below.
+          </p>
+          <form class="ck-add-task" id="ckAddTaskForm" autocomplete="off">
+            <input
+              type="text"
+              id="ckTaskInput"
+              placeholder="Add a task…"
+              maxlength="120"
+            />
+            <button type="submit" class="ck-icon-btn ck-primary">
+              <i data-lucide="plus"></i>
+            </button>
+          </form>
+          <div class="ck-history" id="ckHistory" hidden>
+            <h3 class="ck-history-title">Recent cycles</h3>
+            <div class="ck-history-rows" id="ckHistoryRows"></div>
+          </div>
+        </div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <i data-lucide="home"></i><span>Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <i data-lucide="calendar-check"></i><span>Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <i data-lucide="wallet"></i><span>Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <i data-lucide="heart-pulse"></i><span>Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <i data-lucide="brain"></i><span>Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <i data-lucide="book-open"></i><span>Guides</span>
+        </button>
+      </nav>
+
+      <!-- Editor sheet: create / edit a checklist -->
+      <div class="ck-backdrop" id="ckSheetBackdrop" hidden></div>
+      <div class="ck-sheet" id="ckSheet" hidden>
+        <div class="ck-sheet-handle"></div>
+        <h2 class="ck-sheet-title" id="ckSheetTitle">New checklist</h2>
+        <label class="ck-field">
+          <span>Name</span>
+          <input
+            type="text"
+            id="ckNameInput"
+            placeholder="e.g. Morning routine"
+            maxlength="40"
+          />
+        </label>
+        <div class="ck-field">
+          <span>Resets</span>
+          <div class="ck-reset-opts" id="ckResetOpts">
+            <button
+              type="button"
+              class="ck-reset-opt is-active"
+              data-reset="daily"
+            >
+              Daily
+            </button>
+            <button type="button" class="ck-reset-opt" data-reset="weekly">
+              Weekly
+            </button>
+            <button type="button" class="ck-reset-opt" data-reset="monthly">
+              Monthly
+            </button>
+            <button type="button" class="ck-reset-opt" data-reset="custom">
+              Custom
+            </button>
+            <button type="button" class="ck-reset-opt" data-reset="never">
+              Never
+            </button>
+          </div>
+        </div>
+        <label class="ck-field ck-custom-field" id="ckCustomField" hidden>
+          <span>Reset every</span>
+          <div class="ck-custom-row">
+            <input type="number" id="ckCustomNum" min="1" max="365" value="3" />
+            <select id="ckCustomUnit">
+              <option value="days">days</option>
+              <option value="weeks">weeks</option>
+              <option value="months">months</option>
+            </select>
+          </div>
+        </label>
+        <div class="ck-sheet-actions">
+          <button
+            type="button"
+            class="ck-btn ck-btn-ghost"
+            id="ckDeleteBtn"
+            hidden
+          >
+            <i data-lucide="trash-2"></i>Delete
+          </button>
+          <div class="ck-sheet-actions-right">
+            <button type="button" class="ck-btn ck-btn-ghost" id="ckCancelBtn">
+              Cancel
+            </button>
+            <button type="button" class="ck-btn ck-btn-solid" id="ckSaveBtn">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom confirm overlay -->
+      <div class="ck-backdrop" id="ckConfirmBackdrop" hidden></div>
+      <div class="ck-confirm" id="ckConfirm" hidden>
+        <p class="ck-confirm-msg" id="ckConfirmMsg">Are you sure?</p>
+        <div class="ck-confirm-actions">
+          <button type="button" class="ck-btn ck-btn-ghost" id="ckConfirmNo">
+            Cancel
+          </button>
+          <button type="button" class="ck-btn ck-btn-danger" id="ckConfirmYes">
+            Delete
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="checklists.js"></script>
+  </body>
+</html>

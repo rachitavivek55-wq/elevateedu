@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="view
+      
+      port"
+      content="width=device-width, initial-scal
+    e=1.0"
+    />
+    <title>Mindset — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="index.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Mindset</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- System intro card -->
+        <section class="greeting-card">
+          <p class="greeting-eyebrow">Mindset</p>
+          <h2 class="greeting-title">Room to Breathe</h2>
+          <p class="greeting-sub">
+            Clear your head, reset, and grow a little every day
+          </p>
+        </section>
+
+        <!-- Tools -->
+        <section class="systems">
+          <h3 class="section-label">Tools</h3>
+          <div class="grid">
+            <article class="app-card" data-href="minddump.html">
+              <span class="app-icon"><i data-lucide="notebook-pen"></i></span>
+              <div class="app-text">
+                <span class="app-name">Mind Dump</span>
+                <span class="app-desc"
+                  >A private space to write out your day and clear your
+                  head</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+            <article class="app-card" data-href="meditation.html">
+              <span class="app-icon"><i data-lucide="timer"></i></span>
+              <div class="app-text">
+                <span class="app-name">Meditation Timer</span>
+                <span class="app-desc"
+                  >Set a calm timer for meditation, focus, or a quick
+                  reset</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+            <article class="app-card" data-href="visionboard.html">
+              <span class="app-icon"
+                ><i data-lucide="layout-dashboard"></i
+              ></span>
+              <div class="app-text">
+                <span class="app-name">Vision Board</span>
+                <span class="app-desc"
+                  >Track goals & milestones on a board you decorate</span
+                >
+              </div>
+              <span class="app-arrow"><i data-lucide="chevron-right"></i></span>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item active" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

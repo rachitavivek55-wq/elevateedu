@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Workout Planner — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="workout.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wellness.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Workout Planner</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+      <main class="screen wk-screen">
+        <section class="wk-intro">
+          <h1 class="wk-title">Your Workouts</h1>
+          <p class="wk-sub">
+            Build a routine, then schedule it on your calendar.
+          </p>
+        </section>
+
+        <div class="wk-summary" id="wkSummary">
+          <div class="wk-sum-block">
+            <span class="wk-sum-value" id="wkCount">0</span>
+            <span class="wk-sum-label">Workouts</span>
+          </div>
+          <span class="wk-sum-divider"></span>
+          <div class="wk-sum-block">
+            <span class="wk-sum-value" id="wkScheduled">0</span>
+            <span class="wk-sum-label">Scheduled</span>
+          </div>
+          <span class="wk-sum-divider"></span>
+          <div class="wk-sum-block">
+            <span class="wk-sum-value" id="wkExercises">0</span>
+            <span class="wk-sum-label">Exercises</span>
+          </div>
+        </div>
+
+        <div class="wk-list" id="wkList"></div>
+
+        <div class="wk-empty" id="wkEmpty">
+          <div class="wk-empty-ic"><i data-lucide="dumbbell"></i></div>
+          <p class="wk-empty-title">No workouts yet</p>
+          <p class="wk-empty-text">
+            Tap the + button to build your first routine.
+          </p>
+        </div>
+
+        <button class="wk-fab" id="wkFab" aria-label="New workout">
+          <i data-lucide="plus"></i>
+        </button>
+      </main>
+
+      <!-- Builder Sheet -->
+      <div class="wk-backdrop" id="wkBackdrop" hidden></div>
+      <div class="wk-sheet" id="wkSheet" hidden>
+        <div class="wk-sheet-head">
+          <h2 class="wk-sheet-title" id="wkSheetTitle">New Workout</h2>
+          <button class="wk-sheet-close" id="wkSheetClose" aria-label="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="wk-sheet-body">
+          <label class="wk-field-label" for="wkName">Workout name</label>
+          <input
+            class="wk-input"
+            id="wkName"
+            type="text"
+            placeholder="e.g. Upper Body Push"
+            maxlength="60"
+          />
+
+          <label class="wk-field-label" for="wkNote"
+            >Note <span class="wk-opt">(optional)</span></label
+          >
+          <input
+            class="wk-input"
+            id="wkNote"
+            type="text"
+            placeholder="e.g. Rest 60s between sets"
+            maxlength="120"
+          />
+
+          <div class="wk-ex-head">
+            <span class="wk-field-label wk-nomar">Exercises</span>
+            <button class="wk-add-ex" id="wkAddEx" type="button">
+              <i data-lucide="plus"></i> Add exercise
+            </button>
+          </div>
+          <div class="wk-ex-rows" id="wkExRows"></div>
+
+          <div class="wk-sheet-actions">
+            <button class="wk-btn wk-btn-ghost" id="wkCancel" type="button">
+              Cancel
+            </button>
+            <button class="wk-btn wk-btn-primary" id="wkSave" type="button">
+              Save Workout
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule Sheet -->
+      <div class="wk-backdrop" id="wkSchedBackdrop" hidden></div>
+      <div class="wk-sheet wk-sheet-sm" id="wkSchedSheet" hidden>
+        <div class="wk-sheet-head">
+          <h2 class="wk-sheet-title" id="wkSchedTitle">Schedule Workout</h2>
+          <button class="wk-sheet-close" id="wkSchedClose" aria-label="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="wk-sheet-body">
+          <p class="wk-sched-name" id="wkSchedName">Workout</p>
+          <div class="wk-mode-toggle" id="wkSchedMode">
+            <button class="wk-mode-btn is-on" type="button" data-mode="once">
+              One-time
+            </button>
+            <button class="wk-mode-btn" type="button" data-mode="weekly">
+              Weekly
+            </button>
+          </div>
+          <div class="wk-mode-pane" id="wkPaneOnce">
+            <label class="wk-field-label" for="wkSchedDate">Pick a date</label>
+            <input class="wk-input" id="wkSchedDate" type="date" />
+          </div>
+          <div class="wk-mode-pane" id="wkPaneWeekly" hidden>
+            <label class="wk-field-label">Repeat on</label>
+            <div class="wk-days" id="wkSchedDays">
+              <button class="wk-day" type="button" data-day="0">S</button>
+              <button class="wk-day" type="button" data-day="1">M</button>
+              <button class="wk-day" type="button" data-day="2">T</button>
+              <button class="wk-day" type="button" data-day="3">W</button>
+              <button class="wk-day" type="button" data-day="4">T</button>
+              <button class="wk-day" type="button" data-day="5">F</button>
+              <button class="wk-day" type="button" data-day="6">S</button>
+            </div>
+          </div>
+          <label class="wk-field-label" for="wkSchedTime"
+            >Time <span class="wk-opt">(optional)</span></label
+          >
+          <input class="wk-input" id="wkSchedTime" type="time" />
+          <p class="wk-sched-hint">
+            <i data-lucide="calendar-check"></i> This will appear on your
+            Planner calendar.
+          </p>
+          <div class="wk-sheet-actions">
+            <button
+              class="wk-btn wk-btn-ghost"
+              id="wkSchedCancel"
+              type="button"
+            >
+              Cancel
+            </button>
+            <button
+              class="wk-btn wk-btn-primary"
+              id="wkSchedConfirm"
+              type="button"
+            >
+              Add to Calendar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Custom Confirm -->
+      <div class="wk-confirm-wrap" id="wkConfirmWrap" hidden>
+        <div class="wk-confirm-card">
+          <p class="wk-confirm-msg" id="wkConfirmMsg">Remove this workout?</p>
+          <div class="wk-confirm-actions">
+            <button class="wk-btn wk-btn-ghost" id="wkConfirmNo" type="button">
+              Cancel
+            </button>
+            <button
+              class="wk-btn wk-btn-danger"
+              id="wkConfirmYes"
+              type="button"
+            >
+              Remove
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast -->
+      <div class="wk-toast" id="wkToast" hidden></div>
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item active" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Amount input sheet -->
+    <div class="bl-backdrop" id="blBackdrop" hidden></div>
+    <div class="bl-sheet" id="blSheet" hidden>
+      <div class="bl-sheet-head">
+        <span class="bl-sheet-title" id="blSheetTitle">Add money</span>
+        <button class="bl-icon-btn" id="blSheetClose">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="bl-sheet-body" id="blSheetBody"></div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="workout.js"></script>
+  </body>
+</html>
+
+<!-- wk -->

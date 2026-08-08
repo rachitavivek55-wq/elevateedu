@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mind Dump — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="minddump.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="mindset.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Mind Dump</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen md-screen">
+        <section class="md-intro">
+          <h2 class="md-intro-title">Let it out</h2>
+          <p class="md-intro-sub">
+            Dump whatever's on your mind. A private space that's just for you —
+            nothing here leaves your device.
+          </p>
+        </section>
+
+        <section class="md-summary">
+          <div class="md-sum-item">
+            <span class="md-sum-num" id="mdTotal">0</span>
+            <span class="md-sum-label">Entries</span>
+          </div>
+          <div class="md-sum-item">
+            <span class="md-sum-num" id="mdStreak">0</span>
+            <span class="md-sum-label">This week</span>
+          </div>
+        </section>
+
+        <div class="md-start">
+          <button class="md-start-btn md-start-chat" id="mdNewFree">
+            <span class="md-start-ic"><i data-lucide="pencil-line"></i></span>
+            <span class="md-start-tx">
+              <span class="md-start-h">New entry</span>
+              <span class="md-start-d"
+                >Let your thoughts out. No filter, no judgment.</span
+              >
+            </span>
+          </button>
+        </div>
+
+        <section class="md-history">
+          <h3 class="md-history-title">Your dumps</h3>
+          <div class="md-list" id="mdList"></div>
+          <div class="md-empty" id="mdEmpty">
+            <i data-lucide="notebook-pen"></i>
+            <p class="md-empty-h">Nothing here yet</p>
+            <p class="md-empty-d">Tap “New entry” to start.</p>
+          </div>
+        </section>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item active" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+      <!-- FREE WRITE composer -->
+      <div class="md-write" id="mdWrite" hidden>
+        <div class="md-write-bar">
+          <button class="md-icon-btn" id="mdWriteBack" aria-label="Back">
+            <i data-lucide="arrow-left"></i>
+          </button>
+          <input
+            class="md-title-input"
+            id="mdWriteTitle"
+            placeholder="Untitled dump"
+            maxlength="60"
+          />
+          <button
+            class="md-icon-btn md-del-btn"
+            id="mdWriteDelete"
+            aria-label="Delete"
+            hidden
+          >
+            <i data-lucide="trash-2"></i>
+          </button>
+          <button class="md-save-btn" id="mdWriteSave">Save</button>
+        </div>
+        <p class="md-write-date" id="mdWriteDate"></p>
+        <textarea
+          class="md-write-area"
+          id="mdWriteArea"
+          placeholder="Let it all out. Nobody's reading this but you..."
+        ></textarea>
+      </div>
+
+      <!-- CONFIRM -->
+      <div class="md-backdrop" id="mdConfirmWrap" hidden>
+        <div class="md-confirm">
+          <p class="md-confirm-msg" id="mdConfirmMsg">Delete this?</p>
+          <div class="md-confirm-row">
+            <button class="md-btn-ghost" id="mdConfirmNo">Cancel</button>
+            <button class="md-btn-danger" id="mdConfirmYes">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="md-toast" id="mdToast" hidden></div>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="minddump.js"></script>
+  </body>
+</html>

@@ -1,0 +1,349 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Calendar — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="calendar.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="planner.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Calendar</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen cal-screen">
+        <!-- View switcher -->
+        <div class="cal-views" id="calViews">
+          <button class="cal-view-btn" data-view="day">Day</button>
+          <button class="cal-view-btn active" data-view="week">Week</button>
+          <button class="cal-view-btn" data-view="month">Month</button>
+          <button class="cal-view-btn" data-view="year">Year</button>
+        </div>
+
+        <!-- Period navigation -->
+        <div class="cal-nav">
+          <button class="cal-arrow" id="calPrev">
+            <i data-lucide="chevron-left"></i>
+          </button>
+          <div class="cal-period">
+            <span class="cal-period-label" id="calPeriod">This Week</span>
+            <button class="cal-today" id="calToday">Today</button>
+          </div>
+          <button
+            class="cal-arrow cal-settings-btn"
+            id="calSettings"
+            aria-label="Calendar hours"
+          >
+            <i data-lucide="settings-2"></i>
+          </button>
+          <button class="cal-arrow" id="calNext">
+            <i data-lucide="chevron-right"></i>
+          </button>
+        </div>
+
+        <!-- Calendar body (rendered by JS) -->
+        <div class="cal-body" id="calBody"></div>
+      </main>
+
+      <!-- Floating add button -->
+      <button class="cal-fab" id="calFab" aria-label="Add">
+        <i data-lucide="plus"></i>
+      </button>
+
+      <!-- Hours settings modal -->
+      <div class="cal-modal-backdrop" id="calSetBackdrop" hidden>
+        <div class="cal-modal cal-modal-sm" role="dialog" aria-modal="true">
+          <div class="cal-modal-head">
+            <h2 class="cal-modal-title">Day view hours</h2>
+            <button class="cal-close" id="calSetClose">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <p class="cal-set-hint">
+            Choose when your Day and Week views start and end, so you don't have
+            to scroll.
+          </p>
+          <div class="cal-set-row">
+            <div class="cal-set-field">
+              <label class="cal-set-label">Starts at</label>
+              <div class="cal-set-pair">
+                <select
+                  class="cal-set-select cal-set-hour"
+                  id="calSetStartH"
+                ></select>
+                <select
+                  class="cal-set-select cal-set-min"
+                  id="calSetStartM"
+                ></select>
+              </div>
+            </div>
+            <div class="cal-set-field">
+              <label class="cal-set-label">Ends at</label>
+              <div class="cal-set-pair">
+                <select
+                  class="cal-set-select cal-set-hour"
+                  id="calSetEndH"
+                ></select>
+                <select
+                  class="cal-set-select cal-set-min"
+                  id="calSetEndM"
+                ></select>
+              </div>
+            </div>
+          </div>
+          <div class="cal-set-actions">
+            <button class="cal-set-btn ghost" id="calSetCancel" type="button">
+              Cancel
+            </button>
+            <button class="cal-set-btn primary" id="calSetSave" type="button">
+              Save
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Add / Edit modal -->
+      <div class="cal-modal-backdrop" id="calBackdrop" hidden>
+        <div class="cal-modal" role="dialog" aria-modal="true">
+          <div class="cal-modal-head">
+            <h2 class="cal-modal-title" id="calModalTitle">New Entry</h2>
+            <button class="cal-close" id="calClose">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+
+          <!-- Entry type tabs -->
+          <div class="cal-type-tabs" id="calTypeTabs">
+            <button class="cal-type-tab active" data-type="commitment">
+              <i data-lucide="repeat"></i><span>Commitment</span>
+            </button>
+            <button class="cal-type-tab" data-type="assignment">
+              <i data-lucide="file-pen"></i><span>Assignment</span>
+            </button>
+            <button class="cal-type-tab" data-type="exam">
+              <i data-lucide="graduation-cap"></i><span>Exam</span>
+            </button>
+            <button class="cal-type-tab" data-type="task">
+              <i data-lucide="check-circle"></i><span>Task</span>
+            </button>
+          </div>
+
+          <form class="cal-form" id="calForm">
+            <!-- Title (all types) -->
+            <label class="cal-field">
+              <span class="cal-label">Title</span>
+              <input
+                type="text"
+                id="fTitle"
+                class="cal-input"
+                placeholder="e.g. Biology Class"
+                required
+              />
+            </label>
+
+            <!-- Commitment-only: recurrence days -->
+            <div class="cal-field type-commitment">
+              <span class="cal-label">Repeats on</span>
+              <div class="cal-days" id="fDays">
+                <button type="button" class="cal-day-pick" data-day="0">
+                  Sun
+                </button>
+                <button type="button" class="cal-day-pick" data-day="1">
+                  Mon
+                </button>
+                <button type="button" class="cal-day-pick" data-day="2">
+                  Tue
+                </button>
+                <button type="button" class="cal-day-pick" data-day="3">
+                  Wed
+                </button>
+                <button type="button" class="cal-day-pick" data-day="4">
+                  Thu
+                </button>
+                <button type="button" class="cal-day-pick" data-day="5">
+                  Fri
+                </button>
+                <button type="button" class="cal-day-pick" data-day="6">
+                  Sat
+                </button>
+              </div>
+              <div class="cal-day-quick">
+                <button type="button" class="cal-quick" data-quick="everyday">
+                  Every day
+                </button>
+                <button type="button" class="cal-quick" data-quick="weekdays">
+                  Weekdays
+                </button>
+                <button type="button" class="cal-quick" data-quick="clear">
+                  Clear
+                </button>
+              </div>
+            </div>
+
+            <!-- Date (assignment / exam / task) -->
+            <label class="cal-field type-assignment type-exam type-task">
+              <span class="cal-label" id="dateLabel">Due date</span>
+              <input type="date" id="fDate" class="cal-input" />
+            </label>
+
+            <!-- Time row (commitment start/end, others single time) -->
+            <div class="cal-field-row">
+              <label class="cal-field type-commitment">
+                <span class="cal-label">Start time</span>
+                <input type="time" id="fStart" class="cal-input" />
+              </label>
+              <label class="cal-field type-commitment">
+                <span class="cal-label">End time</span>
+                <input type="time" id="fEnd" class="cal-input" />
+              </label>
+              <label class="cal-field type-assignment type-exam type-task">
+                <span class="cal-label" id="timeLabel"
+                  >Time <span class="cal-opt">(optional)</span></span
+                >
+                <input type="time" id="fTime" class="cal-input" />
+              </label>
+            </div>
+
+            <!-- Exam-only: subject + location -->
+            <label class="cal-field type-exam">
+              <span class="cal-label"
+                >Location <span class="cal-opt">(optional)</span></span
+              >
+              <input
+                type="text"
+                id="fLocation"
+                class="cal-input"
+                placeholder="e.g. Room 204"
+              />
+            </label>
+
+            <!-- Priority (assignment / task) -->
+            <label class="cal-field type-assignment type-task">
+              <span class="cal-label">Priority</span>
+              <select id="fPriority" class="cal-input">
+                <option value="low">Low</option>
+                <option value="medium" selected>Medium</option>
+                <option value="high">High</option>
+              </select>
+            </label>
+
+            <!-- Color picker (all types) -->
+            <div class="cal-field">
+              <span class="cal-label">Color</span>
+              <div class="cal-colors" id="fColors">
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#6F4E37"
+                  style="background: #6f4e37"
+                ></button>
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#A9746E"
+                  style="background: #a9746e"
+                ></button>
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#8C9A5B"
+                  style="background: #8c9a5b"
+                ></button>
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#C08457"
+                  style="background: #c08457"
+                ></button>
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#6B8E9E"
+                  style="background: #6b8e9e"
+                ></button>
+                <button
+                  type="button"
+                  class="cal-swatch"
+                  data-color="#9B7EBD"
+                  style="background: #9b7ebd"
+                ></button>
+                <label class="cal-wheel" title="Custom color">
+                  <input type="color" id="fColor" value="#6F4E37" />
+                  <i data-lucide="pipette"></i>
+                </label>
+              </div>
+            </div>
+
+            <!-- Notes (all types) -->
+            <label class="cal-field">
+              <span class="cal-label"
+                >Notes <span class="cal-opt">(optional)</span></span
+              >
+              <textarea
+                id="fNotes"
+                class="cal-input cal-textarea"
+                rows="2"
+                placeholder="Anything to remember..."
+              ></textarea>
+            </label>
+
+            <div class="cal-form-actions">
+              <button type="button" class="cal-btn-ghost" id="calCancel">
+                Cancel
+              </button>
+              <button type="submit" class="cal-btn-save">Save</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="calendar.js"></script>
+  </body>
+</html>

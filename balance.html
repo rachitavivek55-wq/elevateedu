@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Balance — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="balance.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wallet.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Balance</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+
+      <main class="screen bl-screen">
+        <!-- Piggy bank / card hero -->
+        <section class="bl-card" id="blCard">
+          <div class="bl-card-top">
+            <span class="bl-card-label">My Balance</span>
+            <button class="bl-piggy" id="blPiggyBtn" title="Tap the piggy">
+              <i data-lucide="piggy-bank"></i>
+            </button>
+          </div>
+          <div class="bl-amount" id="blAmount">$0.00</div>
+          <div class="bl-trend" id="blTrend">
+            <i data-lucide="minus"></i
+            ><span id="blTrendText">No change yet</span>
+          </div>
+        </section>
+
+        <!-- Quick actions -->
+        <div class="bl-actions">
+          <button class="bl-act bl-act-add" id="blAddBtn">
+            <i data-lucide="plus"></i><span>Add</span>
+          </button>
+          <button class="bl-act bl-act-sub" id="blSubBtn">
+            <i data-lucide="minus"></i><span>Spend</span>
+          </button>
+          <button class="bl-act bl-act-set" id="blSetBtn">
+            <i data-lucide="pencil"></i><span>Set</span>
+          </button>
+        </div>
+
+        <!-- Progress chart -->
+        <section class="bl-section">
+          <div class="bl-section-head">
+            <h3 class="bl-section-title">Your money over time</h3>
+            <span class="bl-range" id="blRange">Last 7 days</span>
+          </div>
+          <div class="bl-chart-wrap">
+            <svg
+              class="bl-chart"
+              id="blChart"
+              viewBox="0 0 320 150"
+              preserveAspectRatio="none"
+            ></svg>
+            <div class="bl-chart-empty" id="blChartEmpty">
+              Add some money to start tracking
+            </div>
+          </div>
+        </section>
+
+        <!-- History log -->
+        <section class="bl-section">
+          <div class="bl-section-head">
+            <h3 class="bl-section-title">Daily record</h3>
+          </div>
+          <ul class="bl-history" id="blHistory"></ul>
+          <div class="bl-history-empty" id="blHistoryEmpty">
+            <i data-lucide="calendar-clock"></i>
+            <p>No records yet.</p>
+            <span>Your balance is saved each day so you can look back.</span>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom nav -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item active" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Amount input sheet -->
+    <div class="bl-backdrop" id="blBackdrop" hidden></div>
+    <div class="bl-sheet" id="blSheet" hidden>
+      <div class="bl-sheet-head">
+        <span class="bl-sheet-title" id="blSheetTitle">Add money</span>
+        <button class="bl-icon-btn" id="blSheetClose">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="bl-sheet-body" id="blSheetBody"></div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="balance.js"></script>
+  </body>
+</html>

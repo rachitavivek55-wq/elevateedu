@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Body Stats — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.g
+      <!-- -->oogleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="bodystats.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wellness.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Body Stats</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+  <main class="screen bs-screen">
+      <section class="bs-intro">
+        <h1>Body Stats</h1>
+        <p class="bs-sub">Track measurements over time and watch your progress.</p>
+      </section>
+
+      <section class="bs-summary">
+        <div class="bs-sum-item"><span class="bs-sum-num" id="bsCatCount">0</span><span class="bs-sum-label">Categories</span></div>
+        <div class="bs-sum-div"></div>
+        <div class="bs-sum-item"><span class="bs-sum-num" id="bsEntryCount">0</span><span class="bs-sum-label">Entries</span></div>
+        <div class="bs-sum-div"></div>
+        <div class="bs-sum-item"><span class="bs-sum-num" id="bsStreak">0</span><span class="bs-sum-label">This month</span></div>
+      </section>
+
+      <div class="bs-cats" id="bsCats"></div>
+
+      <div class="bs-empty" id="bsEmpty" hidden>
+        <span class="bs-empty-icon"><i data-lucide="ruler"></i></span>
+        <p class="bs-empty-title">No categories yet</p>
+        <p class="bs-empty-sub">Add height, weight, or your own measurement to start tracking.</p>
+      </div>
+
+      <button class="bs-fab" id="bsFab" aria-label="Add category"><i data-lucide="plus"></i></button>
+    </main>
+
+    <!-- Add / edit category sheet -->
+    <div class="bs-backdrop" id="bsCatBackdrop" hidden>
+      <div class="bs-sheet" id="bsCatSheet" role="dialog" aria-modal="true">
+        <div class="bs-sheet-head">
+          <h2 class="bs-sheet-title" id="bsCatTitle">New category</h2>
+          <button class="bs-sheet-close" id="bsCatClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <label class="bs-field-label">Pick a category</label>
+        <div class="bs-presets" id="bsPresets"></div>
+        <label class="bs-field-label" for="bsCatName">Or name your own</label>
+        <input class="bs-input" id="bsCatName" type="text" placeholder="e.g. Waist" autocomplete="off" />
+        <label class="bs-field-label" for="bsCatUnit">Unit</label>
+        <input class="bs-input" id="bsCatUnit" type="text" placeholder="e.g. cm, kg, lbs, in" autocomplete="off" />
+        <div class="bs-sheet-actions">
+          <button class="bs-btn bs-btn-ghost" id="bsCatCancel" type="button">Cancel</button>
+          <button class="bs-btn bs-btn-primary" id="bsCatSave" type="button">Save category</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Add measurement sheet -->
+    <div class="bs-backdrop" id="bsMeasBackdrop" hidden>
+      <div class="bs-sheet" id="bsMeasSheet" role="dialog" aria-modal="true">
+        <div class="bs-sheet-head">
+          <h2 class="bs-sheet-title" id="bsMeasTitle">Add measurement</h2>
+          <button class="bs-sheet-close" id="bsMeasClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <label class="bs-field-label" for="bsMeasValue">Measurement <span id="bsMeasUnit" class="bs-unit-hint"></span></label>
+        <input class="bs-input" id="bsMeasValue" type="number" inputmode="decimal" step="any" placeholder="Enter a number" />
+        <label class="bs-field-label" for="bsMeasDate">Date</label>
+        <input class="bs-input" id="bsMeasDate" type="date" />
+        <label class="bs-field-label" for="bsMeasNote">Note (optional)</label>
+        <input class="bs-input" id="bsMeasNote" type="text" placeholder="e.g. morning, after workout" autocomplete="off" />
+        <div class="bs-sheet-actions">
+          <button class="bs-btn bs-btn-ghost" id="bsMeasCancel" type="button">Cancel</button>
+          <button class="bs-btn bs-btn-primary" id="bsMeasSave" type="button">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Detail sheet: chart + history for one category -->
+    <div class="bs-backdrop" id="bsDetailBackdrop" hidden>
+      <div class="bs-sheet bs-sheet-lg" id="bsDetailSheet" role="dialog" aria-modal="true">
+        <div class="bs-sheet-head">
+          <h2 class="bs-sheet-title" id="bsDetailTitle">Category</h2>
+          <button class="bs-sheet-close" id="bsDetailClose" aria-label="Close"><i data-lucide="x"></i></button>
+        </div>
+        <div class="bs-chart-wrap">
+          <div class="bs-chart-stats">
+            <div class="bs-chart-stat"><span class="bs-chart-stat-label">Latest</span><span class="bs-chart-stat-val" id="bsStatLatest">–</span></div>
+            <div class="bs-chart-stat"><span class="bs-chart-stat-label">Change</span><span class="bs-chart-stat-val" id="bsStatChange">–</span></div>
+            <div class="bs-chart-stat"><span class="bs-chart-stat-label">Entries</span><span class="bs-chart-stat-val" id="bsStatCount">–</span></div>
+          </div>
+          <svg class="bs-chart" id="bsChart" viewBox="0 0 320 160" preserveAspectRatio="none"></svg>
+          <p class="bs-chart-empty" id="bsChartEmpty" hidden>Add at least 2 measurements to see your trend.</p>
+        </div>
+        <div class="bs-history-head">
+          <span>History</span>
+          <button class="bs-btn bs-btn-primary bs-btn-sm" id="bsDetailAdd" type="button"><i data-lucide="plus"></i> Add</button>
+        </div>
+        <div class="bs-history" id="bsHistory"></div>
+      </div>
+    </div>
+
+    <!-- Custom confirm -->
+    <div class="bs-confirm-wrap" id="bsConfirmWrap" hidden>
+      <div class="bs-confirm">
+        <p class="bs-confirm-msg" id="bsConfirmMsg">Are you sure?</p>
+        <div class="bs-confirm-actions">
+          <button class="bs-btn bs-btn-ghost" id="bsConfirmNo" type="button">Cancel</button>
+          <button class="bs-btn bs-btn-danger" id="bsConfirmYes" type="button">Remove</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="bs-toast" id="bsToast" hidden></div>
+
+    <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item active" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="bodystats.js"></script>
+  </body>
+</html>

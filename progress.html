@@ -1,0 +1,280 @@
+<!-- progress -->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Progress — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="progress.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wellness.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Progress</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+
+      <main class="screen pg-screen">
+        <section class="pg-intro">
+          <h2 class="pg-intro-title">Your progress, in pictures</h2>
+          <p class="pg-intro-sub">
+            Add dated photos to any category and watch how far you've come.
+            Combine two shots into a before &amp; after.
+          </p>
+        </section>
+
+        <section class="pg-summary">
+          <div class="pg-sum-item">
+            <span class="pg-sum-num" id="pgCatCount">0</span
+            ><span class="pg-sum-label">Categories</span>
+          </div>
+          <div class="pg-sum-div"></div>
+          <div class="pg-sum-item">
+            <span class="pg-sum-num" id="pgPhotoCount">0</span
+            ><span class="pg-sum-label">Photos</span>
+          </div>
+          <div class="pg-sum-div"></div>
+          <div class="pg-sum-item">
+            <span class="pg-sum-num" id="pgSpan">0</span
+            ><span class="pg-sum-label">Days tracked</span>
+          </div>
+        </section>
+
+        <section class="pg-cats" id="pgCats"></section>
+
+        <div class="pg-empty" id="pgEmpty">
+          <span class="pg-empty-icon"><i data-lucide="camera"></i></span>
+          <p class="pg-empty-title">No categories yet</p>
+          <p class="pg-empty-sub">
+            Tap the + button to make your first progress album.
+          </p>
+        </div>
+
+        <button class="pg-fab" id="pgFab" aria-label="Add category">
+          <i data-lucide="plus"></i>
+        </button>
+      </main>
+
+      <!-- Category sheet -->
+      <div class="pg-backdrop" id="pgCatBackdrop" hidden>
+        <div class="pg-sheet" role="dialog" aria-modal="true">
+          <div class="pg-sheet-head">
+            <h3 id="pgCatTitle">New category</h3>
+            <button class="pg-x" id="pgCatClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="pg-presets" id="pgPresets"></div>
+          <label class="pg-field"
+            ><span>Name</span
+            ><input
+              type="text"
+              id="pgCatName"
+              placeholder="e.g. Front pose, Skin, Hair"
+              maxlength="40"
+          /></label>
+          <button class="pg-btn pg-btn-primary" id="pgCatSave">
+            Create category
+          </button>
+        </div>
+      </div>
+
+      <!-- Photo add sheet -->
+      <div class="pg-backdrop" id="pgPhotoBackdrop" hidden>
+        <div class="pg-sheet" role="dialog" aria-modal="true">
+          <div class="pg-sheet-head">
+            <h3>Add photo</h3>
+            <button class="pg-x" id="pgPhotoClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <input type="file" id="pgPhotoFile" accept="image/*" hidden />
+          <button class="pg-drop" id="pgDrop" type="button">
+            <i data-lucide="image-plus"></i
+            ><span id="pgDropText">Tap to choose a photo</span>
+          </button>
+          <div class="pg-preview-wrap" id="pgPreviewWrap" hidden>
+            <img id="pgPreviewImg" alt="Selected photo preview" />
+          </div>
+          <label class="pg-field"
+            ><span>Date</span><input type="date" id="pgPhotoDate"
+          /></label>
+          <label class="pg-field"
+            ><span>Note (optional)</span
+            ><input
+              type="text"
+              id="pgPhotoNote"
+              placeholder="How you felt, weight, etc."
+              maxlength="80"
+          /></label>
+          <button class="pg-btn pg-btn-primary" id="pgPhotoSave" disabled>
+            Save photo
+          </button>
+        </div>
+      </div>
+
+      <!-- Detail / gallery sheet -->
+      <div class="pg-backdrop" id="pgDetailBackdrop" hidden>
+        <div class="pg-sheet pg-sheet-lg" role="dialog" aria-modal="true">
+          <div class="pg-sheet-head">
+            <h3 id="pgDetailName">Category</h3>
+            <button class="pg-x" id="pgDetailClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="pg-detail-bar">
+            <span class="pg-detail-count" id="pgDetailCount">0 photos</span>
+            <div class="pg-detail-actions">
+              <button class="pg-chip-btn" id="pgCompareBtn">
+                <i data-lucide="columns-2"></i> Compare
+              </button>
+              <button class="pg-chip-btn" id="pgDetailAdd">
+                <i data-lucide="plus"></i> Photo
+              </button>
+            </div>
+          </div>
+          <p class="pg-compare-hint" id="pgCompareHint" hidden>
+            Select two photos to build a before &amp; after.
+          </p>
+          <div class="pg-gallery" id="pgGallery"></div>
+          <div class="pg-gallery-empty" id="pgGalleryEmpty" hidden>
+            No photos in this category yet.
+          </div>
+          <button class="pg-btn pg-btn-danger-ghost" id="pgDeleteCat">
+            <i data-lucide="trash-2"></i> Delete category
+          </button>
+          <div class="pg-compare-actions" id="pgCompareActions" hidden>
+            <button class="pg-btn pg-btn-ghost" id="pgCompareCancel">
+              Cancel
+            </button>
+            <button class="pg-btn pg-btn-primary" id="pgCompareGo" disabled>
+              Combine (0/2)
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Collage / before-after builder -->
+      <div class="pg-backdrop" id="pgCollageBackdrop" hidden>
+        <div class="pg-sheet pg-sheet-lg" role="dialog" aria-modal="true">
+          <div class="pg-sheet-head">
+            <h3>Before &amp; After</h3>
+            <button class="pg-x" id="pgCollageClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="pg-layout-toggle">
+            <button
+              class="pg-seg pg-seg-on"
+              data-layout="side"
+              id="pgLayoutSide"
+            >
+              <i data-lucide="columns-2"></i> Side by side
+            </button>
+            <button class="pg-seg" data-layout="stack" id="pgLayoutStack">
+              <i data-lucide="rows-2"></i> Stacked
+            </button>
+          </div>
+          <label class="pg-check"
+            ><input type="checkbox" id="pgLabelToggle" checked />
+            <span>Show Before / After labels</span></label
+          >
+          <div class="pg-collage-frame">
+            <canvas id="pgCanvas" width="720" height="720"></canvas>
+          </div>
+          <button class="pg-btn pg-btn-primary" id="pgCollageSave">
+            <i data-lucide="check"></i> Save to category
+          </button>
+        </div>
+      </div>
+
+      <!-- Photo viewer -->
+      <div class="pg-backdrop pg-viewer" id="pgViewerBackdrop" hidden>
+        <button class="pg-x pg-viewer-x" id="pgViewerClose" aria-label="Close">
+          <i data-lucide="x"></i>
+        </button>
+        <img id="pgViewerImg" alt="Photo" />
+        <div class="pg-viewer-meta" id="pgViewerMeta"></div>
+        <button class="pg-viewer-del" id="pgViewerDel">
+          <i data-lucide="trash-2"></i> Delete photo
+        </button>
+      </div>
+
+      <!-- Custom confirm -->
+      <div class="pg-confirm-wrap" id="pgConfirmWrap" hidden>
+        <div class="pg-confirm">
+          <p id="pgConfirmMsg">Are you sure?</p>
+          <div class="pg-confirm-btns">
+            <button class="pg-btn pg-btn-ghost" id="pgConfirmNo">Cancel</button>
+            <button class="pg-btn pg-btn-danger" id="pgConfirmYes">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="pg-toast" id="pgToast" hidden></div>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item active" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Amount input sheet -->
+    <div class="bl-backdrop" id="blBackdrop" hidden></div>
+    <div class="bl-sheet" id="blSheet" hidden>
+      <div class="bl-sheet-head">
+        <span class="bl-sheet-title" id="blSheetTitle">Add money</span>
+        <button class="bl-icon-btn" id="blSheetClose">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="bl-sheet-body" id="blSheetBody"></div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="progress.js"></script>
+  </body>
+</html>
+
+<!-- wk -->

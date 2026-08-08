@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Wellness — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="index.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Wellness</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">—</span>
+          <span class="date-month" id="dateMonth">—</span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- System intro card -->
+        <section class="greeting-card">
+          <p class="greeting-eyebrow">Wellness</p>
+          <h2 class="greeting-title">Care for Your Body</h2>
+          <p class="greeting-sub">
+            Move, nourish, and track your progress over time
+          </p>
+        </section>
+
+        <!-- Tools -->
+        <section class="systems">
+          <h3 class="section-label">Tools</h3>
+          <div class="grid">
+            <article class="app-card" data-href="workout.html">
+              <span class="app-icon"><i data-lucide="dumbbell"></i></span>
+              <div class="app-text">
+                <span class="app-name">Workout Planner</span>
+                <span class="app-desc"
+                  >Build workouts with reps, sets &amp; tutorial links</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article class="app-card" data-href="mealplanner.html">
+              <span class="app-icon"><i data-lucide="utensils"></i></span>
+              <div class="app-text">
+                <span class="app-name">Meal Planner</span>
+                <span class="app-desc"
+                  >Plan breakfast, lunch, dinner &amp; snacks</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article class="app-card" data-href="bodystats.html">
+              <span class="app-icon"><i data-lucide="ruler"></i></span>
+              <div class="app-text">
+                <span class="app-name">Body Stats</span>
+                <span class="app-desc"
+                  >Log your height &amp; weight over time</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+            <article class="app-card" data-href="progress.html">
+              <span class="app-icon"><i data-lucide="camera"></i></span>
+              <div class="app-text">
+                <span class="app-name">Progress</span>
+                <span class="app-desc"
+                  >Add dated photos to track how far you've come</span
+                >
+              </div>
+              <i data-lucide="chevron-right" class="app-arrow"></i>
+            </article>
+          </div>
+        </section>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item active" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

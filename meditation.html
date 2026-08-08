@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meditation Timer — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="meditation.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="mindset.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Meditation</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <section class="mt-intro">
+          <h2 class="mt-intro-title">Find your calm</h2>
+          <p class="mt-intro-sub">
+            Set a timer for meditation, focus, or a quick reset. A gentle chime
+            rings when your time is up.
+          </p>
+        </section>
+
+        <section class="mt-quick">
+          <div class="mt-quick-head">
+            <span class="mt-quick-name" id="mtDefaultName">Meditation</span>
+            <span class="mt-quick-tag">Default</span>
+          </div>
+          <div class="mt-quick-time" id="mtDefaultTime">10:00</div>
+          <div class="mt-quick-steps">
+            <div class="mt-step-group">
+              <button
+                class="mt-step"
+                id="mtDefMinDown"
+                type="button"
+                aria-label="One minute less"
+              >
+                <i data-lucide="minus"></i>
+              </button>
+              <span class="mt-step-label">min</span>
+              <button
+                class="mt-step"
+                id="mtDefMinUp"
+                type="button"
+                aria-label="One minute more"
+              >
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+            <div class="mt-step-group">
+              <button
+                class="mt-step"
+                id="mtDefSecDown"
+                type="button"
+                aria-label="Five seconds less"
+              >
+                <i data-lucide="minus"></i>
+              </button>
+              <span class="mt-step-label">sec</span>
+              <button
+                class="mt-step"
+                id="mtDefSecUp"
+                type="button"
+                aria-label="Five seconds more"
+              >
+                <i data-lucide="plus"></i>
+              </button>
+            </div>
+          </div>
+          <button class="mt-start-btn" id="mtDefStart" type="button">
+            <i data-lucide="play"></i><span>Start</span>
+          </button>
+        </section>
+
+        <div class="mt-list-head">
+          <span class="mt-list-title">YOUR SESSIONS</span>
+          <button class="mt-add-btn" id="mtNew" type="button">
+            <i data-lucide="plus"></i><span>New</span>
+          </button>
+        </div>
+        <section class="mt-list" id="mtList"></section>
+        <div class="mt-empty" id="mtEmpty">
+          <i data-lucide="timer"></i>
+          <p class="mt-empty-title">No saved sessions yet</p>
+          <p class="mt-empty-sub">
+            Tap “New” to make a session with its own name and length.
+          </p>
+        </div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item active" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+
+      <!-- Timer runner -->
+      <div class="mt-runner" id="mtRunner" hidden>
+        <button class="mt-runner-back" id="mtRunBack" type="button">
+          <i data-lucide="chevron-left"></i>
+        </button>
+        <div class="mt-runner-name" id="mtRunName">Meditation</div>
+        <div class="mt-dial">
+          <svg class="mt-ring" viewBox="0 0 220 220">
+            <circle class="mt-ring-bg" cx="110" cy="110" r="100"></circle>
+            <circle
+              class="mt-ring-fg"
+              id="mtRing"
+              cx="110"
+              cy="110"
+              r="100"
+            ></circle>
+          </svg>
+          <div class="mt-dial-time" id="mtRunTime">10:00</div>
+        </div>
+        <div class="mt-runner-controls">
+          <button
+            class="mt-round-btn"
+            id="mtReset"
+            type="button"
+            aria-label="Reset"
+          >
+            <i data-lucide="rotate-ccw"></i>
+          </button>
+          <button
+            class="mt-play-btn"
+            id="mtToggle"
+            type="button"
+            aria-label="Play or pause"
+          >
+            <i data-lucide="play"></i>
+          </button>
+          <button
+            class="mt-round-btn"
+            id="mtStop"
+            type="button"
+            aria-label="Stop"
+          >
+            <i data-lucide="square"></i>
+          </button>
+        </div>
+        <div class="mt-runner-hint" id="mtRunHint">
+          Breathe in… breathe out.
+        </div>
+        <button class="mt-dismiss-btn" id="mtDismiss" type="button" hidden>
+          <i data-lucide="bell-off"></i><span>Stop chime</span>
+        </button>
+      </div>
+
+      <!-- Session sheet -->
+      <div class="mt-backdrop" id="mtSheetWrap" hidden>
+        <div class="mt-sheet" role="dialog" aria-modal="true">
+          <div class="mt-sheet-grip"></div>
+          <h3 class="mt-sheet-title" id="mtSheetTitle">New session</h3>
+          <label class="mt-field-label" for="mtNameInput">Name</label>
+          <input
+            class="mt-input"
+            id="mtNameInput"
+            type="text"
+            maxlength="30"
+            placeholder="e.g. Deep focus"
+          />
+          <label class="mt-field-label">Length</label>
+          <div class="mt-len-row">
+            <div class="mt-len-col">
+              <button
+                class="mt-step"
+                id="mtLenMinUp"
+                type="button"
+                aria-label="More minutes"
+              >
+                <i data-lucide="chevron-up"></i>
+              </button>
+              <div class="mt-len-num"><span id="mtLenMin">10</span></div>
+              <button
+                class="mt-step"
+                id="mtLenMinDown"
+                type="button"
+                aria-label="Fewer minutes"
+              >
+                <i data-lucide="chevron-down"></i>
+              </button>
+              <span class="mt-len-cap">min</span>
+            </div>
+            <span class="mt-len-colon">:</span>
+            <div class="mt-len-col">
+              <button
+                class="mt-step"
+                id="mtLenSecUp"
+                type="button"
+                aria-label="More seconds"
+              >
+                <i data-lucide="chevron-up"></i>
+              </button>
+              <div class="mt-len-num"><span id="mtLenSec">00</span></div>
+              <button
+                class="mt-step"
+                id="mtLenSecDown"
+                type="button"
+                aria-label="Fewer seconds"
+              >
+                <i data-lucide="chevron-down"></i>
+              </button>
+              <span class="mt-len-cap">sec</span>
+            </div>
+          </div>
+          <div class="mt-chip-row" id="mtChipRow">
+            <button class="mt-chip" type="button" data-sec="300">5:00</button>
+            <button class="mt-chip" type="button" data-sec="600">10:00</button>
+            <button class="mt-chip" type="button" data-sec="900">15:00</button>
+            <button class="mt-chip" type="button" data-sec="1200">20:00</button>
+          </div>
+          <div class="mt-sheet-actions">
+            <button
+              class="mt-btn-ghost"
+              id="mtSheetDelete"
+              type="button"
+              hidden
+            >
+              Delete
+            </button>
+            <button class="mt-btn-solid" id="mtSheetSave" type="button">
+              Save session
+            </button>
+          </div>
+          <button
+            class="mt-sheet-close"
+            id="mtSheetClose"
+            type="button"
+            aria-label="Close"
+          >
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Confirm -->
+      <div class="mt-backdrop" id="mtConfirmWrap" hidden>
+        <div class="mt-confirm" role="alertdialog" aria-modal="true">
+          <p class="mt-confirm-msg" id="mtConfirmMsg">Delete this session?</p>
+          <div class="mt-confirm-actions">
+            <button class="mt-btn-ghost" id="mtConfirmNo" type="button">
+              Cancel
+            </button>
+            <button class="mt-btn-danger" id="mtConfirmYes" type="button">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-toast" id="mtToast" hidden></div>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="meditation.js"></script>
+  </body>
+</html>

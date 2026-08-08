@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Assignments — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="assignments.css" />
+  </head>
+
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a href="planner.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Assignments</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+      <main class="screen as-screen">
+        <div class="as-tabs" id="asTabs">
+          <button class="as-tab active" data-view="classes">My classes</button>
+          <button class="as-tab" data-view="work">All work</button>
+        </div>
+        <section id="asWorkView">
+          <div class="as-summary" id="asSummary"></div>
+          <div id="asWorkList" class="as-worklist"></div>
+        </section>
+        <section id="asClassesView" hidden>
+          <p class="as-hint" id="asClassHint">
+            Step 1: set up your classes. Then open a class to add its
+            assignments, exams &amp; tasks &mdash; they&rsquo;ll show on your
+            Calendar automatically.
+          </p>
+          <div id="asClassList" class="as-classlist"></div>
+          <div id="asTimetable" class="as-timetable"></div>
+        </section>
+        <section id="asDetailView" hidden>
+          <button class="as-detail-back" id="asDetailBack">
+            <i data-lucide="arrow-left"></i> All classes
+          </button>
+          <span id="asDetailTitle" hidden></span>
+          <div class="as-detail-card" id="asDetailCard"></div>
+          <button class="as-detail-addwork" id="asDetailAddWork">
+            <i data-lucide="plus"></i> Add work to this class
+          </button>
+          <div id="asDetailWork" class="as-detailwork"></div>
+        </section>
+      </main>
+      <button class="as-fab" id="asFab" aria-label="Add">
+        <i data-lucide="plus"></i>
+      </button>
+      <div class="as-backdrop" id="asBackdrop" hidden></div>
+      <div class="as-sheet" id="asSheet" hidden>
+        <div class="as-sheet-head">
+          <h2 id="asSheetTitle">New assignment</h2>
+          <button class="as-sheet-close" id="asSheetClose" aria-label="Close">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div id="asSheetBody"></div>
+      </div>
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="assignments.js"></script>
+  </body>
+</html>

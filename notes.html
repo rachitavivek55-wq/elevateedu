@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notes — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="notes.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a class="back-btn" href="planner.html"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Notes</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+
+      <main class="screen nt-screen">
+        <!-- ===== Sections list view ===== -->
+        <section id="ntListView">
+          <p class="nt-hint" id="ntHint">
+            Make a section for anything &mdash; teachers, random thoughts, class
+            notes. Open one to start writing.
+          </p>
+          <div id="ntSectionList"></div>
+          <div class="nt-empty" id="ntEmpty" hidden>
+            <i data-lucide="notebook-pen"></i>
+            <p class="nt-empty-title">No sections yet.</p>
+            <p class="nt-empty-sub">
+              Tap the + button to make your first section, like
+              &ldquo;Teachers&rdquo; or &ldquo;Random thoughts&rdquo;.
+            </p>
+          </div>
+        </section>
+
+        <!-- ===== Notes-in-section view ===== -->
+        <section id="ntSectionView" hidden>
+          <button class="nt-back-link" id="ntSectionBack">
+            <i data-lucide="chevron-left"></i> All sections
+          </button>
+          <div class="nt-section-head">
+            <h2 class="nt-section-title" id="ntSectionName">Section</h2>
+            <button
+              class="nt-icon-btn"
+              id="ntSectionEdit"
+              title="Rename or delete"
+            >
+              <i data-lucide="pencil"></i>
+            </button>
+          </div>
+          <div id="ntNoteList"></div>
+          <div class="nt-empty" id="ntNoteEmpty" hidden>
+            <i data-lucide="file-pen-line"></i>
+            <p class="nt-empty-title">No notes here yet.</p>
+            <p class="nt-empty-sub">Tap the + button to add a note.</p>
+          </div>
+        </section>
+
+        <!-- ===== Editor view ===== -->
+        <section id="ntEditorView" hidden>
+          <button class="nt-back-link" id="ntEditorBack">
+            <i data-lucide="chevron-left"></i>
+            <span id="ntEditorBackLabel">Back</span>
+          </button>
+          <input
+            class="nt-title-input"
+            id="ntNoteTitle"
+            placeholder="Note title"
+          />
+          <div class="nt-toolbar" id="ntToolbar">
+            <button class="nt-tool" data-cmd="bold" title="Bold">
+              <i data-lucide="bold"></i>
+            </button>
+            <button class="nt-tool" data-cmd="italic" title="Italic">
+              <i data-lucide="italic"></i>
+            </button>
+            <button class="nt-tool" data-cmd="underline" title="Underline">
+              <i data-lucide="underline"></i>
+            </button>
+            <button
+              class="nt-tool"
+              data-cmd="strikeThrough"
+              title="Strikethrough"
+            >
+              <i data-lucide="strikethrough"></i>
+            </button>
+            <span class="nt-tool-sep"></span>
+            <button class="nt-tool" data-cmd="hiliteColor" title="Highlight">
+              <i data-lucide="highlighter"></i>
+            </button>
+            <span class="nt-tool-sep"></span>
+            <button
+              class="nt-tool"
+              data-cmd="insertUnorderedList"
+              title="Bullet list"
+            >
+              <i data-lucide="list"></i>
+            </button>
+            <button
+              class="nt-tool"
+              data-cmd="insertOrderedList"
+              title="Numbered list"
+            >
+              <i data-lucide="list-ordered"></i>
+            </button>
+            <span class="nt-tool-sep"></span>
+            <button
+              class="nt-tool"
+              data-cmd="formatBlock"
+              data-val="h3"
+              title="Heading"
+            >
+              <i data-lucide="heading"></i>
+            </button>
+            <button
+              class="nt-tool"
+              data-cmd="removeFormat"
+              title="Clear formatting"
+            >
+              <i data-lucide="eraser"></i>
+            </button>
+          </div>
+          <div
+            class="nt-editor"
+            id="ntEditor"
+            contenteditable="true"
+            spellcheck="true"
+            data-placeholder="Write or paste anything here&hellip;"
+          ></div>
+          <p class="nt-saved" id="ntSavedNote">Saved automatically</p>
+        </section>
+      </main>
+
+      <button class="nt-fab" id="ntFab" title="Add">
+        <i data-lucide="plus"></i>
+      </button>
+
+      <!-- ===== Bottom sheet (name section / rename) ===== -->
+      <div class="nt-backdrop" id="ntBackdrop" hidden></div>
+      <div class="nt-sheet" id="ntSheet" hidden>
+        <div class="nt-sheet-head">
+          <h3 id="ntSheetTitle">New section</h3>
+          <button class="nt-icon-btn" id="ntSheetClose">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <div class="nt-sheet-body" id="ntSheetBody"></div>
+      </div>
+
+      <!-- ===== Custom confirm ===== -->
+      <div class="nt-confirm-wrap" id="ntConfirmWrap" hidden>
+        <div class="nt-confirm">
+          <p id="ntConfirmMsg">Are you sure?</p>
+          <div class="nt-confirm-row">
+            <button class="nt-btn-ghost" id="ntConfirmNo">Cancel</button>
+            <button class="nt-btn-danger" id="ntConfirmYes">Delete</button>
+          </div>
+        </div>
+      </div>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="notes.js"></script>
+  </body>
+</html>

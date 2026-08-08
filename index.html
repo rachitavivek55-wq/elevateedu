@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  </head>
+  <body>
+    <!-- Auth Screen Overlay -->
+    <div id="elevateAuthScreen" class="auth-overlay" style="display: none">
+      <div class="auth-box">
+        <div class="auth-logo"><i data-lucide="graduation-cap"></i></div>
+        <h2 class="auth-title">ElevateEdu</h2>
+        <p class="auth-subtitle">Sign in or create an account</p>
+        <form id="elevateAuthForm" class="auth-form">
+          <input
+            type="email"
+            id="elevateAuthEmail"
+            placeholder="Your email"
+            required
+            style="
+              width: 100%;
+              padding: 10px;
+              border: 1px solid var(--beige);
+              border-radius: 8px;
+              font-family: inherit;
+              margin-bottom: 12px;
+            "
+          />
+          <button
+            type="submit"
+            style="
+              width: 100%;
+              padding: 10px;
+              background: var(--coffee);
+              color: var(--cream);
+              border: none;
+              border-radius: 8px;
+              font-family: inherit;
+              font-weight: 500;
+              cursor: pointer;
+              font-size: 14px;
+            "
+          >
+            Send magic link to email
+          </button>
+        </form>
+        <p
+          id="elevateAuthMsg"
+          class="auth-msg"
+          style="
+            font-size: 12px;
+            color: var(--coffee);
+            opacity: 0.7;
+            margin-top: 12px;
+            text-align: center;
+            min-height: 20px;
+          "
+        ></p>
+        <p
+          id="elevateAuthNote"
+          class="auth-note"
+          style="
+            font-size: 11px;
+            color: var(--coffee);
+            opacity: 0.5;
+            margin-top: 16px;
+            text-align: center;
+          "
+        >
+          Check your email for a sign-in link. It expires in 1 hour.
+        </p>
+      </div>
+    </div>
+
+    <div class="phone">
+      <!-- Title Bar -->
+      <header class="titlebar">
+        <div class="brand">
+          <span class="brand-mark"><i data-lucide="graduation-cap"></i></span>
+          <h1 class="brand-name">ElevateEdu</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">—</span>
+          <span class="date-month" id="dateMonth">—</span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- Greeting Card -->
+        <section class="greeting-card">
+          <p class="greeting-eyebrow">Home</p>
+          <h2 class="greeting-title">Welcome Back!</h2>
+          <p class="greeting-sub">Take a breath and focus today</p>
+        </section>
+
+        <!-- Systems Grid -->
+        <section class="systems">
+          <h3 class="section-label">Your Systems</h3>
+          <div class="grid">
+            <article class="tile">
+              <span class="tile-icon"
+                ><i data-lucide="calendar-check"></i
+              ></span>
+              <span class="tile-name">Planner</span>
+              <span class="tile-metric">No tasks yet</span>
+            </article>
+            <article class="tile">
+              <span class="tile-icon"><i data-lucide="wallet"></i></span>
+              <span class="tile-name">Wallet</span>
+              <span class="tile-metric">Set up</span>
+            </article>
+            <article class="tile">
+              <span class="tile-icon"><i data-lucide="heart-pulse"></i></span>
+              <span class="tile-name">Wellness</span>
+              <span class="tile-metric">Start</span>
+            </article>
+            <article class="tile">
+              <span class="tile-icon"><i data-lucide="brain"></i></span>
+              <span class="tile-name">Mindset</span>
+              <span class="tile-metric">Begin</span>
+            </article>
+            <article class="tile">
+              <span class="tile-icon"><i data-lucide="book-open"></i></span>
+              <span class="tile-name">Guides</span>
+              <span class="tile-metric">Explore</span>
+            </article>
+          </div>
+        </section>
+
+        <div class="premium-zone" id="elevatePremiumZone">
+          <button id="elevatePremiumBtn" class="premium-btn" type="button">
+            Upgrade to Premium
+          </button>
+          <p class="premium-note" id="elevatePremiumNote">
+            Unlock all features. Cancel anytime.
+          </p>
+        </div>
+
+        <div class="reset-zone">
+          <button id="elevateResetBtn" class="reset-btn" type="button">
+            Reset all data
+          </button>
+          <p class="reset-note" id="elevateResetNote">
+            Erases everything on this device. Rarely needed.
+          </p>
+        </div>
+      </main>
+
+      <!-- Bottom Navigation -->
+      <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+  </body>
+</html>

@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Meal Planner — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="mealplanner.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="wellness.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <span class="brand-name">Meal Planner</span>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">--</span>
+          <span class="date-month" id="dateMonth">---</span>
+        </div>
+      </header>
+
+      <main class="screen mp-screen">
+        <section class="mp-intro">
+          <h2 class="mp-intro-title">Plan what you'll eat</h2>
+          <p class="mp-intro-sub">
+            Build a library of meals, then schedule them onto your Planner
+            calendar &mdash; for one day or every week.
+          </p>
+        </section>
+
+        <section class="mp-summary">
+          <div class="mp-sum-item">
+            <span class="mp-sum-num" id="mpMealCount">0</span
+            ><span class="mp-sum-label">Meals</span>
+          </div>
+          <div class="mp-sum-div"></div>
+          <div class="mp-sum-item">
+            <span class="mp-sum-num" id="mpSchedCount">0</span
+            ><span class="mp-sum-label">Scheduled</span>
+          </div>
+          <div class="mp-sum-div"></div>
+          <div class="mp-sum-item">
+            <span class="mp-sum-num" id="mpWeekCount">0</span
+            ><span class="mp-sum-label">Weekly</span>
+          </div>
+        </section>
+
+        <div class="mp-tabs" id="mpTabs">
+          <button class="mp-tab mp-tab-on" data-type="all">All</button>
+          <button class="mp-tab" data-type="breakfast">Breakfast</button>
+          <button class="mp-tab" data-type="lunch">Lunch</button>
+          <button class="mp-tab" data-type="dinner">Dinner</button>
+          <button class="mp-tab" data-type="snack">Snacks</button>
+        </div>
+
+        <section class="mp-list" id="mpList"></section>
+
+        <div class="mp-empty" id="mpEmpty">
+          <span class="mp-empty-icon"><i data-lucide="utensils"></i></span>
+          <p class="mp-empty-title">No meals yet</p>
+          <p class="mp-empty-sub">Tap the + button to add your first meal.</p>
+        </div>
+
+        <button class="mp-fab" id="mpFab" aria-label="Add meal">
+          <i data-lucide="plus"></i>
+        </button>
+      </main>
+
+      <!-- Add / edit meal sheet -->
+      <div class="mp-backdrop" id="mpMealBackdrop" hidden>
+        <div class="mp-sheet" role="dialog" aria-modal="true">
+          <div class="mp-sheet-head">
+            <h3 id="mpMealTitle">Add a meal</h3>
+            <button class="mp-x" id="mpMealClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+
+          <div class="mp-field">
+            <span>Meal type</span>
+            <div class="mp-typesel" id="mpTypeSel">
+              <button
+                type="button"
+                class="mp-type mp-type-on"
+                data-type="breakfast"
+              >
+                <i data-lucide="sunrise"></i> Breakfast
+              </button>
+              <button type="button" class="mp-type" data-type="lunch">
+                <i data-lucide="sun"></i> Lunch
+              </button>
+              <button type="button" class="mp-type" data-type="dinner">
+                <i data-lucide="moon"></i> Dinner
+              </button>
+              <button type="button" class="mp-type" data-type="snack">
+                <i data-lucide="cookie"></i> Snack
+              </button>
+            </div>
+          </div>
+
+          <div class="mp-field" id="mpPresetWrap">
+            <span>Quick options</span>
+            <div class="mp-presets" id="mpPresets"></div>
+          </div>
+
+          <label class="mp-field"
+            ><span>Meal name</span
+            ><input
+              type="text"
+              id="mpName"
+              placeholder="e.g. Overnight oats"
+              maxlength="50"
+          /></label>
+          <label class="mp-field"
+            ><span>Ingredients (optional)</span
+            ><textarea
+              id="mpIngredients"
+              rows="2"
+              placeholder="Oats, milk, banana, honey&hellip;"
+              maxlength="240"
+            ></textarea>
+          </label>
+          <label class="mp-field"
+            ><span>Note (optional)</span
+            ><input
+              type="text"
+              id="mpNote"
+              placeholder="Prep time, calories, why you like it"
+              maxlength="120"
+          /></label>
+
+          <button class="mp-btn mp-btn-primary" id="mpMealSave">
+            Save meal
+          </button>
+        </div>
+      </div>
+
+      <!-- Schedule sheet -->
+      <div class="mp-backdrop" id="mpSchedBackdrop" hidden>
+        <div class="mp-sheet" role="dialog" aria-modal="true">
+          <div class="mp-sheet-head">
+            <h3 id="mpSchedTitle">Schedule meal</h3>
+            <button class="mp-x" id="mpSchedClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <p class="mp-sched-for" id="mpSchedFor"></p>
+
+          <div class="mp-field">
+            <span>When</span>
+            <div class="mp-seg-row">
+              <button type="button" class="mp-seg mp-seg-on" data-mode="single">
+                <i data-lucide="calendar"></i> One day
+              </button>
+              <button type="button" class="mp-seg" data-mode="weekly">
+                <i data-lucide="repeat"></i> Weekly
+              </button>
+            </div>
+          </div>
+
+          <label class="mp-field" id="mpDateWrap"
+            ><span>Date</span><input type="date" id="mpSchedDate"
+          /></label>
+
+          <div class="mp-field" id="mpDaysWrap" hidden>
+            <span>Repeat on</span>
+            <div class="mp-days" id="mpDays">
+              <button type="button" class="mp-day" data-dow="0">Su</button>
+              <button type="button" class="mp-day" data-dow="1">Mo</button>
+              <button type="button" class="mp-day" data-dow="2">Tu</button>
+              <button type="button" class="mp-day" data-dow="3">We</button>
+              <button type="button" class="mp-day" data-dow="4">Th</button>
+              <button type="button" class="mp-day" data-dow="5">Fr</button>
+              <button type="button" class="mp-day" data-dow="6">Sa</button>
+            </div>
+          </div>
+
+          <label class="mp-field"
+            ><span>Time (optional)</span><input type="time" id="mpSchedTime"
+          /></label>
+
+          <button class="mp-btn mp-btn-primary" id="mpSchedSave">
+            Add to calendar
+          </button>
+        </div>
+      </div>
+
+      <!-- Meal detail sheet -->
+      <div class="mp-backdrop" id="mpDetailBackdrop" hidden>
+        <div class="mp-sheet" role="dialog" aria-modal="true">
+          <div class="mp-sheet-head">
+            <h3 id="mpDetailName">Meal</h3>
+            <button class="mp-x" id="mpDetailClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <span class="mp-detail-type" id="mpDetailType"></span>
+          <div class="mp-detail-block" id="mpDetailIngWrap">
+            <span class="mp-detail-lbl">Ingredients</span>
+            <p id="mpDetailIng"></p>
+          </div>
+          <div class="mp-detail-block" id="mpDetailNoteWrap">
+            <span class="mp-detail-lbl">Note</span>
+            <p id="mpDetailNote"></p>
+          </div>
+          <div class="mp-detail-sched" id="mpDetailSched"></div>
+          <div class="mp-detail-actions">
+            <button class="mp-btn mp-btn-primary" id="mpDetailSchedule">
+              <i data-lucide="calendar-plus"></i> Schedule
+            </button>
+            <button class="mp-btn mp-btn-ghost" id="mpDetailEdit">
+              <i data-lucide="pencil"></i> Edit
+            </button>
+          </div>
+          <button class="mp-btn mp-btn-danger-ghost" id="mpDetailDelete">
+            <i data-lucide="trash-2"></i> Delete meal
+          </button>
+        </div>
+      </div>
+
+      <!-- Custom confirm -->
+      <div class="mp-confirm-wrap" id="mpConfirmWrap" hidden>
+        <div class="mp-confirm">
+          <p id="mpConfirmMsg">Are you sure?</p>
+          <div class="mp-confirm-btns">
+            <button class="mp-btn mp-btn-ghost" id="mpConfirmNo">Cancel</button>
+            <button class="mp-btn mp-btn-danger" id="mpConfirmYes">
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="mp-toast" id="mpToast" hidden></div>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item active" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- Amount input sheet -->
+    <div class="bl-backdrop" id="blBackdrop" hidden></div>
+    <div class="bl-sheet" id="blSheet" hidden>
+      <div class="bl-sheet-head">
+        <span class="bl-sheet-title" id="blSheetTitle">Add money</span>
+        <button class="bl-icon-btn" id="blSheetClose">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+      <div class="bl-sheet-body" id="blSheetBody"></div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="mealplanner.js"></script>
+  </body>
+</html>
+
+<!-- wk -->

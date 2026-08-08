@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gradebook — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="gradebook.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <header class="titlebar">
+        <div class="brand">
+          <a href="planner.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Gradebook</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay">—</span>
+          <span class="date-month" id="dateMonth">—</span>
+        </div>
+      </header>
+
+      <main class="screen">
+        <!-- ===== BOOKS (grade years) view ===== -->
+        <section id="booksView">
+          <section class="greeting-card">
+            <p class="greeting-eyebrow">Gradebook</p>
+            <h2 class="greeting-title">Your Grade Books</h2>
+            <p class="greeting-sub">
+              One book for every year of school — tap a book to open it.
+            </p>
+          </section>
+
+          <div class="gb-books" id="gbBooks"></div>
+          <button class="gb-add-book" id="gbAddBook">
+            <i data-lucide="plus"></i><span>New grade book</span>
+          </button>
+        </section>
+
+        <!-- ===== INSIDE A BOOK ===== -->
+        <section id="bookView" hidden>
+          <div class="gb-book-head">
+            <button class="gb-link" id="gbBackToBooks">
+              <i data-lucide="chevron-left"></i> All books
+            </button>
+            <button class="gb-icon-btn" id="gbBookMenu" title="Book options">
+              <i data-lucide="settings-2"></i>
+            </button>
+          </div>
+
+          <div class="gb-book-title-row">
+            <h2 class="gb-book-title" id="gbBookTitle">9th Grade</h2>
+            <span class="gb-book-gpa" id="gbBookGpa">—</span>
+          </div>
+
+          <!-- period / category tabs -->
+          <div class="gb-periods" id="gbPeriods"></div>
+          <button class="gb-add-period" id="gbAddPeriod">
+            <i data-lucide="plus"></i> Add section
+          </button>
+
+          <!-- summary + classes -->
+          <div class="gb-section-summary" id="gbSectionSummary"></div>
+
+          <h3 class="section-label gb-classes-label">Classes</h3>
+          <div class="gb-classes" id="gbClasses"></div>
+
+          <div class="gb-actions">
+            <button class="gb-btn-primary" id="gbAddClass">
+              <i data-lucide="plus"></i> Add class / grade
+            </button>
+            <button class="gb-btn-ghost" id="gbShowProgress">
+              <i data-lucide="trending-up"></i> View progress
+            </button>
+          </div>
+        </section>
+
+        <!-- ===== PROGRESS view ===== -->
+        <section id="progressView" hidden>
+          <div class="gb-book-head">
+            <button class="gb-link" id="gbBackFromProgress">
+              <i data-lucide="chevron-left"></i> Back
+            </button>
+          </div>
+          <div class="gb-book-title-row">
+            <h2 class="gb-book-title">Progress over time</h2>
+          </div>
+          <p class="gb-progress-hint" id="gbProgressHint">
+            See how your average changes across your sections.
+          </p>
+
+          <div class="gb-chart-toolbar">
+            <label class="gb-field-inline">
+              <span>Track</span>
+              <select id="gbTrackSelect"></select>
+            </label>
+          </div>
+
+          <div class="gb-chart-wrap">
+            <svg
+              id="gbChart"
+              class="gb-chart"
+              viewBox="0 0 320 200"
+              preserveAspectRatio="none"
+            ></svg>
+            <div class="gb-chart-x" id="gbChartX"></div>
+          </div>
+          <div class="gb-chart-legend" id="gbChartLegend"></div>
+          <div class="gb-progress-table" id="gbProgressTable"></div>
+        </section>
+      </main>
+
+      <!-- ===== bottom nav ===== -->
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="house"></i></span
+          ><span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item active" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
+          ><span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span
+          ><span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="dumbbell"></i></span
+          ><span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span
+          ><span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span
+          ><span class="nav-label">Guides</span>
+        </button>
+      </nav>
+    </div>
+
+    <!-- ===== Modal / bottom sheet ===== -->
+    <div class="gb-backdrop" id="gbBackdrop" hidden>
+      <div class="gb-sheet" id="gbSheet" role="dialog" aria-modal="true">
+        <div class="gb-sheet-head">
+          <h3 id="gbSheetTitle">Add</h3>
+          <button class="gb-icon-btn" id="gbSheetClose">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+        <form id="gbForm" class="gb-form"></form>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="gradebook.js"></script>
+    <script src="gbscores.js"></script>
+  </body>
+</html>

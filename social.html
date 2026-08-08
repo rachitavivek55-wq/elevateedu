@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Social Smarts — ElevateEdu</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="social.css" />
+  </head>
+  <body>
+    <div class="phone">
+      <!-- Title Bar with back button -->
+      <header class="titlebar">
+        <div class="brand">
+          <a href="guides.html" class="back-btn"
+            ><i data-lucide="arrow-left"></i
+          ></a>
+          <h1 class="brand-name">Social Smarts</h1>
+        </div>
+        <div class="date-chip">
+          <span class="date-day" id="dateDay"></span>
+          <span class="date-month" id="dateMonth"></span>
+        </div>
+      </header>
+
+      <main class="screen lb-screen">
+        <p class="lb-intro">
+          Confidence, conversation and getting along with people — the social
+          stuff nobody really teaches you. Tap a topic to read more.
+        </p>
+
+        <div class="lb-chips" id="lbChips"></div>
+
+        <div class="lb-grid" id="lbGrid"></div>
+      </main>
+
+      <nav class="bottom-nav">
+        <button class="nav-item" data-tab="home">
+          <span class="nav-icon"><i data-lucide="home"></i></span>
+          <span class="nav-label">Home</span>
+        </button>
+        <button class="nav-item" data-tab="planner">
+          <span class="nav-icon"><i data-lucide="calendar-days"></i></span>
+          <span class="nav-label">Planner</span>
+        </button>
+        <button class="nav-item" data-tab="wallet">
+          <span class="nav-icon"><i data-lucide="wallet"></i></span>
+          <span class="nav-label">Wallet</span>
+        </button>
+        <button class="nav-item" data-tab="fitness">
+          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
+          <span class="nav-label">Wellness</span>
+        </button>
+        <button class="nav-item" data-tab="mindset">
+          <span class="nav-icon"><i data-lucide="brain"></i></span>
+          <span class="nav-label">Mindset</span>
+        </button>
+        <button class="nav-item active" data-tab="guides">
+          <span class="nav-icon"><i data-lucide="book-open"></i></span>
+          <span class="nav-label">Guides</span>
+        </button>
+      </nav>
+
+      <!-- Reader overlay -->
+      <div class="lb-reader" id="lbReader" hidden>
+        <div class="lb-reader-backdrop" id="lbReadBackdrop"></div>
+        <div class="lb-reader-panel">
+          <div class="lb-reader-bar">
+            <div class="lb-read-meta">
+              <span class="lb-read-tag" id="lbReadTag"></span>
+              <span class="lb-read-min" id="lbReadMin"></span>
+            </div>
+            <button class="lb-read-close" id="lbReadClose" aria-label="Close">
+              <i data-lucide="x"></i>
+            </button>
+          </div>
+          <div class="lb-reader-scroll">
+            <h2 class="lb-read-title" id="lbReadTitle"></h2>
+            <div class="lb-read-body" id="lbReadBody"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="script.js"></script>
+    <script src="social.js"></script>
+  </body>
+</html>
