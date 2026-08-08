@@ -188,5 +188,48 @@
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="script.js"></script>
 <script>document.getElementById('elevateUpgradeBtn').addEventListener('click',()=>{window.open('/pricing.html','_blank')});</script>
+
+    // Premium Feature Gating System
+    const premiumTools = ['assignments', 'progress', 'gradebook', 'wallet', 'fitness', 'meditation', 'balance', 'mindset'];
+    const freeTools = ['notes', 'planner', 'checklists', 'calendar'];
+    let currentUserPremium = false;
+
+    async function checkPremiumStatus() {
+      try {
+        const { data: { user } } = await supabase.auth.getSession();
+        if (!user) return false;
+        const { data, error } = await supabase.from('users').select('is_premium').eq('id', user.id).single();
+        currentUserPremium = data?.is_premium || false;
+        updateFeatureVisibility();
+        return currentUserPremium;
+      } catch (e) { console.log('Premium check:', e.message); return false; }
+    }
+
+    function updateFeatureVisibility() {
+      document.querySelectorAll('[data-tab]').forEach(tool => {
+        const toolName = tool.getAttribute('data-tab');
+        const isPremium = premiumTools.includes(toolName);
+        const isFree = freeTools.includes(toolName);
+
+        if (isPremium && !currentUserPremium) {
+          tool.style.opacity = '0.6';
+          tool.style.pointerEvents = 'none';
+          const overlay = document.createElement('div');
+          overlay.innerHTML = '<div style="position:absolute;inset:0;bg:rgba(0,0,0,0.3);border-radius:16px;display:flex;align-items:center;justify-content:center"><span style="background:#8b6f47;color:white;padding:8px 16px;border-radius:8px;font-weight:600">Premium</span>span></div>div>';
+          overlay.style.position = 'absolute';
+          overlay.style.inset = '0';
+          overlay.style.borderRadius = '16px';
+          overlay.style.display = 'flex';
+          overlay.style.alignItems = 'center';
+          overlay.style.justifyContent = 'center';
+          overlay.style.backgroundColor = 'rgba(0,0,0,0.2)';
+          tool.style.position = 'relative';
+          tool.appendChild(overlay);
+        }
+      });
+    }
+
+    // Check premium status on page load
+    document.addEventListener('DOMContentLoaded', checkPremiumStatus);
   </script>  </body>
 </html>
