@@ -1,68 +1,89 @@
 <!DOCTYPE html>
-  <html>
+<html>
   <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width">
-  <title>Pricing - ElevateEdu</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width">
+    <title>Upgrade - ElevateEdu</title>
   <style>
-  body{font-family:sans-serif;background:#f5f5f0;padding:60px 20px}
-.container{max-width:1200px;margin:0 auto}
-h1{text-align:center;margin-bottom:50px}
-.pricing{display:grid;grid-template-columns:1fr 1fr;gap:40px}
-.plan{background:white;padding:40px;border-radius:12px;box-shadow:0 2px 12px rgba(0,0,0,0.1)}
-.plan.premium{border:3px solid #8b6f47;transform:scale(1.05)}
-.badge{background:#8b6f47;color:white;padding:8px 16px;border-radius:20px;font-size:12px;margin-bottom:15px;display:inline-block}
-.price{font-size:48px;font-weight:bold;margin:15px 0}
-button{width:100%;padding:12px;border:none;border-radius:8px;font-size:16px;font-weight:bold;cursor:pointer}
-  .free{background:#f5f5f5;color:#333}
-.premium-btn{background:#8b6f47;color:white}
-.features{list-style:none;margin-top:30px}
-.feature{padding:12px 0;border-bottom:1px solid #eee}
-.included{color:#4caf50}
-.locked{color:#999;text-decoration:line-through}
-@media(max-width:768px){.pricing{grid-template-columns:1fr}.plan.premium{transform:scale(1)}}
-</style>
+    *{margin:0;padding:0;box-sizing:border-box}
+    body{font-family:system-ui,sans-serif;background:linear-gradient(135deg,#f5f5f0 0%,#ede7e1 100%);padding:20px;min-height:100vh;display:flex;align-items:center;justify-content:center}
+    .pricing-modal{background:white;border-radius:16px;box-shadow:0 8px 32px rgba(0,0,0,0.1);max-width:900px;width:100%;padding:40px;position:relative;overflow:hidden}
+    .close-btn{position:absolute;top:15px;right:15px;background:none;border:none;font-size:28px;color:#999;cursor:pointer}
+    .close-btn:hover{color:#333}
+    h1{text-align:center;font-size:32px;color:#2d2d2d;margin-bottom:30px;font-weight:600}
+    .plans-container{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-bottom:30px}
+    @media(max-width:768px){.plans-container{grid-template-columns:1fr}}
+    .plan{background:#fff;border:2px solid #f0f0f0;border-radius:14px;padding:30px;position:relative;transition:all 0.3s}
+    .plan:hover{border-color:#e0e0e0}
+    .plan.premium{border-color:#8b6f47;transform:scale(1.05)}
+    .plan.premium:hover{border-color:#7a5f3d}
+    .plan-header{margin-bottom:25px}
+    .plan-name{font-size:24px;font-weight:600;color:#2d2d2d;margin-bottom:8px}
+    .plan-price{font-size:42px;font-weight:700;color:#2d2d2d;margin-bottom:5px}
+    .plan-price span{font-size:16px;color:#666;font-weight:400}
+    .plan-storage{font-size:13px;color:#999;margin-top:12px}
+    .badge{display:inline-block;background:#8b6f47;color:white;padding:6px 14px;border-radius:20px;font-size:11px;font-weight:700;letter-spacing:0.5px;margin-bottom:15px}
+    .cta-button{width:100%;padding:14px 20px;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;transition:all 0.3s;margin:20px 0;font-family:system-ui,sans-serif}
+    .btn-current{background:#f0f0f0;color:#2d2d2d;border:1.5px solid #e0e0e0}
+    .btn-current:hover{background:#e8e8e8}
+    .btn-upgrade{background:#8b6f47;color:white}
+    .btn-upgrade:hover{background:#7a5f3d;transform:translateY(-2px);box-shadow:0 6px 16px rgba(139,111,71,0.25)}
+    .features-list{list-style:none}
+    .feature-item{padding:11px 0;border-bottom:1px solid #f5f5f5;font-size:14px;color:#2d2d2d;display:flex;align-items:center;gap:10px}
+    .feature-item:last-child{border-bottom:none}
+    .feature-icon{font-size:14px;font-weight:bold;width:18px}
+    .included{color:#4caf50}
+    .locked{color:#d0d0d0;text-decoration:line-through}
+    .feature-text.locked{color:#aaa}
+    </style>
   </head>
   <body>
-  <div class="container">
-  <h1>Choose Your Plan</h1>
-<div class="pricing">
-<div class="plan">
-<h2>Free</h2>
-<p>$0/month</p>
-<button class="free">Current Plan</button>
-<p style="font-size:12px;color:#666;margin:15px 0">5MB per file • 5MB total storage</p>
-<ul class="features">
-<li class="feature"><span class="included">✓</span> Notes</li>
-<li class="feature"><span class="included">✓</span> Calendar</li>
-  <li class="feature"><span class="included">✓</span> Checklists</li>
-  <li class="feature"><span class="locked">✕</span> Assignments</li>
-  <li class="feature"><span class="locked">✕</span> Progress Tracking</li>
-  <li class="feature"><span class="locked">✕</span> Gradebook</li>
-  <li class="feature"><span class="locked">✕</span> Planner</li>
-  <li class="feature"><span class="locked">✕</span> Meditation & Wellness</li>
-  <li class="feature"><span class="locked">✕</span> All Premium Tools</li>
-  </ul>
-  </div>
-  <div class="plan premium">
-  <div class="badge">Most Popular</div>
-  <h2>Premium</h2>
-  <p>$5/month</p>
-  <button class="premium-btn">Upgrade Now</button>
-  <p style="font-size:12px;color:#666;margin:15px 0">100MB per file • Unlimited storage</p>
-  <ul class="features">
-  <li class="feature"><span class="included">✓</span> Notes</li>
-  <li class="feature"><span class="included">✓</span> Calendar</li>
-  <li class="feature"><span class="included">✓</span> Checklists</li>
-  <li class="feature"><span class="included">✓</span> Assignments</li>
-  <li class="feature"><span class="included">✓</span> Progress Tracking</li>
-  <li class="feature"><span class="included">✓</span> Gradebook</li>
-  <li class="feature"><span class="included">✓</span> Planner</li>
-  <li class="feature"><span class="included">✓</span> Meditation & Wellness</li>
-  <li class="feature"><span class="included">✓</span> All Premium Tools</li>
-  </ul>
-  </div>
-  </div>
-  </div>
+    <div class="pricing-modal">
+      <button class="close-btn" onclick="window.history.back()">×</button>button>
+      <h1>Unlock Premium Features</h1>
+    <div class="plans-container">
+    <div class="plan">
+    <div class="plan-header">
+    <div class="plan-name">Free</div>div>
+    <div class="plan-price">$0<span>/mo</span></div>div>
+    <div class="plan-storage">5MB per file • 5MB storage</div>div>
+    </div>div>
+    <button class="cta-button btn-current">Current Plan</button>button>
+    <ul class="features-list">
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Notes</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Calendar</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Checklists</span></li>li>
+    <li class="feature-item"><span class="feature-icon locked">✕</span><span class="feature-text locked">Assignments</span></li>li>
+    <li class="feature-item"><span class="feature-icon locked">✕</span><span class="feature-text locked">Progress Tracking</span></li>li>
+    <li class="feature-item"><span class="feature-icon locked">✕</span><span class="feature-text locked">Gradebook</span></li>li>
+    <li class="feature-item"><span class="feature-icon locked">✕</span><span class="feature-text locked">Planner</span></li>li>
+    <li class="feature-item"><span class="feature-icon locked">✕</span><span class="feature-text locked">Wellness Tools</span></li>li>
+    </ul>ul>
+    </div>div>
+    <div class="plan premium">
+    <div class="badge">PREMIUM</div>div>
+    <div class="plan-header">
+    <div class="plan-name">Premium</div>div>
+    <div class="plan-price">$5<span>/mo</span></div>div>
+    <div class="plan-storage">100MB per file • Unlimited storage</div>div>
+    </div>div>
+    <button class="cta-button btn-upgrade" onclick="alert('Redirecting to checkout...')">Upgrade Now</button>button>
+    <ul class="features-list">
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Notes</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Calendar</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Checklists</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Assignments</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Progress Tracking</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Gradebook</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Planner</span></li>li>
+    <li class="feature-item"><span class="feature-icon included">✓</span><span>Wellness Tools</span></li>li>
+    </ul>ul>
+    </div>div>
+    </div>div>
+    </div>div>
   </body>
-  </html>
+</html></span></span></h1>
+  </body>
+  </style></title>
+  </head>
+</html>
