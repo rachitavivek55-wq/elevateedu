@@ -479,3 +479,96 @@ document.addEventListener('DOMContentLoaded', () => {
   loadUserFiles();
   markPremiumUI();
 });
+
+
+// ===== 12) Premium Gating (Calendar & Checklists free; everything else locked) =====
+(function () {
+  var STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_8x2aEXcgM2hq0iB3H00ZW00';
+  // Only these tools are free. Everything else requires Premium.
+  var FREE = ['home', 'planner', 'calendar', 'checklists'];
+  var isPremium = false;
+
+  function norm(s) { return (s || '').trim().toLowerCase(); }
+
+  function showPremiumModal() {
+    if (document.getElementById('elevatePremiumModal')) return;
+    var back = document.createElement('div');
+    back.id = 'elevatePremiumModal';
+    back.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;z-index:99999;padding:16px;box-sizing:border-box;';
+    var box = document.createElement('div');
+    box.style.cssText = 'background:#fff;border-radius:18px;width:100%;max-width:320px;max-height:90vh;overflow-y:auto;padding:26px 22px;text-align:center;box-shadow:0 12px 40px rgba(0,0,0,0.25);font-family:inherit;position:relative;box-sizing:border-box;';
+    box.innerHTML = '<button id="elevatePremiumClose" style="position:absolute;top:10px;right:12px;background:none;border:none;font-size:24px;color:#999;cursor:pointer;line-height:1;">&times;</button>'
+      + '<div style="font-size:34px;margin-bottom:8px;">&#11088;</div>'
+      + '<h2 style="font-size:20px;font-weight:700;color:#2d2d2d;margin:0 0 6px;">Unlock Premium</h2>'
+      + '<p style="font-size:14px;color:#555;margin:0 0 16px;line-height:1.4;">Get every tool, plus 100GB of storage.</p>'
+      + '<div style="font-size:34px;font-weight:800;color:#8b6f47;margin-bottom:2px;">$5<span style="font-size:15px;font-weight:500;color:#888;">/month</span></div>'
+      + '<p style="font-size:12px;color:#999;margin:0 0 18px;">All features. Cancel anytime.</p>'
+      + '<button id="elevatePremiumGo" style="width:100%;padding:14px;background:#8b6f47;color:#fff;border:none;border-radius:10px;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;">Upgrade for $5/month</button>';
+    back.appendChild(box);
+    document.body.appendChild(back);
+    back.addEventListener('click', function (e) { if (e.target === back) back.remove(); });
+    document.getElementById('elevatePremiumClose').addEventListener('click', function () { back.remove(); });
+    document.getElementById('elevatePremiumGo').addEventListener('click', function () { window.location.href = STRIPE_PAYMENT_LINK; });
+  }
+  window.elevateShowPremiumModal = showPremiumModal;
+
+  function lockEl(el, labelEl) {
+    if (labelEl) labelEl.style.textDecoration = 'line-through';
+    el.style.opacity = '0.5';
+    el.addEventListener('click', function (e) {
+      e.stopPropagation(); e.preventDefault(); showPremiumModal();
+    }, true);
+  }
+
+  function applyGating() {
+    if (isPremium) return;
+    // Home dashboard tiles
+    document.querySelectorAll('.tile').forEach(function (tile) {
+      var nameEl = tile.querySelector('.tile-name');
+      if (!nameEl) return;
+      if (FREE.indexOf(norm(nameEl.textContent)) !== -1) return;
+      lockEl(tile, nameEl);
+      var m = tile.querySelector('.tile-metric'); if (m) m.textContent = 'Premium';
+    });
+    // Bottom nav items (data-tab)
+    document.querySelectorAll('.nav-item').forEach(function (nav) {
+      var tab = norm(nav.getAttribute('data-tab'));
+      if (!tab || FREE.indexOf(tab) !== -1) return;
+      var label = nav.querySelector('.nav-label');
+      lockEl(nav, label);
+    });
+    // Sub-tool cards inside a system page (data-href)
+    document.querySelectorAll('.app-card[data-href]').forEach(function (card) {
+      var nameEl = card.querySelector('.app-name');
+      var key = norm(nameEl ? nameEl.textContent : '');
+      if (FREE.indexOf(key) !== -1) return;
+      lockEl(card, nameEl);
+    });
+    // Bottom upgrade button (home) opens the modal too
+    var upBtn = document.getElementById('elevatePremiumBtn');
+    if (upBtn) {
+      var clone = upBtn.cloneNode(true);
+      upBtn.parentNode.replaceChild(clone, upBtn);
+      clone.addEventListener('click', function (e) { e.preventDefault(); showPremiumModal(); });
+    }
+  }
+
+  async function detectPremium() {
+    try {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
+        var s = await c.auth.getSession();
+        var user = s && s.data && s.data.session ? s.data.session.user : null;
+        if (user) {
+          var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
+          isPremium = !!(r.data && r.data.is_premium);
+        }
+      }
+    } catch (e) { isPremium = false; }
+    applyGating();
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', detectPremium);
+  } else { detectPremium(); }
+})();
