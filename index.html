@@ -93,7 +93,7 @@
           <span class="date-day" id="dateDay">—</span>
           <span class="date-month" id="dateMonth">—</span>
         </div>
-                <button id="elevateUpgradeBtn" style="background:#8b6f47;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;margin-left:10px">Upgrade</button>button>
+                <button id="elevateUpgradeBtn" style="background:#8b6f47;color:white;border:none;padding:8px 16px;border-radius:8px;font-weight:600;cursor:pointer;font-size:14px;margin-left:10px">Upgrade</</button>>
       </header>
 
       <main class="screen">
@@ -187,8 +187,10 @@
     </div>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="script.js"></script>
-<script>document.getElementById('elevateUpgradeBtn').addEventListener('click',()=>{window.open('/pricing.html','_blank')});</script>
+<script>
+  document.getElementById('elevateUpgradeBtn').addEventListener('click',()=>{window.open('/pricing.html','_blank')});
 
+  // Premium Feature Gating System
     // Premium Feature Gating System
     const premiumTools = ['assignments', 'progress', 'gradebook', 'wallet', 'fitness', 'meditation', 'balance', 'mindset'];
     const freeTools = ['notes', 'planner', 'checklists', 'calendar'];
