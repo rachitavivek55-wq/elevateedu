@@ -531,3 +531,38 @@ body {
     padding-top: calc(42px + env(safe-area-inset-top));
   }
 }
+
+
+/* ===== Mobile app polish: no zoom, locked layout, nav pinned ===== */
+html, body {
+  overflow: hidden;
+  overscroll-behavior: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  touch-action: pan-y;
+}
+/* Inputs at >=16px so iOS never auto-zooms on focus */
+input, select, textarea, button {
+  font-size: 16px !important;
+}
+/* Only the middle screen area scrolls; smooth momentum, no bounce past edges */
+.screen {
+  -webkit-overflow-scrolling: touch;
+  overscroll-behavior: contain;
+}
+/* Nav stays at the very bottom, clear of the home indicator */
+.bottom-nav {
+  flex-shrink: 0;
+  padding-bottom: calc(20px + env(safe-area-inset-bottom));
+}
+@media (max-width: 480px), (display-mode: standalone) {
+  html, body { height: 100vh; height: 100dvh; }
+  .phone {
+    width: 100vw;
+    max-width: 100vw;
+    height: 100vh;
+    height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+}
