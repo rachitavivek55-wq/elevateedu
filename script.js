@@ -572,3 +572,33 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('DOMContentLoaded', detectPremium);
   } else { detectPremium(); }
 })();
+
+
+// ===== 13) Server-verified page guard for premium pages =====
+(function () {
+  var ALWAYS_ALLOWED = ['', 'index.html', 'planner.html', 'calendar.html', 'checklists.html', 'pricing.html'];
+  var path = window.location.pathname.split('/').pop().toLowerCase();
+  if (ALWAYS_ALLOWED.indexOf(path) !== -1) return; // free page, no guard
+
+  // Hide page content until verified to avoid a flash of premium tools
+  var style = document.createElement('style');
+  style.id = 'elevateGuardHide';
+  style.textContent = 'body{visibility:hidden!important}';
+  (document.head || document.documentElement).appendChild(style);
+
+  function reveal() { var s = document.getElementById('elevateGuardHide'); if (s) s.remove(); }
+  function block() { window.location.replace('pricing.html'); }
+
+  async function guard() {
+    try {
+      if (typeof supabase === 'undefined' || !supabase.createClient) { return block(); }
+      var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
+      var s = await c.auth.getSession();
+      var user = s && s.data && s.data.session ? s.data.session.user : null;
+      if (!user) { return block(); }
+      var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
+      if (r.data && r.data.is_premium) { reveal(); } else { block(); }
+    } catch (e) { block(); }
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', guard); } else { guard(); }
+})();
