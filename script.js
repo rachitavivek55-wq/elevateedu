@@ -483,7 +483,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // ===== 12) Premium Gating (Calendar & Checklists free; everything else locked) =====
 (function () {
-  var STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/test_8x2aEXcgM2hq0iB3H00ZW00';
+  var STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/14A4gz5RN4AKgQ27eY97G00';
   // Only these tools are free. Everything else requires Premium.
   var FREE = ['home', 'planner', 'calendar', 'checklists'];
   var isPremium = false;
