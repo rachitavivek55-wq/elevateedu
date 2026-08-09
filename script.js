@@ -650,3 +650,74 @@ document.addEventListener('DOMContentLoaded', () => {
     window.location.href = 'index.html';
   });
 })();
+
+
+/* ============================================================
+   SECTION 15 — PWA / Add-to-Home-Screen (installable app)
+   Injects manifest, icons, meta tags & registers service worker
+   so ElevateEdu installs to the home screen and opens fullscreen.
+   ============================================================ */
+(function(){
+  var COFFEE = '#6F4E37';
+  var CREAM  = '#F5E6CA';
+  // Graduation-cap (mortarboard) icon in ElevateEdu colors, as SVG.
+  function iconSVG(size){
+    return '<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 512 512">' +
+      '<rect width="512" height="512" rx="114" fill="'+CREAM+'"/>' +
+      '<g fill="none" stroke="'+COFFEE+'" stroke-width="26" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M256 150 L410 212 L256 274 L102 212 Z" fill="'+COFFEE+'"/>' +
+      '<path d="M154 236 L154 320 C154 356 205 380 256 380 C307 380 358 356 358 320 L358 236"/>' +
+      '<path d="M410 212 L410 300"/>' +
+      '<circle cx="410" cy="312" r="14" fill="'+COFFEE+'"/>' +
+      '</g></svg>';
+  }
+  function svgDataUri(size){
+    return 'data:image/svg+xml;utf8,' + encodeURIComponent(iconSVG(size));
+  }
+  function addLink(rel, href, extra){
+    var l = document.createElement('link'); l.rel = rel; l.href = href;
+    if(extra){ for(var k in extra){ l.setAttribute(k, extra[k]); } }
+    document.head.appendChild(l);
+  }
+  function addMeta(name, content){
+    var m = document.createElement('meta'); m.name = name; m.content = content;
+    document.head.appendChild(m);
+  }
+  // 1) Web App Manifest (built inline so no extra file needed)
+  var manifest = {
+    name: 'ElevateEdu',
+    short_name: 'ElevateEdu',
+    description: 'Your all-in-one student planner, wellness & mindset app.',
+    start_url: './index.html',
+    scope: './',
+    display: 'standalone',
+    orientation: 'portrait',
+    background_color: CREAM,
+    theme_color: COFFEE,
+    icons: [
+      { src: svgDataUri(192), sizes: '192x192', type: 'image/svg+xml', purpose: 'any' },
+      { src: svgDataUri(512), sizes: '512x512', type: 'image/svg+xml', purpose: 'any' },
+      { src: svgDataUri(512), sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
+    ]
+  };
+  try {
+    var blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+    addLink('manifest', URL.createObjectURL(blob));
+  } catch(e){}
+  // 2) Meta tags for install + status bar look
+  addMeta('theme-color', COFFEE);
+  addMeta('mobile-web-app-capable', 'yes');
+  addMeta('apple-mobile-web-app-capable', 'yes');
+  addMeta('apple-mobile-web-app-status-bar-style', 'default');
+  addMeta('apple-mobile-web-app-title', 'ElevateEdu');
+  addMeta('application-name', 'ElevateEdu');
+  // 3) Icons (Apple home-screen icon + favicon)
+  addLink('apple-touch-icon', svgDataUri(180));
+  addLink('icon', svgDataUri(512), {type:'image/svg+xml'});
+  // 4) Register the service worker (offline + installable)
+  if('serviceWorker' in navigator){
+    window.addEventListener('load', function(){
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    });
+  }
+})();
