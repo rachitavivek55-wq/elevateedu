@@ -721,3 +721,78 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 })();
+
+
+/* ============================================================
+   SECTION 16 — In-app 'Install app' button
+   Chrome/Android: uses beforeinstallprompt for one-tap install.
+   iOS Safari: shows a short hint to use Share > Add to Home Screen.
+   Hidden automatically once installed / running standalone.
+   ============================================================ */
+(function(){
+  var COFFEE = '#6F4E37';
+  var CREAM  = '#F5E6CA';
+  // If already installed / running as an app, do nothing.
+  function isStandalone(){
+    return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  }
+  if(isStandalone()) return;
+  if(localStorage.getItem('ee_install_dismissed') === '1') return;
+
+  var deferredPrompt = null;
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+
+  function makeBtn(){
+    if(document.getElementById('eeInstallBtn')) return document.getElementById('eeInstallBtn');
+    var b = document.createElement('button');
+    b.id = 'eeInstallBtn';
+    b.type = 'button';
+    b.innerHTML = '\u2193 Install app';
+    b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:9999;'+
+      'background:'+COFFEE+';color:'+CREAM+';border:none;border-radius:999px;'+
+      'padding:11px 20px;font-family:inherit;font-weight:600;font-size:14px;'+
+      'box-shadow:0 6px 18px rgba(75,56,50,0.28);cursor:pointer;opacity:0;transition:opacity .3s;';
+    var x = document.createElement('span');
+    x.innerHTML = '\u00d7';
+    x.title = 'Dismiss';
+    x.style.cssText = 'margin-left:10px;opacity:.75;font-weight:400;';
+    x.addEventListener('click', function(ev){ ev.stopPropagation();
+      localStorage.setItem('ee_install_dismissed','1'); b.remove();
+    });
+    b.appendChild(x);
+    document.body.appendChild(b);
+    requestAnimationFrame(function(){ b.style.opacity = '1'; });
+    return b;
+  }
+
+  function showIOSHint(){
+    var b = makeBtn();
+    b.firstChild.textContent = '\u2193 Add to Home Screen';
+    b.addEventListener('click', function(){
+      alert('To install ElevateEdu:\n\n1. Tap the Share button (the square with an up-arrow) at the bottom of Safari.\n2. Scroll down and tap \u201cAdd to Home Screen\u201d.\n3. Tap Add \u2014 ElevateEdu will appear as an app icon!');
+    });
+  }
+
+  // Chrome / Android / desktop Chrome
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault();
+    deferredPrompt = e;
+    var b = makeBtn();
+    b.addEventListener('click', function(){
+      if(!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(choice){
+        if(choice && choice.outcome === 'accepted'){ b.remove(); }
+        deferredPrompt = null;
+      });
+    });
+  });
+
+  window.addEventListener('appinstalled', function(){
+    var b = document.getElementById('eeInstallBtn'); if(b) b.remove();
+    localStorage.setItem('ee_install_dismissed','1');
+  });
+
+  // iOS never fires beforeinstallprompt — show hint after load.
+  if(isIOS){ window.addEventListener('load', function(){ setTimeout(showIOSHint, 1200); }); }
+})();
