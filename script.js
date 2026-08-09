@@ -743,6 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
 
   function makeBtn(){
+    if(!window.__eeAuthed){ return null; }
     if(document.getElementById('eeInstallBtn')) return document.getElementById('eeInstallBtn');
     var b = document.createElement('button');
     b.id = 'eeInstallBtn';
@@ -795,4 +796,20 @@ document.addEventListener('DOMContentLoaded', () => {
 
   // iOS never fires beforeinstallprompt — show hint after load.
   if(isIOS){ window.addEventListener('load', function(){ setTimeout(showIOSHint, 1200); }); }
+
+    // Gate install UI behind sign-in: poll session, reveal once authed
+    function eeTryReveal(){
+      if(deferredPrompt){ makeBtn(); }
+      else if(isIOS){ showIOSHint(); }
+    }
+    (function eeWatchAuth(){
+      try{
+        if(typeof getSession === 'function'){
+          getSession().then(function(s){
+            if(s && !window.__eeAuthed){ window.__eeAuthed = true; eeTryReveal(); }
+          }).catch(function(){});
+        }
+      }catch(e){}
+      if(!window.__eeAuthed){ setTimeout(eeWatchAuth, 2000); }
+    })();
 })();
