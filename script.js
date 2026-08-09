@@ -602,3 +602,51 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', guard); } else { guard(); }
 })();
+
+
+// ===== 14) Account deletion + legal links (App Store requirement) =====
+(function () {
+  var resetZone = document.querySelector('.reset-zone');
+  if (!resetZone) return; // only on home page
+
+  // Legal links
+  var legal = document.createElement('p');
+  legal.style.cssText = 'text-align:center;font-size:11px;margin-top:18px;';
+  legal.innerHTML = '<a href="privacy.html" style="color:#8b6f47;text-decoration:none;">Privacy Policy &amp; Terms</a>';
+  resetZone.parentNode.insertBefore(legal, resetZone.nextSibling);
+
+  // Delete account button
+  var wrap = document.createElement('div');
+  wrap.style.cssText = 'text-align:center;margin-top:14px;';
+  var btn = document.createElement('button');
+  btn.type = 'button';
+  btn.textContent = 'Delete account';
+  btn.style.cssText = 'background:none;border:none;color:#c0392b;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;';
+  var note = document.createElement('p');
+  note.style.cssText = 'font-size:11px;color:#999;margin-top:4px;';
+  note.textContent = 'Permanently deletes your account and all your data.';
+  wrap.appendChild(btn); wrap.appendChild(note);
+  legal.parentNode.insertBefore(wrap, legal.nextSibling);
+
+  var armed = false, t = null;
+  function disarm(){ armed=false; btn.textContent='Delete account'; note.textContent='Permanently deletes your account and all your data.'; if(t){clearTimeout(t);t=null;} }
+  btn.addEventListener('click', async function () {
+    if (!armed) { armed=true; btn.textContent='Tap again to permanently delete'; note.textContent='This cannot be undone. Tap again to confirm, or wait to cancel.'; t=setTimeout(disarm,4000); return; }
+    disarm();
+    try {
+      if (typeof supabase !== 'undefined' && supabase.createClient) {
+        var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
+        var s = await c.auth.getSession();
+        var user = s && s.data && s.data.session ? s.data.session.user : null;
+        if (user) {
+          try { await c.from('user_data').delete().eq('user_id', user.id); } catch(e){}
+          try { await c.from('profiles').delete().eq('id', user.id); } catch(e){}
+          try { await c.auth.signOut(); } catch(e){}
+        }
+      }
+    } catch (e) {}
+    try { Object.keys(localStorage).forEach(function(k){ localStorage.removeItem(k); }); } catch(e){}
+    alert('Your account and data have been deleted.');
+    window.location.href = 'index.html';
+  });
+})();
