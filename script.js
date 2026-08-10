@@ -926,23 +926,24 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   // Soft keyboard-style tick for general taps
   function playClick(){
-    if (muted()) return;
-    tone(2100, 0.035, 'square', 0.05);
-    tone(520, 0.045, 'sine', 0.09);
+    if(muted()) return;
+    tone(2000, 0.05, "square", 0.22);
+    tone(560, 0.06, "sine", 0.30);
   }
   // Bright two-note pop when checking something off
   function playCheck(){
-    if (muted()) return;
-    tone(660, 0.09, 'sine', 0.13);
-    tone(990, 0.12, 'sine', 0.12, 0.06);
+    if(muted()) return;
+    tone(660, 0.10, "sine", 0.34);
+    tone(990, 0.14, "sine", 0.30, 0.06);
   }
   // Gentle rising chime when adding to the calendar
   function playAdd(){
-    if (muted()) return;
-    tone(523, 0.12, 'sine', 0.11);
-    tone(659, 0.12, 'sine', 0.11, 0.07);
-    tone(784, 0.16, 'sine', 0.11, 0.14);
+    if(muted()) return;
+    tone(523, 0.13, "sine", 0.30);
+    tone(659, 0.13, "sine", 0.30, 0.07);
+    tone(784, 0.17, "sine", 0.30, 0.14);
   }
+
   window.eeSound = { click: playClick, check: playCheck, add: playAdd };
 
   var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -971,26 +972,103 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', function(){ playAdd(); }, true);
   }
 
-  // Floating mute / unmute toggle (small, unobtrusive, bottom-left)
-  function makeToggle(){
-    if (document.getElementById('eeSoundToggle')) return;
-    var b = document.createElement('button');
-    b.id = 'eeSoundToggle';
-    b.type = 'button';
-    b.title = 'Toggle sounds';
-    b.setAttribute('aria-label', 'Toggle sounds');
-    function paint(){ b.textContent = muted() ? '\uD83D\uDD07' : '\uD83D\uDD08'; }
-    b.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9998;width:40px;height:40px;border-radius:50%;border:none;background:rgba(111,78,55,0.85);color:#F5E6CA;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
-    paint();
-    b.addEventListener('click', function(ev){
-      ev.stopPropagation();
-      if (muted()) { localStorage.removeItem('ee_sound_off'); }
-      else { localStorage.setItem('ee_sound_off', '1'); }
-      paint();
-      if (!muted()) playClick();
+  // Settings gear (top-right) opens a panel: sounds, reset data, privacy & terms
+  function buildSettings(){
+    if(document.getElementById("eeSettingsBtn")) return;
+    var gear = document.createElement("button");
+    gear.id = "eeSettingsBtn";
+    gear.type = "button";
+    gear.title = "Settings";
+    gear.setAttribute("aria-label","Settings");
+    gear.innerHTML = "\u2699";
+    gear.style.cssText = "position:fixed;top:calc(env(safe-area-inset-top,0px) + 14px);right:calc(env(safe-area-inset-right,0px) + 14px);z-index:10000;width:38px;height:38px;border-radius:50%;border:none;background:rgba(111,78,55,0.90);color:#F5E6CA;font-size:19px;line-height:38px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.18);padding:0;";
+    document.body.appendChild(gear);
+
+    var overlay = document.createElement("div");
+    overlay.id = "eeSettingsOverlay";
+    overlay.style.cssText = "position:fixed;inset:0;z-index:10001;background:rgba(40,28,20,0.45);display:none;align-items:center;justify-content:center;padding:20px;";
+    var panel = document.createElement("div");
+    panel.style.cssText = "width:100%;max-width:320px;background:#F5E6CA;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,0.30);padding:22px 20px;font-family:Poppins,sans-serif;color:#4B3832;";
+    overlay.appendChild(panel);
+    document.body.appendChild(overlay);
+
+    function row(label){
+      var r = document.createElement("div");
+      r.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(111,78,55,0.18);";
+      var tx = document.createElement("span");
+      tx.textContent = label;
+      tx.style.cssText = "font-size:15px;font-weight:500;";
+      r.appendChild(tx);
+      return r;
+    }
+
+    var h = document.createElement("h2");
+    h.textContent = "Settings";
+    h.style.cssText = "margin:0 0 6px;font-size:20px;font-weight:700;color:#4B3832;";
+    panel.appendChild(h);
+
+    var sRow = row("Sounds");
+    var sBtn = document.createElement("button");
+    sBtn.type = "button";
+    function paintSound(){
+      var on = !muted();
+      sBtn.textContent = on ? "On" : "Off";
+      sBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:" + (on ? "#6F4E37" : "rgba(111,78,55,0.25)") + ";color:" + (on ? "#F5E6CA" : "#6F4E37") + ";";
+    }
+    paintSound();
+    sBtn.addEventListener("click", function(){
+      if(muted()){ localStorage.removeItem("ee_sound_off"); } else { localStorage.setItem("ee_sound_off","1"); }
+      paintSound();
+      if(!muted()) playClick();
     });
-    document.body.appendChild(b);
+    sRow.appendChild(sBtn);
+    panel.appendChild(sRow);
+
+    var rRow = row("Reset all data");
+    var rBtn = document.createElement("button");
+    rBtn.type = "button";
+    rBtn.textContent = "Reset";
+    rBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
+    var rArmed = false, rT = null;
+    function disarmReset(){ rArmed=false; rBtn.textContent="Reset"; rBtn.style.background="rgba(180,60,50,0.15)"; rBtn.style.color="#a23b2f"; if(rT){clearTimeout(rT);rT=null;} }
+    rBtn.addEventListener("click", function(){
+      if(!rArmed){
+        rArmed = true;
+        rBtn.textContent = "Tap to confirm";
+        rBtn.style.background = "#a23b2f";
+        rBtn.style.color = "#fff";
+        rT = setTimeout(disarmReset, 4000);
+        return;
+      }
+      var keys = [];
+      for(var i=0;i<localStorage.length;i++){ var k=localStorage.key(i); if(k && k.indexOf("elevate")===0) keys.push(k); }
+      keys.forEach(function(k){ localStorage.removeItem(k); });
+      location.reload();
+    });
+    rRow.appendChild(rBtn);
+    panel.appendChild(rRow);
+
+    var pRow = row("Privacy & Terms");
+    var pLink = document.createElement("a");
+    pLink.href = "privacy.html";
+    pLink.textContent = "View";
+    pLink.style.cssText = "min-width:64px;text-align:center;padding:7px 14px;border-radius:20px;font-size:14px;font-weight:600;text-decoration:none;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
+    pRow.appendChild(pLink);
+    panel.appendChild(pRow);
+
+    var close = document.createElement("button");
+    close.type = "button";
+    close.textContent = "Close";
+    close.style.cssText = "margin-top:18px;width:100%;padding:11px;border:none;border-radius:14px;background:#6F4E37;color:#F5E6CA;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;";
+    panel.appendChild(close);
+
+    function openPanel(){ paintSound(); disarmReset(); overlay.style.display="flex"; }
+    function closePanel(){ overlay.style.display="none"; }
+    gear.addEventListener("click", function(e){ e.stopPropagation(); openPanel(); });
+    close.addEventListener("click", closePanel);
+    overlay.addEventListener("click", function(e){ if(e.target===overlay) closePanel(); });
   }
-  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', makeToggle); }
-  else { makeToggle(); }
+
+  if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildSettings);
+  else buildSettings();
 })();
