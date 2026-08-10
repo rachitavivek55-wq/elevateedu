@@ -604,55 +604,24 @@ document.addEventListener('DOMContentLoaded', () => {
 })();
 
 
-// ===== 14) Account deletion + legal links (App Store requirement) =====
-(function () {
-  var resetZone = document.querySelector('.reset-zone');
-  if (!resetZone) return; // only on home page
-
-  // Legal links
-  var legal = document.createElement('p');
-  legal.style.cssText = 'text-align:center;font-size:11px;margin-top:18px;';
-  legal.innerHTML = '<a href="privacy.html" style="color:#8b6f47;text-decoration:none;">Privacy Policy &amp; Terms</a>';
-  resetZone.parentNode.insertBefore(legal, resetZone.nextSibling);
-
-  // Delete account button
-  var wrap = document.createElement('div');
-  wrap.style.cssText = 'text-align:center;margin-top:14px;';
-  var btn = document.createElement('button');
-  btn.type = 'button';
-  btn.textContent = 'Delete account';
-  btn.style.cssText = 'background:none;border:none;color:#c0392b;font-size:12px;cursor:pointer;font-family:inherit;text-decoration:underline;';
-  var note = document.createElement('p');
-  note.style.cssText = 'font-size:11px;color:#999;margin-top:4px;';
-  note.textContent = 'Permanently deletes your account and all your data.';
-  wrap.appendChild(btn); wrap.appendChild(note);
-  legal.parentNode.insertBefore(wrap, legal.nextSibling);
-
-  var armed = false, t = null;
-  function disarm(){ armed=false; btn.textContent='Delete account'; note.textContent='Permanently deletes your account and all your data.'; if(t){clearTimeout(t);t=null;} }
-  btn.addEventListener('click', async function () {
-    if (!armed) { armed=true; btn.textContent='Tap again to permanently delete'; note.textContent='This cannot be undone. Tap again to confirm, or wait to cancel.'; t=setTimeout(disarm,4000); return; }
-    disarm();
-    try {
-      if (typeof supabase !== 'undefined' && supabase.createClient) {
-        var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
-        var s = await c.auth.getSession();
-        var user = s && s.data && s.data.session ? s.data.session.user : null;
-        if (user) {
-          try { await c.from('user_data').delete().eq('user_id', user.id); } catch(e){}
-          try { await c.from('profiles').delete().eq('id', user.id); } catch(e){}
-          try { await c.auth.signOut(); } catch(e){}
-        }
+// ===== 14  Account deletion routine (exposed for Settings panel) =====
+window.eeDeleteAccount = async function(){
+  try {
+    if(typeof supabase !== "undefined" && supabase.createClient){
+      var c = supabase.createClient("https://vkpmasigkotdmfkmjqoy.supabase.co", "sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi");
+      var s = await c.auth.getSession();
+      var user = s && s.data && s.data.session ? s.data.session.user : null;
+      if(user){
+        try { await c.from("user_data").delete().eq("user_id", user.id); } catch(e){}
+        try { await c.from("profiles").delete().eq("id", user.id); } catch(e){}
+        try { await c.auth.signOut(); } catch(e){}
       }
-    } catch (e) {}
-    try { Object.keys(localStorage).forEach(function(k){ localStorage.removeItem(k); }); } catch(e){}
-    alert('Your account and data have been deleted.');
-    window.location.href = 'index.html';
-  });
-})();
-
-
-/* ============================================================
+    }
+  } catch(e){}
+  try { Object.keys(localStorage).forEach(function(k){ localStorage.removeItem(k); }); } catch(e){}
+  alert("Your account and data have been deleted.");
+  window.location.href = "index.html";
+};/* ============================================================
    SECTION 15 — PWA / Add-to-Home-Screen (installable app)
    Injects manifest, icons, meta tags & registers service worker
    so ElevateEdu installs to the home screen and opens fullscreen.
@@ -972,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('submit', function(){ playAdd(); }, true);
   }
 
-  // Settings gear (top-right) opens a panel: sounds, reset data, privacy & terms
+  // Settings gear (top-right) opens a panel: sounds, reset, privacy, delete account
   function buildSettings(){
     if(document.getElementById("eeSettingsBtn")) return;
     var gear = document.createElement("button");
@@ -986,9 +955,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     var overlay = document.createElement("div");
     overlay.id = "eeSettingsOverlay";
-    overlay.style.cssText = "position:fixed;inset:0;z-index:10001;background:rgba(40,28,20,0.45);display:none;align-items:center;justify-content:center;padding:20px;";
+    overlay.style.cssText = "position:fixed;inset:0;z-index:10001;background:rgba(40,28,20,0.45);display:none;align-items:center;justify-content:center;padding:calc(env(safe-area-inset-top,0px) + 16px) 16px calc(env(safe-area-inset-bottom,0px) + 16px);box-sizing:border-box;";
     var panel = document.createElement("div");
-    panel.style.cssText = "width:100%;max-width:320px;background:#F5E6CA;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,0.30);padding:22px 20px;font-family:Poppins,sans-serif;color:#4B3832;";
+    panel.style.cssText = "width:100%;max-width:340px;max-height:100%;overflow-y:auto;-webkit-overflow-scrolling:touch;background:#F5E6CA;border-radius:20px;box-shadow:0 18px 50px rgba(0,0,0,0.30);padding:22px 20px;font-family:Poppins,sans-serif;color:#4B3832;box-sizing:border-box;";
     overlay.appendChild(panel);
     document.body.appendChild(overlay);
 
@@ -1000,6 +969,12 @@ document.addEventListener('DOMContentLoaded', () => {
       tx.style.cssText = "font-size:15px;font-weight:500;";
       r.appendChild(tx);
       return r;
+    }
+    function hint(text){
+      var p = document.createElement("p");
+      p.textContent = text;
+      p.style.cssText = "margin:-4px 0 4px;font-size:11.5px;line-height:1.4;color:#8b6f47;";
+      return p;
     }
 
     var h = document.createElement("h2");
@@ -1047,6 +1022,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
     rRow.appendChild(rBtn);
     panel.appendChild(rRow);
+    panel.appendChild(hint("Erases your notes, tasks, and everything saved on this device. This cannot be undone. Your account stays."));
 
     var pRow = row("Privacy & Terms");
     var pLink = document.createElement("a");
@@ -1056,13 +1032,36 @@ document.addEventListener('DOMContentLoaded', () => {
     pRow.appendChild(pLink);
     panel.appendChild(pRow);
 
+    var dRow = row("Delete account");
+    var dBtn = document.createElement("button");
+    dBtn.type = "button";
+    dBtn.textContent = "Delete";
+    dBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
+    var dArmed = false, dT = null;
+    function disarmDel(){ dArmed=false; dBtn.textContent="Delete"; dBtn.style.background="rgba(180,60,50,0.15)"; dBtn.style.color="#a23b2f"; if(dT){clearTimeout(dT);dT=null;} }
+    dBtn.addEventListener("click", function(){
+      if(!dArmed){
+        dArmed = true;
+        dBtn.textContent = "Tap to confirm";
+        dBtn.style.background = "#a23b2f";
+        dBtn.style.color = "#fff";
+        dT = setTimeout(disarmDel, 4000);
+        return;
+      }
+      disarmDel();
+      if(window.eeDeleteAccount) window.eeDeleteAccount();
+    });
+    dRow.appendChild(dBtn);
+    panel.appendChild(dRow);
+    panel.appendChild(hint("Permanently deletes your account and all your data everywhere. This cannot be undone."));
+
     var close = document.createElement("button");
     close.type = "button";
     close.textContent = "Close";
     close.style.cssText = "margin-top:18px;width:100%;padding:11px;border:none;border-radius:14px;background:#6F4E37;color:#F5E6CA;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;";
     panel.appendChild(close);
 
-    function openPanel(){ paintSound(); disarmReset(); overlay.style.display="flex"; }
+    function openPanel(){ paintSound(); disarmReset(); disarmDel(); overlay.style.display="flex"; }
     function closePanel(){ overlay.style.display="none"; }
     gear.addEventListener("click", function(e){ e.stopPropagation(); openPanel(); });
     close.addEventListener("click", closePanel);
