@@ -879,6 +879,32 @@ window.eeDeleteAccount = async function(){
     if (ctx.state === 'suspended') { ctx.resume(); }
     return ctx;
   }
+  // iOS/Safari unlock: audio must be created + resumed inside a real touch,
+  // and a silent buffer played once, or phones stay completely silent.
+  var unlocked = false;
+  function unlockAudio(){
+    var c = ensureCtx();
+    if(!c) return;
+    if(c.state === "suspended"){ c.resume(); }
+    if(!unlocked){
+      try {
+        var buf = c.createBuffer(1, 1, 22050);
+        var src = c.createBufferSource();
+        src.buffer = buf;
+        src.connect(c.destination);
+        if(src.start) src.start(0); else if(src.noteOn) src.noteOn(0);
+        unlocked = true;
+      } catch(e){}
+    }
+  }
+  // Run the unlock on the very first user interaction of any kind.
+  ["touchstart","touchend","pointerdown","mousedown","keydown"].forEach(function(evt){
+    document.addEventListener(evt, unlockAudio, { once: false, passive: true });
+  });
+  // Re-resume whenever the app regains focus (iOS suspends in background).
+  document.addEventListener("visibilitychange", function(){
+    if(!document.hidden){ var c = ensureCtx(); if(c && c.state === "suspended") c.resume(); }
+  });
   // Core tone generator: freq (Hz), duration (s), type, peak gain
   function tone(freq, dur, type, peak, whenOffset){
     var c = ensureCtx(); if (!c) return;
