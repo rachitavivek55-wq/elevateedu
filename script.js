@@ -890,3 +890,107 @@ document.addEventListener('DOMContentLoaded', () => {
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', watch); }
   else { watch(); }
 })();
+
+
+/* ============================================================
+   SECTION 18 - Satisfying UI sounds (ASMR-style feedback)
+   All sounds are synthesized with the Web Audio API - no files,
+   no storage, works offline. Global click tick on buttons/tabs,
+   plus special sounds for checklist check-offs and calendar adds.
+   Mute toggle is saved per device. Respects browser autoplay:
+   audio only starts after the first user tap.
+   ============================================================ */
+(function(){
+  var AC = window.AudioContext || window.webkitAudioContext;
+  if (!AC) return;
+  var ctx = null;
+  function muted(){ return localStorage.getItem('ee_sound_off') === '1'; }
+  function ensureCtx(){
+    if (!ctx) { try { ctx = new AC(); } catch(e){ return null; } }
+    if (ctx.state === 'suspended') { ctx.resume(); }
+    return ctx;
+  }
+  // Core tone generator: freq (Hz), duration (s), type, peak gain
+  function tone(freq, dur, type, peak, whenOffset){
+    var c = ensureCtx(); if (!c) return;
+    var t0 = c.currentTime + (whenOffset || 0);
+    var osc = c.createOscillator();
+    var g = c.createGain();
+    osc.type = type || 'sine';
+    osc.frequency.setValueAtTime(freq, t0);
+    g.gain.setValueAtTime(0.0001, t0);
+    g.gain.exponentialRampToValueAtTime(peak || 0.12, t0 + 0.006);
+    g.gain.exponentialRampToValueAtTime(0.0001, t0 + dur);
+    osc.connect(g); g.connect(c.destination);
+    osc.start(t0); osc.stop(t0 + dur + 0.02);
+  }
+  // Soft keyboard-style tick for general taps
+  function playClick(){
+    if (muted()) return;
+    tone(2100, 0.035, 'square', 0.05);
+    tone(520, 0.045, 'sine', 0.09);
+  }
+  // Bright two-note pop when checking something off
+  function playCheck(){
+    if (muted()) return;
+    tone(660, 0.09, 'sine', 0.13);
+    tone(990, 0.12, 'sine', 0.12, 0.06);
+  }
+  // Gentle rising chime when adding to the calendar
+  function playAdd(){
+    if (muted()) return;
+    tone(523, 0.12, 'sine', 0.11);
+    tone(659, 0.12, 'sine', 0.11, 0.07);
+    tone(784, 0.16, 'sine', 0.11, 0.14);
+  }
+  window.eeSound = { click: playClick, check: playCheck, add: playAdd };
+
+  var page = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  // Global click tick via delegation (capture so it fires before handlers)
+  document.addEventListener('click', function(e){
+    var el = e.target.closest('button, .nav-item, .tile, .app-card, a, .cta-button, .premium-btn');
+    if (!el) return;
+    // Checklist: a check-off gets its own sound (handled below), skip generic
+    if (el.closest && el.closest('.ck-task') && !el.closest('.ck-task-del')) return;
+    playClick();
+  }, true);
+
+  // Checklist check-off sound
+  if (page === 'checklists.html') {
+    document.addEventListener('click', function(e){
+      var row = e.target.closest('.ck-task');
+      if (!row) return;
+      if (e.target.closest('.ck-task-del')) { playClick(); return; }
+      playCheck();
+    }, true);
+  }
+
+  // Calendar add-event chime (form submit adds an event)
+  if (page === 'calendar.html') {
+    document.addEventListener('submit', function(){ playAdd(); }, true);
+  }
+
+  // Floating mute / unmute toggle (small, unobtrusive, bottom-left)
+  function makeToggle(){
+    if (document.getElementById('eeSoundToggle')) return;
+    var b = document.createElement('button');
+    b.id = 'eeSoundToggle';
+    b.type = 'button';
+    b.title = 'Toggle sounds';
+    b.setAttribute('aria-label', 'Toggle sounds');
+    function paint(){ b.textContent = muted() ? '\uD83D\uDD07' : '\uD83D\uDD08'; }
+    b.style.cssText = 'position:fixed;left:14px;bottom:14px;z-index:9998;width:40px;height:40px;border-radius:50%;border:none;background:rgba(111,78,55,0.85);color:#F5E6CA;font-size:18px;cursor:pointer;box-shadow:0 4px 12px rgba(0,0,0,0.2);';
+    paint();
+    b.addEventListener('click', function(ev){
+      ev.stopPropagation();
+      if (muted()) { localStorage.removeItem('ee_sound_off'); }
+      else { localStorage.setItem('ee_sound_off', '1'); }
+      paint();
+      if (!muted()) playClick();
+    });
+    document.body.appendChild(b);
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', makeToggle); }
+  else { makeToggle(); }
+})();
