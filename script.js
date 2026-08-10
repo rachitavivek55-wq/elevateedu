@@ -813,3 +813,80 @@ document.addEventListener('DOMContentLoaded', () => {
       if(!window.__eeAuthed){ setTimeout(eeWatchAuth, 2000); }
     })();
 })();
+
+
+/* ============================================================
+   SECTION 17 - Post-login "Add to Home Screen" instructions
+   Shows a clear, dismissible how-to card right after the user
+   signs in (e.g. after clicking the magic link), unless the
+   app is already installed or the user dismissed it before.
+   ============================================================ */
+(function(){
+  var COFFEE = '#6F4E37', CREAM = '#F5E6CA', ESPRESSO = '#4B3832';
+  function installed(){
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+  function alreadyDone(){
+    return installed() || localStorage.getItem('ee_a2hs_done') === '1';
+  }
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  var isAndroid = /android/i.test(navigator.userAgent);
+  function stepsHtml(){
+    if (isIOS) {
+      return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
+        + '<li>Tap the <b>Share</b> button (the square with an arrow) at the bottom of Safari.</li>'
+        + '<li>Scroll down and tap <b>"Add to Home Screen".</b></li>'
+        + '<li>Tap <b>Add</b> - ElevateEdu will appear as an app icon.</li>'
+        + '</ol>';
+    }
+    if (isAndroid) {
+      return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
+        + '<li>Tap the <b>Install</b> button below, or open the <b>&#8942; menu</b> (top-right of Chrome).</li>'
+        + '<li>Tap <b>"Install app"</b> or <b>"Add to Home screen".</b></li>'
+        + '<li>Confirm - ElevateEdu will appear as an app icon.</li>'
+        + '</ol>';
+    }
+    return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
+      + '<li>Click the <b>install icon</b> in your browser address bar, or the <b>&#8942; menu</b>.</li>'
+      + '<li>Choose <b>"Install ElevateEdu".</b></li>'
+      + '</ol>';
+  }
+  function showCard(){
+    if (document.getElementById('eeA2HS')) return;
+    var ov = document.createElement('div');
+    ov.id = 'eeA2HS';
+    ov.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.35);padding:16px;';
+    var card = document.createElement('div');
+    card.style.cssText = 'background:' + CREAM + ';color:' + ESPRESSO + ';max-width:460px;width:100%;border-radius:22px;padding:22px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 12px 40px rgba(0,0,0,0.25);font-family:inherit;';
+    card.innerHTML = '<div style="font-size:19px;font-weight:700;color:' + COFFEE + ';">Add ElevateEdu to your home screen</div>'
+      + '<div style="font-size:14px;margin-top:6px;opacity:0.85;">Install it once and open it like a normal app - full screen, works offline.</div>'
+      + stepsHtml();
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:10px;margin-top:18px;';
+    var later = document.createElement('button');
+    later.type = 'button'; later.textContent = 'Maybe later';
+    later.style.cssText = 'flex:1;border:1px solid ' + COFFEE + ';background:transparent;color:' + COFFEE + ';border-radius:999px;padding:11px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;';
+    var got = document.createElement('button');
+    got.type = 'button'; got.textContent = 'Got it';
+    got.style.cssText = 'flex:1;border:none;background:' + COFFEE + ';color:' + CREAM + ';border-radius:999px;padding:11px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;';
+    function close(perm){ if (perm) localStorage.setItem('ee_a2hs_done','1'); var el = document.getElementById('eeA2HS'); if (el) el.remove(); }
+    later.addEventListener('click', function(){ close(false); });
+    got.addEventListener('click', function(){ close(true); });
+    ov.addEventListener('click', function(e){ if (e.target === ov) close(false); });
+    row.appendChild(later); row.appendChild(got); card.appendChild(row); ov.appendChild(card);
+    document.body.appendChild(ov);
+  }
+  function watch(){
+    if (alreadyDone()) return;
+    try {
+      if (typeof getSession === 'function') {
+        getSession().then(function(s){
+          if (s && !alreadyDone()) { setTimeout(showCard, 600); }
+          else if (!alreadyDone()) { setTimeout(watch, 2500); }
+        }).catch(function(){ setTimeout(watch, 2500); });
+      }
+    } catch(e) {}
+  }
+  if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', watch); }
+  else { watch(); }
+})();
