@@ -566,3 +566,33 @@ input, select, textarea, button {
     box-shadow: none;
   }
 }
+
+/* === Uniform full-height layout so the bottom nav always sits at the very bottom === */
+@media (max-width: 900px), (display-mode: standalone) {
+  html, body {
+    height: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+  }
+  body {
+    padding: 0;
+    margin: 0;
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+  }
+  .phone {
+    width: 100%;
+    max-width: 100%;
+    height: 100vh;
+    height: 100dvh;
+    min-height: 100vh;
+    min-height: 100dvh;
+    border-radius: 0;
+    box-shadow: none;
+  }
+  .bottom-nav {
+    flex-shrink: 0;
+    padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  }
+}
