@@ -512,10 +512,11 @@ document.addEventListener('DOMContentLoaded', () => {
   }
   window.elevateShowPremiumModal = showPremiumModal;
 
-  function lockEl(el, labelEl) {
-    if (labelEl) labelEl.style.textDecoration = 'line-through';
-    el.style.opacity = '0.5';
-    el.addEventListener('click', function (e) {
+  function lockEl(el, labelEl, blockClick){
+    if(labelEl) labelEl.style.textDecoration = "line-through";
+    el.style.opacity = "0.5";
+    if(blockClick === false) return; // visual-only: let normal navigation run (hub preview)
+    el.addEventListener("click", function(e){
       e.stopPropagation(); e.preventDefault(); showPremiumModal();
     }, true);
   }
@@ -527,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
       var nameEl = tile.querySelector('.tile-name');
       if (!nameEl) return;
       if (FREE.indexOf(norm(nameEl.textContent)) !== -1) return;
-      lockEl(tile, nameEl);
+      lockEl(tile, nameEl, false);
       var m = tile.querySelector('.tile-metric'); if (m) m.textContent = 'Premium';
     });
     // Bottom nav items (data-tab)
@@ -535,7 +536,7 @@ document.addEventListener('DOMContentLoaded', () => {
       var tab = norm(nav.getAttribute('data-tab'));
       if (!tab || FREE.indexOf(tab) !== -1) return;
       var label = nav.querySelector('.nav-label');
-      lockEl(nav, label);
+      lockEl(nav, label, false);
     });
     // Sub-tool cards inside a system page (data-href)
     document.querySelectorAll('.app-card[data-href]').forEach(function (card) {
