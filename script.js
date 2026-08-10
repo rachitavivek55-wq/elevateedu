@@ -586,8 +586,58 @@ document.addEventListener('DOMContentLoaded', () => {
   style.textContent = 'body{visibility:hidden!important}';
   (document.head || document.documentElement).appendChild(style);
 
-  function reveal() { var s = document.getElementById('elevateGuardHide'); if (s) s.remove(); }
-  function block() { window.location.replace('pricing.html'); }
+  function reveal(){ var s = document.getElementById("elevateGuardHide"); if(s) s.remove(); }
+  // Hub pages (reachable from the bottom nav) show a locked PREVIEW instead of
+  // redirecting, so users can see the tools they are missing. Deep tool pages
+  // still redirect to pricing so nothing premium is actually usable.
+  var HUB_PAGES = ["wallet.html","wellness.html","mindset.html","guides.html"];
+  function block(){
+    if(HUB_PAGES.indexOf(path) !== -1){ lockPreview(); }
+    else { window.location.replace("pricing.html"); }
+  }
+  function lockPreview(){
+    reveal();
+    if(document.getElementById("eeLockStyle")) return;
+    var st = document.createElement("style");
+    st.id = "eeLockStyle";
+    st.textContent = ".ee-locked .grid .app-card{opacity:0.55;cursor:not-allowed;pointer-events:none;filter:grayscale(0.4);}"
+      + ".ee-locked .grid .app-card .app-name{text-decoration:line-through;text-decoration-color:rgba(162,59,47,0.7);}"
+      + ".ee-lock-badge{display:inline-flex;align-items:center;gap:5px;margin-left:auto;font-size:11px;font-weight:600;color:#a23b2f;background:rgba(180,60,50,0.12);padding:3px 9px;border-radius:20px;}";
+    document.head.appendChild(st);
+    function apply(){
+      document.body.classList.add("ee-locked");
+      var cards = document.querySelectorAll(".grid .app-card");
+      cards.forEach(function(card){
+        if(card.querySelector(".ee-lock-badge")) return;
+        var b = document.createElement("span");
+        b.className = "ee-lock-badge";
+        b.textContent = "\uD83D\uDD12 Premium";
+        card.appendChild(b);
+      });
+      if(!document.getElementById("eeUpgradeBanner")){
+        var grid = document.querySelector(".grid");
+        if(grid && grid.parentNode){
+          var banner = document.createElement("div");
+          banner.id = "eeUpgradeBanner";
+          banner.style.cssText = "background:linear-gradient(135deg,#6F4E37,#4B3832);color:#F5E6CA;border-radius:18px;padding:16px 18px;margin-bottom:16px;font-family:Poppins,sans-serif;";
+          var t = document.createElement("p");
+          t.textContent = "These tools are Premium";
+          t.style.cssText = "margin:0 0 4px;font-size:15px;font-weight:700;";
+          var d = document.createElement("p");
+          d.textContent = "Preview what you are missing. Unlock everything for $5/month.";
+          d.style.cssText = "margin:0 0 12px;font-size:12.5px;line-height:1.4;opacity:0.9;";
+          var a = document.createElement("a");
+          a.href = "pricing.html";
+          a.textContent = "Upgrade to unlock";
+          a.style.cssText = "display:inline-block;background:#F5E6CA;color:#4B3832;text-decoration:none;font-size:13px;font-weight:700;padding:9px 18px;border-radius:20px;";
+          banner.appendChild(t); banner.appendChild(d); banner.appendChild(a);
+          grid.parentNode.insertBefore(banner, grid);
+        }
+      }
+    }
+    if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", apply);
+    else apply();
+  }
 
   async function guard() {
     try {
