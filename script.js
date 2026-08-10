@@ -508,7 +508,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.appendChild(back);
     back.addEventListener('click', function (e) { if (e.target === back) back.remove(); });
     document.getElementById('elevatePremiumClose').addEventListener('click', function () { back.remove(); });
-    document.getElementById('elevatePremiumGo').addEventListener('click', function () { window.location.href = STRIPE_PAYMENT_LINK; });
+    document.getElementById('elevatePremiumGo').addEventListener('click', function () { startCheckout(); });
   }
   window.elevateShowPremiumModal = showPremiumModal;
 
