@@ -1148,3 +1148,53 @@ window.eeDeleteAccount = async function(){
   if(document.readyState === "loading") document.addEventListener("DOMContentLoaded", buildSettings);
   else buildSettings();
 })();
+
+// ===== 19) Premium unlock fix (force-unlock home tiles once premium confirmed) =====
+(function () {
+  async function forceUnlockIfPremium() {
+    try {
+      if (typeof supabase === 'undefined' || !supabase.createClient) return;
+      var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
+      var s = await c.auth.getSession();
+      var user = s && s.data && s.data.session ? s.data.session.user : null;
+      if (!user) return;
+      var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
+      if (!(r.data && r.data.is_premium)) return;
+
+      document.body.classList.remove('ee-locked');
+      var banner = document.getElementById('eeUpgradeBanner');
+      if (banner) banner.remove();
+
+      var map = { home: 'index.html', planner: 'planner.html', wallet: 'wallet.html', fitness: 'wellness.html', wellness: 'wellness.html', mindset: 'mindset.html', guides: 'guides.html' };
+
+      document.querySelectorAll('.tile,.nav-item,.app-card[data-href]').forEach(function (el) {
+        el.style.opacity = ''; el.style.filter = ''; el.style.cursor = 'pointer';
+        el.querySelectorAll('.ee-lock-badge').forEach(function (b) { b.remove(); });
+        var nm = el.querySelector('.tile-name,.nav-label,.app-name');
+        if (nm) nm.style.textDecoration = '';
+        var m = el.querySelector('.tile-metric');
+        if (m && m.textContent === 'Premium') m.textContent = '';
+        var clone = el.cloneNode(true);
+        el.parentNode.replaceChild(clone, el);
+        var href = clone.getAttribute('data-href');
+        if (!href) {
+          var t = clone.querySelector('.tile-name');
+          if (t) href = map[t.textContent.trim().toLowerCase()];
+        }
+        if (!href) {
+          var tab = clone.getAttribute('data-tab');
+          if (tab) href = map[tab];
+        }
+        if (href) {
+          clone.style.cursor = 'pointer';
+          clone.addEventListener('click', function () { window.location.href = href; });
+        }
+      });
+    } catch (e) { /* silent */ }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', forceUnlockIfPremium);
+  } else {
+    forceUnlockIfPremium();
+  }
+})();
