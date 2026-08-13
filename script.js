@@ -642,7 +642,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function guard() {
     try {
-      if (typeof supabase === 'undefined' || !supabase.createClient) { return block(); }
+      if (typeof supabase === 'undefined' || !supabase.createClient) { await new Promise(function(res){ var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sc.onload=res; sc.onerror=res; document.head.appendChild(sc); }); } if (typeof supabase === 'undefined' || !supabase.createClient) { return block(); }
       var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
       var s = await c.auth.getSession();
       var user = s && s.data && s.data.session ? s.data.session.user : null;
