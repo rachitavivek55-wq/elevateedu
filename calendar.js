@@ -552,13 +552,17 @@ let editingId = null;
         del.id = 'calDeleteBtn';
         del.className = 'cal-btn-ghost cal-btn-delete';
         del.textContent = 'Delete';
+        // subtle red styling to match the destructive actions in other tools
+        del.style.color = '#c0392b';
+        del.style.borderColor = 'rgba(192, 57, 43, 0.4)';
         del.addEventListener('click', function () {
-          if (editingId != null) {
-            entries = entries.filter(function (x) { return x.id !== editingId; });
-            save();
-            closeModal();
-            render();
-          }
+          if (editingId == null) return;
+          var __t = document.getElementById('fTitle').value || 'this entry';
+          if (!confirm('Delete "' + __t + '"? This can\'t be undone.')) return;
+          entries = entries.filter(function (x) { return x.id !== editingId; });
+          save();
+          closeModal();
+          render();
         });
         actions.insertBefore(del, actions.firstChild);
       }
