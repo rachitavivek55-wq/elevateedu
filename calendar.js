@@ -243,6 +243,12 @@
   // events that truly overlap in time are split side-by-side, while
   // back-to-back events (end === next start) each keep the full width.
   function layoutDay(list) {
+    // A chip can't render shorter than ~6px (one line of text) which is about
+    // 8 minutes at 46px/hour. We treat MIN_MIN as each event's minimum VISUAL
+    // footprint, so a tiny event that would otherwise bleed onto the next one
+    // gets bumped into its own side-by-side lane. Normal-length back-to-back
+    // events are taller than this, so they stay full width and simply stack.
+    var MIN_MIN = 10;
     var items = [];
     list.forEach(function (e) {
       var s = toMin(e.start || e.time);
@@ -254,34 +260,38 @@
     items.sort(function (a, b) {
       return a.startMin - b.startMin || a.endMin - b.endMin;
     });
-    // Cluster events that TRULY overlap in time. A strictly-less-than test
-    // means touching endpoints (one ends exactly when the next starts) are
-    // NOT overlapping, so back-to-back events each keep the full width.
+    // Visual end: the later of the real end and the minimum readable footprint.
+    function effEnd(it) {
+      return Math.max(it.endMin, it.startMin + MIN_MIN);
+    }
+    // Cluster events whose VISUAL boxes touch (strict less-than, so events that
+    // only meet at an exact boundary and are both tall enough don't cluster).
     var i = 0;
     while (i < items.length) {
       var cluster = [items[i]];
-      var clusterEnd = items[i].endMin;
+      var clusterEnd = effEnd(items[i]);
       var j = i + 1;
       while (j < items.length && items[j].startMin < clusterEnd) {
         cluster.push(items[j]);
-        if (items[j].endMin > clusterEnd) clusterEnd = items[j].endMin;
+        var ee = effEnd(items[j]);
+        if (ee > clusterEnd) clusterEnd = ee;
         j++;
       }
-      // greedy lane assignment within the overlapping cluster
+      // greedy lane assignment using visual footprint
       var laneEnds = [];
       cluster.forEach(function (it) {
         var placed = false;
         for (var k = 0; k < laneEnds.length; k++) {
           if (it.startMin >= laneEnds[k]) {
             it.lane = k;
-            laneEnds[k] = it.endMin;
+            laneEnds[k] = effEnd(it);
             placed = true;
             break;
           }
         }
         if (!placed) {
           it.lane = laneEnds.length;
-          laneEnds.push(it.endMin);
+          laneEnds.push(effEnd(it));
         }
       });
       var lanes = laneEnds.length;
