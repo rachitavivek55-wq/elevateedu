@@ -507,6 +507,8 @@ let editingId = null;
     document.getElementById('fColor').value = '#6F4E37';
     document.getElementById('fDate').value = ymd(new Date());
     editingId = null;
+    var __tabs = document.getElementById('calTypeTabs');
+    if (__tabs) __tabs.style.display = '';
     modalTitle.textContent = 'New Entry';
     var __sub = form.querySelector('.cal-btn-save');
     if (__sub) __sub.textContent = 'Save';
@@ -518,6 +520,9 @@ let editingId = null;
   function fillForm(e) {
     editingId = e.id;
     setType(e.type);
+    // In edit mode the category is fixed — hide the type switcher.
+    var __tabs = document.getElementById('calTypeTabs');
+    if (__tabs) __tabs.style.display = 'none';
     modalTitle.textContent = 'Edit ' + e.type.charAt(0).toUpperCase() + e.type.slice(1);
     document.getElementById('fTitle').value = e.title || '';
     document.getElementById('fNotes').value = e.notes || '';
