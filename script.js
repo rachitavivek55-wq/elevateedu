@@ -1038,7 +1038,23 @@ window.eeDeleteAccount = async function(){
     pRow.appendChild(pLink);
     panel.appendChild(pRow);
 
-    var dRow = row("Delete account");
+    // Manage subscription (premium only) - opens Stripe Customer Portal
+var PORTAL_URL = "https://billing.stripe.com/p/login/14A4gz5RN4AKgQ27eY97G00";
+var mRow = row("Manage subscription");
+var mBtn = document.createElement("button");
+mBtn.type = "button";
+mBtn.textContent = "Open";
+mBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
+mBtn.addEventListener("click", function(){ window.open(PORTAL_URL, "_blank", "noopener"); });
+mRow.appendChild(mBtn);
+mRow.style.display = "none";
+panel.appendChild(mRow);
+var mHint = hint("Change your plan, update payment details, or cancel your subscription anytime.");
+mHint.style.display = "none";
+panel.appendChild(mHint);
+(function(){ try { if(window.eeGetPremium){ window.eeGetPremium().then(function(r){ if(r && r.isPremium){ mRow.style.display = ""; mHint.style.display = ""; } }); } } catch(e){} })();
+
+var dRow = row("Delete account");
     var dBtn = document.createElement("button");
     dBtn.type = "button";
     dBtn.textContent = "Delete";
