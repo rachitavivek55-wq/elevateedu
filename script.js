@@ -17,6 +17,33 @@ if (window.lucide) {
   window.lucide.createIcons();
 }
 
+// 2b) Shared Supabase client + cached premium check (one network round-trip per page)
+window.eeSupabase = function () {
+  if (window.__eeSB) return window.__eeSB;
+  if (typeof supabase === 'undefined' || !supabase.createClient) return null;
+  window.__eeSB = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
+  return window.__eeSB;
+};
+window.eeGetPremium = function () {
+  if (window.__eePremiumPromise) return window.__eePremiumPromise;
+  window.__eePremiumPromise = (async function () {
+    try {
+      if (typeof supabase === 'undefined' || !supabase.createClient) {
+        await new Promise(function (res) { var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sc.onload = res; sc.onerror = res; document.head.appendChild(sc); });
+      }
+      var c = window.eeSupabase();
+      if (!c) return { user: null, isPremium: false };
+      var s = await c.auth.getSession();
+      var user = s && s.data && s.data.session ? s.data.session.user : null;
+      if (!user) return { user: null, isPremium: false };
+      var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
+      return { user: user, isPremium: !!(r.data && r.data.is_premium) };
+    } catch (e) { return { user: null, isPremium: false }; }
+  })();
+  return window.__eePremiumPromise;
+};
+
+
 // 3) Routing map — which pages exist for each system.
 // As we build more systems, just add them here.
 const pages = {
@@ -395,92 +422,6 @@ var elevatePremium = (function () {
 })();
 elevatePremium.init();
 
-// ===== PREMIUM FEATURES & FILE UPLOAD =====
-// Check if user has premium access
-async function checkPremium() {
-  if (!session || !session.user) return false;
-  try {
-    const { data, error } = await supabase.from('profiles').select('is_premium').eq('id', session.user.id).single();
-    return !error && data && data.is_premium;
-  } catch (e) {
-    return false;
-  }
-}
-
-// Mark premium UI elements
-function markPremiumUI() {
-  const premiumElements = document.querySelectorAll('[data-premium="true"]');
-  premiumElements.forEach(el => {
-    el.style.opacity = '0.5';
-    el.style.pointerEvents = 'none';
-    el.innerHTML += '<span style="color: gold; font-size: 12px; margin-left: 5px;">⭐ PREMIUM</span>';
-  });
-}
-
-// File upload handler
-async function handleFileUpload(event) {
-  const file = event.target.files?.[0];
-  if (!file || !session?.user) return;
-  
-  const MAX_SIZE_FREE = 5 * 1024 * 1024; // 5MB
-  const MAX_SIZE_PREMIUM = 100 * 1024 * 1024; // 100MB
-  
-  const isPremium = await checkPremium();
-  const maxSize = isPremium ? MAX_SIZE_PREMIUM : MAX_SIZE_FREE;
-  
-  if (file.size > maxSize) {
-    alert(`File too large! Max: ${isPremium ? '100MB' : '5MB'}`);
-    return;
-  }
-  
-  try {
-    const fileName = `${session.user.id}/${Date.now()}-${file.name}`;
-    const { error } = await supabase.storage.from('user-files').upload(fileName, file);
-    
-    if (error) throw error;
-    
-    // Record in database
-    const { error: dbError } = await supabase.from('files').insert({
-      user_id: session.user.id,
-      file_name: file.name,
-      file_url: fileName,
-      file_size: file.size
-    });
-    
-    if (!dbError) alert('File uploaded successfully!');
-  } catch (e) {
-    alert('Upload failed: ' + e.message);
-  }
-}
-
-// Load user files
-async function loadUserFiles() {
-  if (!session?.user) return;
-  try {
-    const { data } = await supabase.from('files').select('*').eq('user_id', session.user.id);
-    const container = document.getElementById('filesContainer');
-    if (container && data?.length > 0) {
-      container.innerHTML = data.map(f => `
-        <div style="padding: 10px; border: 1px solid #ddd; margin: 5px 0; border-radius: 5px;">
-          <p><strong>${f.file_name}</strong> (${(f.file_size / 1024 / 1024).toFixed(2)}MB)</p>
-          <small style="color: gray;">${new Date(f.created_at).toLocaleDateString()}</small>
-        </div>
-      `).join('');
-    }
-  } catch (e) {
-    console.error('Failed to load files:', e);
-  }
-}
-
-// Initialize file upload on page load
-document.addEventListener('DOMContentLoaded', () => {
-  const fileInput = document.getElementById('fileUpload');
-  if (fileInput) fileInput.addEventListener('change', handleFileUpload);
-  loadUserFiles();
-  markPremiumUI();
-});
-
-
 // ===== 12) Premium Gating (Calendar & Checklists free; everything else locked) =====
 (function () {
   var STRIPE_PAYMENT_LINK = 'https://buy.stripe.com/14A4gz5RN4AKgQ27eY97G00';
@@ -557,13 +498,7 @@ document.addEventListener('DOMContentLoaded', () => {
   async function detectPremium() {
     try {
       if (typeof supabase !== 'undefined' && supabase.createClient) {
-        var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
-        var s = await c.auth.getSession();
-        var user = s && s.data && s.data.session ? s.data.session.user : null;
-        if (user) {
-          var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
-          isPremium = !!(r.data && r.data.is_premium);
-        }
+        isPremium = (await window.eeGetPremium()).isPremium;
       }
     } catch (e) { isPremium = false; }
     applyGating();
@@ -642,13 +577,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   async function guard() {
     try {
-      if (typeof supabase === 'undefined' || !supabase.createClient) { await new Promise(function(res){ var sc=document.createElement('script'); sc.src='https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'; sc.onload=res; sc.onerror=res; document.head.appendChild(sc); }); } if (typeof supabase === 'undefined' || !supabase.createClient) { return block(); }
-      var c = supabase.createClient('https://vkpmasigkotdmfkmjqoy.supabase.co', 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi');
-      var s = await c.auth.getSession();
-      var user = s && s.data && s.data.session ? s.data.session.user : null;
-      if (!user) { return block(); }
-      var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
-      if (r.data && r.data.is_premium) { reveal(); } else { block(); }
+      var res13 = await window.eeGetPremium(); if (!res13.user) { return block(); } if (res13.isPremium) { reveal(); } else { block(); }
     } catch (e) { block(); }
   }
   if (document.readyState === 'loading') { document.addEventListener('DOMContentLoaded', guard); } else { guard(); }
