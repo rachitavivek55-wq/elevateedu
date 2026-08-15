@@ -222,7 +222,7 @@
     // place timed events (exact minute placement + side-by-side overlap layout)
   days.forEach((d, col) => {
     layoutDay(entriesOn(d)).forEach((it) => {
-      placeEvent(it.e, d, col, dayCount, it.startMin, it.endMin, it.lane, it.lanes);
+      placeEvent(it.e, d, col, dayCount, it.startMin, it.endMin, it.lane, it.lanes, it.capMin);
     });
   });
   }
@@ -243,9 +243,6 @@
   // events that truly overlap in time are split side-by-side, while
   // back-to-back events (end === next start) each keep the full width.
   function layoutDay(list) {
-    // Minutes a chip visually occupies at minimum (18px min height + 3px gap
-    // at 46px/hour) — used so tiny back-to-back events don't visually collide.
-    var MIN_MIN = Math.ceil((18 + 3) / (46 / 60));
     var items = [];
     list.forEach(function (e) {
       var s = toMin(e.start || e.time);
@@ -257,47 +254,56 @@
     items.sort(function (a, b) {
       return a.startMin - b.startMin || a.endMin - b.endMin;
     });
-    // Visual end: the greater of the real end and the minimum rendered span.
-    // Two events "collide" (need side-by-side lanes) if their visual boxes
-    // touch — this catches very short events sitting just before the next one.
-    function effEnd(it) {
-      return Math.max(it.endMin, it.startMin + MIN_MIN);
-    }
+    // Cluster events that TRULY overlap in time. A strictly-less-than test
+    // means touching endpoints (one ends exactly when the next starts) are
+    // NOT overlapping, so back-to-back events each keep the full width.
     var i = 0;
     while (i < items.length) {
       var cluster = [items[i]];
-      var clusterEnd = effEnd(items[i]);
+      var clusterEnd = items[i].endMin;
       var j = i + 1;
       while (j < items.length && items[j].startMin < clusterEnd) {
         cluster.push(items[j]);
-        var ee = effEnd(items[j]);
-        if (ee > clusterEnd) clusterEnd = ee;
+        if (items[j].endMin > clusterEnd) clusterEnd = items[j].endMin;
         j++;
       }
-      var laneEnds = []; // visual end minute occupying each lane
+      // greedy lane assignment within the overlapping cluster
+      var laneEnds = [];
       cluster.forEach(function (it) {
         var placed = false;
         for (var k = 0; k < laneEnds.length; k++) {
           if (it.startMin >= laneEnds[k]) {
             it.lane = k;
-            laneEnds[k] = effEnd(it);
+            laneEnds[k] = it.endMin;
             placed = true;
             break;
           }
         }
         if (!placed) {
           it.lane = laneEnds.length;
-          laneEnds.push(effEnd(it));
+          laneEnds.push(it.endMin);
         }
       });
       var lanes = laneEnds.length;
       cluster.forEach(function (it) { it.lanes = lanes; });
       i = j;
     }
+    // For each event, find where the NEXT event in the same lane starts, so a
+    // chip can never visually extend into a following back-to-back event.
+    items.forEach(function (it) {
+      var nextStart = Infinity;
+      items.forEach(function (o) {
+        if (o !== it && o.lane === it.lane && o.startMin >= it.endMin &&
+            o.startMin < nextStart) {
+          nextStart = o.startMin;
+        }
+      });
+      it.capMin = nextStart; // Infinity when nothing follows in this lane
+    });
     return items;
   }
 
-  function placeEvent(e, date, col, dayCount, startMin, endMin, lane, lanes) {
+  function placeEvent(e, date, col, dayCount, startMin, endMin, lane, lanes, capMin) {
     var grid = calBody.querySelector('.cal-timegrid');
     if (!grid) return;
     var gridStartMin = dayStart * 60;
@@ -313,7 +319,13 @@
     if (!anchor) return;
     var PX_PER_MIN = 46 / 60;
     var top = (s - gridStartMin) * PX_PER_MIN;
-    var height = Math.max(18, (en - s) * PX_PER_MIN - 3);
+    var height = Math.max(6, (en - s) * PX_PER_MIN - 3);
+    // never let a chip reach into a following same-lane event (keeps a 1px gap)
+    if (capMin !== undefined && capMin !== Infinity) {
+      var maxH = (capMin - s) * PX_PER_MIN - 1;
+      if (maxH < 2) maxH = 2;
+      if (height > maxH) height = maxH;
+    }
     var chip = document.createElement('div');
     chip.className = 'cal-event';
     chip.style.background = e.color || '#6F4E37';
