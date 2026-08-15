@@ -588,7 +588,7 @@ let editingId = null;
       'New ' + type.charAt(0).toUpperCase() + type.slice(1);
   }
 
-  document.getElementById('calFab').addEventListener('click', openModal);
+  document.getElementById('calFab').addEventListener('click', function () { openModal(); });
   document.getElementById('calClose').addEventListener('click', closeModal);
   document.getElementById('calCancel').addEventListener('click', closeModal);
   backdrop.addEventListener('click', (e) => {
