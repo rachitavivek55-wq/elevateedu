@@ -64,6 +64,7 @@
   let selectedColor = '#6F4E37';
   let selectedDays = [];
   let currentType = 'commitment';
+let editingId = null;
 
   // ---------- storage ----------
   function load() {
@@ -353,7 +354,7 @@
     chip.innerHTML =
       '<span class="ev-time">' + timeStr + '</span>' + escapeHtml(e.title);
     chip.title = e.title + (e.notes ? ' — ' + e.notes : '');
-    chip.addEventListener('click', function () { removePrompt(e); });
+    chip.addEventListener('click', function () { openModal(e); });
     anchor.appendChild(chip);
   }
 
@@ -480,8 +481,9 @@
   const form = document.getElementById('calForm');
   const modalTitle = document.getElementById('calModalTitle');
 
-  function openModal() {
+  function openModal(entry) {
     resetForm();
+    if (entry) fillForm(entry);
     backdrop.hidden = false;
     if (window.lucide) window.lucide.createIcons();
   }
@@ -504,6 +506,63 @@
       .forEach((d) => d.classList.remove('on'));
     document.getElementById('fColor').value = '#6F4E37';
     document.getElementById('fDate').value = ymd(new Date());
+    editingId = null;
+    modalTitle.textContent = 'New Entry';
+    var __sub = form.querySelector('.cal-btn-save');
+    if (__sub) __sub.textContent = 'Save';
+    var __del = document.getElementById('calDeleteBtn');
+    if (__del) __del.remove();
+  }
+
+  // Populate the modal with an existing entry so it can be edited in place.
+  function fillForm(e) {
+    editingId = e.id;
+    setType(e.type);
+    modalTitle.textContent = 'Edit ' + e.type.charAt(0).toUpperCase() + e.type.slice(1);
+    document.getElementById('fTitle').value = e.title || '';
+    document.getElementById('fNotes').value = e.notes || '';
+    selectedColor = e.color || '#6F4E37';
+    document.getElementById('fColor').value = selectedColor;
+    document.querySelectorAll('.cal-swatch').forEach(function (sw) {
+      sw.classList.toggle('on', sw.dataset.color === selectedColor);
+    });
+    if (e.type === 'commitment') {
+      selectedDays = (e.days || []).slice();
+      document.querySelectorAll('.cal-day-pick').forEach(function (dp) {
+        dp.classList.toggle('on', selectedDays.includes(Number(dp.dataset.day)));
+      });
+      document.getElementById('fStart').value = e.start || '';
+      document.getElementById('fEnd').value = e.end || '';
+    } else {
+      document.getElementById('fDate').value = e.date || ymd(new Date());
+      document.getElementById('fTime').value = e.time || '';
+      if (e.type === 'exam')
+        document.getElementById('fLocation').value = e.location || '';
+      if (e.type === 'assignment' || e.type === 'task')
+        document.getElementById('fPriority').value = e.priority || 'medium';
+    }
+    // Save button label + a Delete button inside the modal actions.
+    var __sub = form.querySelector('.cal-btn-save');
+    if (__sub) __sub.textContent = 'Save changes';
+    if (!document.getElementById('calDeleteBtn')) {
+      var actions = form.querySelector('.cal-form-actions');
+      if (actions) {
+        var del = document.createElement('button');
+        del.type = 'button';
+        del.id = 'calDeleteBtn';
+        del.className = 'cal-btn-ghost cal-btn-delete';
+        del.textContent = 'Delete';
+        del.addEventListener('click', function () {
+          if (editingId != null) {
+            entries = entries.filter(function (x) { return x.id !== editingId; });
+            save();
+            closeModal();
+            render();
+          }
+        });
+        actions.insertBefore(del, actions.firstChild);
+      }
+    }
   }
 
   function setType(type) {
@@ -603,7 +662,13 @@
       if (currentType === 'assignment' || currentType === 'task')
         entry.priority = document.getElementById('fPriority').value;
     }
-    entries.push(entry);
+    if (editingId != null) {
+      entry.id = editingId;
+      var __ix = entries.findIndex(function (x) { return x.id === editingId; });
+      if (__ix > -1) entries[__ix] = entry; else entries.push(entry);
+    } else {
+      entries.push(entry);
+    }
     save();
     closeModal();
     render();
