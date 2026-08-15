@@ -219,59 +219,123 @@
     html += '</div></div>';
     calBody.innerHTML = html;
 
-    // place timed events
-    days.forEach((d, col) => {
-      entriesOn(d).forEach((e) => {
-        const t = e.start || e.time;
-        placeEvent(e, d, col, dayCount, t);
-      });
+    // place timed events (exact minute placement + side-by-side overlap layout)
+  days.forEach((d, col) => {
+    layoutDay(entriesOn(d)).forEach((it) => {
+      placeEvent(it.e, d, col, dayCount, it.startMin, it.endMin, it.lane, it.lanes);
     });
+  });
   }
 
-  function placeEvent(e, date, col, dayCount, t) {
-    const grid = calBody.querySelector('.cal-timegrid');
+  // Parse "HH:MM" -> minutes since midnight (null if absent/invalid)
+  function toMin(t) {
+    if (!t) return null;
+    var p = String(t).split(':');
+    var h = parseInt(p[0], 10);
+    var m = parseInt(p[1], 10);
+    if (isNaN(h)) return null;
+    if (isNaN(m)) m = 0;
+    return h * 60 + m;
+  }
+
+  // Build a placement layout for one day's entries.
+  // Assigns each timed entry a start/end minute plus a lane so that
+  // events that truly overlap in time are split side-by-side, while
+  // back-to-back events (end === next start) each keep the full width.
+  function layoutDay(list) {
+    // Minutes a chip visually occupies at minimum (18px min height + 3px gap
+    // at 46px/hour) — used so tiny back-to-back events don't visually collide.
+    var MIN_MIN = Math.ceil((18 + 3) / (46 / 60));
+    var items = [];
+    list.forEach(function (e) {
+      var s = toMin(e.start || e.time);
+      if (s === null) return; // untimed entries are not placed on the grid
+      var en = toMin(e.end);
+      if (en === null || en <= s) en = s + 30; // default 30-min block
+      items.push({ e: e, startMin: s, endMin: en, lane: 0, lanes: 1 });
+    });
+    items.sort(function (a, b) {
+      return a.startMin - b.startMin || a.endMin - b.endMin;
+    });
+    // Visual end: the greater of the real end and the minimum rendered span.
+    // Two events "collide" (need side-by-side lanes) if their visual boxes
+    // touch — this catches very short events sitting just before the next one.
+    function effEnd(it) {
+      return Math.max(it.endMin, it.startMin + MIN_MIN);
+    }
+    var i = 0;
+    while (i < items.length) {
+      var cluster = [items[i]];
+      var clusterEnd = effEnd(items[i]);
+      var j = i + 1;
+      while (j < items.length && items[j].startMin < clusterEnd) {
+        cluster.push(items[j]);
+        var ee = effEnd(items[j]);
+        if (ee > clusterEnd) clusterEnd = ee;
+        j++;
+      }
+      var laneEnds = []; // visual end minute occupying each lane
+      cluster.forEach(function (it) {
+        var placed = false;
+        for (var k = 0; k < laneEnds.length; k++) {
+          if (it.startMin >= laneEnds[k]) {
+            it.lane = k;
+            laneEnds[k] = effEnd(it);
+            placed = true;
+            break;
+          }
+        }
+        if (!placed) {
+          it.lane = laneEnds.length;
+          laneEnds.push(effEnd(it));
+        }
+      });
+      var lanes = laneEnds.length;
+      cluster.forEach(function (it) { it.lanes = lanes; });
+      i = j;
+    }
+    return items;
+  }
+
+  function placeEvent(e, date, col, dayCount, startMin, endMin, lane, lanes) {
+    var grid = calBody.querySelector('.cal-timegrid');
     if (!grid) return;
-    let hour = 8,
-      min = 0;
-    if (t) {
-      const p = t.split(':').map(Number);
-      hour = p[0];
-      min = p[1] || 0;
-    }
-    if (hour < dayStart) {
-      hour = dayStart;
-      min = 0;
-    }
-    if (hour > dayEnd) {
-      hour = dayEnd;
-      min = 0;
-    }
-    const rowIndex = hour - 0;
-    const cellSelector =
-      '.cal-cell[data-date="' + ymd(date) + '"][data-hour="' + hour + '"]';
-    const cell = grid.querySelector(cellSelector);
-    if (!cell) return;
-    const chip = document.createElement('div');
+    var gridStartMin = dayStart * 60;
+    var gridEndMin = (dayEnd + 1) * 60; // dayEnd is the last labelled hour row
+    // clamp to the visible window so nothing renders off-grid
+    var s = Math.max(startMin, gridStartMin);
+    var en = Math.min(endMin, gridEndMin);
+    if (en <= s) en = Math.min(s + 22, gridEndMin);
+    // anchor to the first hour cell of this column so absolute px math is exact
+    var anchor = grid.querySelector(
+      '.cal-cell[data-date="' + ymd(date) + '"][data-hour="' + dayStart + '"]'
+    );
+    if (!anchor) return;
+    var PX_PER_MIN = 46 / 60;
+    var top = (s - gridStartMin) * PX_PER_MIN;
+    var height = Math.max(18, (en - s) * PX_PER_MIN - 3);
+    var chip = document.createElement('div');
     chip.className = 'cal-event';
     chip.style.background = e.color || '#6F4E37';
-    chip.style.top = (min / 60) * 46 + 'px';
-    let dur = 46;
-    if (e.start && e.end) {
-      const s = e.start.split(':').map(Number);
-      const en = e.end.split(':').map(Number);
-      const mins = en[0] * 60 + en[1] - (s[0] * 60 + s[1]);
-      if (mins > 0) dur = Math.max(22, (mins / 60) * 46);
+    chip.style.top = top + 'px';
+    chip.style.height = height + 'px';
+    // side-by-side layout for overlapping events (3px gutter each side kept)
+    if (lanes > 1) {
+      var gutter = 3;
+      var span = 100 / lanes;
+      chip.style.left = 'calc(' + (span * lane) + '% + ' + gutter + 'px)';
+      chip.style.right = 'auto';
+      chip.style.width = 'calc(' + span + '% - ' + (gutter * 2) + 'px)';
     }
-    chip.style.height = dur - 3 + 'px';
-    const timeStr = e.start ? fmtTime(e.start) : e.time ? fmtTime(e.time) : '';
+    var timeStr = e.start ? fmtTime(e.start) : e.time ? fmtTime(e.time) : '';
     chip.innerHTML =
       '<span class="ev-time">' + timeStr + '</span>' + escapeHtml(e.title);
     chip.title = e.title + (e.notes ? ' — ' + e.notes : '');
-    chip.addEventListener('click', () => removePrompt(e));
-    cell.appendChild(chip);
+    chip.addEventListener('click', function () { removePrompt(e); });
+    anchor.appendChild(chip);
   }
 
-  function renderMonth() {
+    function renderMonth() {
     const year = cursor.getFullYear();
     const month = cursor.getMonth();
     periodLabel.textContent = MONTHS[month] + ' ' + year;
