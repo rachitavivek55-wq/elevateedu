@@ -970,7 +970,7 @@ window.eeDeleteAccount = async function(){
 
     function row(label){
       var r = document.createElement("div");
-      r.style.cssText = "display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(111,78,55,0.18);";
+      r.style.cssText = "display:flex;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-top:1px solid rgba(111,78,55,0.18);";
       var tx = document.createElement("span");
       tx.textContent = label;
       tx.style.cssText = "font-size:15px;font-weight:500;";
