@@ -211,7 +211,7 @@ var elevateAuth = (function () {
   }
 
   function hideAuthScreen() {
-    authScreen.style.display = 'none';
+    if (authScreen) authScreen.style.display = 'none';
   }
 
   function setMsg(text, color) {
@@ -230,6 +230,7 @@ var elevateAuth = (function () {
     });
     if (error) return setMsg('Error: ' + error.message, 'var(--coffee)');
     setMsg('Check your email for the sign-in link!', 'var(--coffee)');
+try { showInstallFirstGuide(email); } catch (e) {}
     authEmail.value = '';
   }
 
@@ -1143,4 +1144,123 @@ var dRow = row("Delete account");
   } else {
     forceUnlockIfPremium();
   }
+})();
+
+/* ============================================================
+   SECTION 20 - Install-first sign-in flow (smooth PWA onboarding)
+   After the magic link is sent, guide the user to INSTALL the app
+   first, then open it and tap the link there - so the session lands
+   in the installed app storage and sticks (no more sign-in loop).
+   Works on iOS Safari, Android/Chrome, and desktop.
+   ============================================================ */
+window.showInstallFirstGuide = function (email) {
+  var COFFEE = "#6F4E37", CREAM = "#F5E6CA", ESPRESSO = "#4B3832";
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  var isAndroid = /android/i.test(navigator.userAgent);
+  var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+
+  function steps() {
+    if (standalone) {
+      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
+        + "<li>Open your email and tap the <b>sign-in link</b> we just sent.</li>"
+        + "<li>It will bring you right back here, signed in. That is it!</li>"
+        + "</ol>";
+    }
+    if (isIOS) {
+      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
+        + "<li>Tap the <b>Share</b> button (square with an up-arrow) at the bottom of Safari.</li>"
+        + "<li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>"
+        + "<li>Open the new <b>ElevateEdu</b> icon from your home screen.</li>"
+        + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will be signed in and stay signed in.</li>"
+        + "</ol>";
+    }
+    if (isAndroid) {
+      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
+        + "<li>Tap the <b>Install app</b> button below, or open Chrome menu (three dots, top-right) and tap <b>Install app</b> / <b>Add to Home screen</b>.</li>"
+        + "<li>Open the new <b>ElevateEdu</b> icon from your home screen.</li>"
+        + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will be signed in and stay signed in.</li>"
+        + "</ol>";
+    }
+    return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
+      + "<li>Install ElevateEdu: click the <b>install icon</b> in your browser address bar (or the menu).</li>"
+      + "<li>Open the installed <b>ElevateEdu</b> app.</li>"
+      + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will stay signed in.</li>"
+      + "</ol>";
+  }
+
+  var existing = document.getElementById("eeInstallFirst");
+  if (existing) existing.remove();
+  var ov = document.createElement("div");
+  ov.id = "eeInstallFirst";
+  ov.style.cssText = "position:fixed;inset:0;z-index:10050;display:flex;align-items:center;justify-content:center;background:rgba(40,28,20,0.45);padding:16px;box-sizing:border-box;";
+  var card = document.createElement("div");
+  card.style.cssText = "background:" + CREAM + ";color:" + ESPRESSO + ";max-width:420px;width:100%;max-height:90vh;overflow-y:auto;border-radius:22px;padding:24px 22px;box-shadow:0 12px 40px rgba(0,0,0,0.28);font-family:Poppins,sans-serif;box-sizing:border-box;";
+  var mailedTo = email ? ("<div style=\"font-size:13px;margin-top:6px;opacity:0.8;\">Link sent to <b>" + email + "</b>.</div>") : "";
+  var title = standalone ? "Almost there - tap your sign-in link" : "One quick step: install the app first";
+  var intro = standalone
+    ? "You are in the installed app. Just open the sign-in link from your email and you will stay signed in."
+    : "For the smoothest experience, add ElevateEdu to your home screen first, THEN tap your sign-in link from inside the app. This keeps you signed in every time you open it.";
+  card.innerHTML = "<div style=\"font-size:19px;font-weight:700;color:" + COFFEE + ";\">" + title + "</div>"
+    + mailedTo
+    + "<div style=\"font-size:14px;margin-top:8px;line-height:1.45;\">" + intro + "</div>"
+    + steps();
+  var row = document.createElement("div");
+  row.style.cssText = "display:flex;gap:10px;margin-top:20px;";
+  var installBtn = document.createElement("button");
+  installBtn.type = "button";
+  installBtn.textContent = isIOS ? "How to add (iOS)" : "Install app";
+  installBtn.style.cssText = "flex:1;border:none;background:" + COFFEE + ";color:" + CREAM + ";border-radius:999px;padding:12px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;";
+  var closeBtn = document.createElement("button");
+  closeBtn.type = "button";
+  closeBtn.textContent = "Got it";
+  closeBtn.style.cssText = "flex:1;border:1px solid " + COFFEE + ";background:transparent;color:" + COFFEE + ";border-radius:999px;padding:12px;font-family:inherit;font-weight:600;font-size:15px;cursor:pointer;";
+  installBtn.addEventListener("click", function () {
+    if (window.__eeDeferredInstall) {
+      window.__eeDeferredInstall.prompt();
+      window.__eeDeferredInstall.userChoice.then(function () { window.__eeDeferredInstall = null; });
+    } else if (isIOS) {
+      alert("On iPhone/iPad:\n\n1. Tap the Share button at the bottom of Safari.\n2. Scroll down and tap Add to Home Screen.\n3. Tap Add, then open ElevateEdu from your home screen and tap your email sign-in link there.");
+    } else {
+      alert("Use your browser menu and choose Install app / Add to Home Screen, then open ElevateEdu and tap your email sign-in link inside the app.");
+    }
+  });
+  closeBtn.addEventListener("click", function () { ov.remove(); });
+  ov.addEventListener("click", function (e) { if (e.target === ov) ov.remove(); });
+  row.appendChild(installBtn); row.appendChild(closeBtn); card.appendChild(row); ov.appendChild(card);
+  document.body.appendChild(ov);
+};
+
+// Capture the install prompt globally so the guide button can trigger it.
+window.addEventListener("beforeinstallprompt", function (e) {
+  e.preventDefault();
+  window.__eeDeferredInstall = e;
+});
+
+// If running as an INSTALLED app with no session, show a friendly one-tap
+// prompt instead of the raw form loop.
+(function () {
+  var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
+  if (!standalone) return;
+  function hasSession() {
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf("-auth-token") !== -1) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+  function checkAndPrompt() {
+    if (hasSession()) return;
+    var authForm = document.getElementById("elevateAuthForm");
+    if (!authForm) return;
+    if (document.getElementById("eeStandaloneHint")) return;
+    var hint = document.createElement("div");
+    hint.id = "eeStandaloneHint";
+    hint.style.cssText = "margin-top:14px;font-size:13px;line-height:1.5;color:#6F4E37;text-align:center;";
+    hint.innerHTML = "Enter your email above and tap send - then open the link from your email <b>in this app</b> to stay signed in.";
+    authForm.appendChild(hint);
+  }
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", checkAndPrompt);
+  else checkAndPrompt();
 })();
