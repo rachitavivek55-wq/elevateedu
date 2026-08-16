@@ -112,7 +112,7 @@ function updateHomeMetrics() {
         e && (e.type === 'assignment' || e.type === 'exam' || e.type === 'task')
       );
     });
-    if (work.length)
+    if (Array.isArray(work))
       metrics.planner = plural(work.length, 'assignment', 'assignments');
   }
 
@@ -1263,4 +1263,18 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
   if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", checkAndPrompt);
   else checkAndPrompt();
+})();
+
+/* Uniform settings-row buttons + alignment (Section 21) */
+(function(){
+  try {
+    if (document.getElementById('eeSettingsUniformStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'eeSettingsUniformStyle';
+    s.textContent = 
+      '#eeSettingsOverlay > div > div{display:flex !important;align-items:center !important;justify-content:space-between !important;gap:12px !important;}' +
+      '#eeSettingsOverlay > div > div > button{width:84px !important;min-width:84px !important;box-sizing:border-box !important;text-align:center !important;font-size:16px !important;font-weight:600 !important;padding:7px 14px !important;border-radius:20px !important;flex:0 0 auto !important;}' +
+      '#eeSettingsOverlay > div > div > span{flex:1 1 auto !important;}';
+    document.head.appendChild(s);
+  } catch(e){}
 })();
