@@ -995,7 +995,7 @@ window.eeDeleteAccount = async function(){
     function paintSound(){
       var on = !muted();
       sBtn.textContent = on ? "On" : "Off";
-      sBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:" + (on ? "#6F4E37" : "rgba(111,78,55,0.25)") + ";color:" + (on ? "#F5E6CA" : "#6F4E37") + ";";
+      sBtn.style.cssText = "width:84px;box-sizing:border-box;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:" + (on ? "#6F4E37" : "rgba(111,78,55,0.25)") + ";color:" + (on ? "#F5E6CA" : "#6F4E37") + ";";
     }
     paintSound();
     sBtn.addEventListener("click", function(){
@@ -1010,7 +1010,7 @@ window.eeDeleteAccount = async function(){
     var rBtn = document.createElement("button");
     rBtn.type = "button";
     rBtn.textContent = "Reset";
-    rBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
+    rBtn.style.cssText = "width:84px;box-sizing:border-box;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
     var rArmed = false, rT = null;
     function disarmReset(){ rArmed=false; rBtn.textContent="Reset"; rBtn.style.background="rgba(180,60,50,0.15)"; rBtn.style.color="#a23b2f"; if(rT){clearTimeout(rT);rT=null;} }
     rBtn.addEventListener("click", function(){
@@ -1035,7 +1035,7 @@ window.eeDeleteAccount = async function(){
     var pLink = document.createElement("a");
     pLink.href = "privacy.html";
     pLink.textContent = "View";
-    pLink.style.cssText = "min-width:64px;text-align:center;padding:7px 14px;border-radius:20px;font-size:14px;font-weight:600;text-decoration:none;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
+    pLink.style.cssText = "width:84px;box-sizing:border-box;text-align:center;padding:7px 14px;border-radius:20px;font-size:14px;font-weight:600;text-decoration:none;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
     pRow.appendChild(pLink);
     panel.appendChild(pRow);
 
@@ -1046,7 +1046,7 @@ try { var _mLbl = mRow.querySelector("span"); if(_mLbl){ _mLbl.style.flex = "1";
 var mBtn = document.createElement("button");
 mBtn.type = "button";
 mBtn.textContent = "Open";
-mBtn.style.cssText = "min-width:64px;text-align:center;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
+mBtn.style.cssText = "width:84px;box-sizing:border-box;text-align:center;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
 mBtn.addEventListener("click", function(){ window.open(PORTAL_URL, "_blank", "noopener"); });
 mRow.appendChild(mBtn);
 mRow.style.display = "none";
@@ -1060,7 +1060,7 @@ var dRow = row("Delete account");
     var dBtn = document.createElement("button");
     dBtn.type = "button";
     dBtn.textContent = "Delete";
-    dBtn.style.cssText = "min-width:64px;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
+    dBtn.style.cssText = "width:84px;box-sizing:border-box;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(180,60,50,0.15);color:#a23b2f;";
     var dArmed = false, dT = null;
     function disarmDel(){ dArmed=false; dBtn.textContent="Delete"; dBtn.style.background="rgba(180,60,50,0.15)"; dBtn.style.color="#a23b2f"; if(dT){clearTimeout(dT);dT=null;} }
     dBtn.addEventListener("click", function(){
