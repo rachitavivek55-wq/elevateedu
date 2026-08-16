@@ -107,10 +107,15 @@ function updateHomeMetrics() {
 
   var cal = read('elevate_calendar_entries', []);
   if (Array.isArray(cal)) {
-    var work = cal.filter(function (e) {
-      return (
-        e && (e.type === 'assignment' || e.type === 'exam' || e.type === 'task')
-      );
+    var _t = new Date(); var todayStr = _t.getFullYear() + '-' + String(_t.getMonth()+1).padStart(2,'0') + '-' + String(_t.getDate()).padStart(2,'0');
+    var work = cal.filter(function(e) {
+      if (!e) return false;
+      var isAssign = (e.type === 'assignment' || e.type === 'exam' || e.type === 'task');
+      if (!isAssign) return false;
+      if (!e.title || !String(e.title).trim()) return false; // ignore blank/placeholder entries
+      if (e.done === true || e.completed === true) return false; // ignore completed
+      if (e.date) { var ds = String(e.date).slice(0,10); if (ds && ds < todayStr) return false; } // ignore past (string compare, tz-safe)
+      return true;
     });
     if (Array.isArray(work))
       metrics.planner = plural(work.length, 'assignment', 'assignments');
