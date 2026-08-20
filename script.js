@@ -205,7 +205,7 @@ var elevateAuth = (function () {
 
   function initSupabase() {
     if (typeof supabase === 'undefined')
-      return console.error('Supabase not loaded');
+      return; /* Library arrives later on some pages; Section 22 re-initializes. */
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   }
 
@@ -242,7 +242,7 @@ try { showInstallFirstGuide(email); } catch (e) {}
   async function checkSession() {
     var {
       data: { session },
-    } = await supabaseClient.auth.getSession();
+    } = await (supabaseClient ? supabaseClient.auth.getSession() : Promise.resolve({ data: { session: null } }));
     if (session) {
       currentSession = session;
       return true;
@@ -321,7 +321,17 @@ try { showInstallFirstGuide(email); } catch (e) {}
 (function () {
   var originalSetItem = localStorage.setItem;
   localStorage.setItem = function (key, value) {
-    originalSetItem.call(this, key, value);
+    try {
+      originalSetItem.call(this, key, value);
+    } catch (err) {
+      /* Storage full: warn the user instead of losing data silently. */
+      try { window.eeStorageFull && window.eeStorageFull(key); } catch (e2) {}
+      if (!window.__eeQuotaWarned) {
+        window.__eeQuotaWarned = true;
+        alert("This device is out of storage space, so your latest change could not be saved locally. Older items are still safe. Try removing a few large images to free up room.");
+      }
+      throw err;
+    }
     if (key.indexOf('elevate') === 0 && elevateAuth) {
       elevateAuth.syncToSupabase(key, value);
     }
@@ -861,7 +871,7 @@ window.eeDeleteAccount = async function(){
   var AC = window.AudioContext || window.webkitAudioContext;
   if (!AC) return;
   var ctx = null;
-  function muted(){ return localStorage.getItem('ee_sound_off') === '1'; }
+  function muted(){ return true; } /* sounds removed */
   function ensureCtx(){
     if (!ctx) { try { ctx = new AC(); } catch(e){ return null; } }
     if (ctx.state === 'suspended') { ctx.resume(); }
@@ -996,22 +1006,7 @@ window.eeDeleteAccount = async function(){
     h.style.cssText = "margin:0 0 6px;font-size:20px;font-weight:700;color:#4B3832;";
     panel.appendChild(h);
 
-    var sRow = row("Sounds");
-    var sBtn = document.createElement("button");
-    sBtn.type = "button";
-    function paintSound(){
-      var on = !muted();
-      sBtn.textContent = on ? "On" : "Off";
-      sBtn.style.cssText = "width:84px;box-sizing:border-box;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:" + (on ? "#6F4E37" : "rgba(111,78,55,0.25)") + ";color:" + (on ? "#F5E6CA" : "#6F4E37") + ";";
-    }
-    paintSound();
-    sBtn.addEventListener("click", function(){
-      if(muted()){ localStorage.removeItem("ee_sound_off"); } else { localStorage.setItem("ee_sound_off","1"); }
-      paintSound();
-      if(!muted()) playClick();
-    });
-    sRow.appendChild(sBtn);
-    panel.appendChild(sRow);
+    
 
     var rRow = row("Reset all data");
     var rBtn = document.createElement("button");
@@ -1046,22 +1041,7 @@ window.eeDeleteAccount = async function(){
     pRow.appendChild(pLink);
     panel.appendChild(pRow);
 
-    // Manage subscription (premium only) - opens Stripe Customer Portal
-var PORTAL_URL = "https://billing.stripe.com/p/login/14A4gz5RN4AKgQ27eY97G00";
-var mRow = row("Manage subscription");
-try { var _mLbl = mRow.querySelector("span"); if(_mLbl){ _mLbl.style.flex = "1"; } } catch(e){}
-var mBtn = document.createElement("button");
-mBtn.type = "button";
-mBtn.textContent = "Open";
-mBtn.style.cssText = "width:84px;box-sizing:border-box;text-align:center;padding:7px 14px;border:none;border-radius:20px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;background:rgba(111,78,55,0.15);color:#6F4E37;";
-mBtn.addEventListener("click", function(){ window.open(PORTAL_URL, "_blank", "noopener"); });
-mRow.appendChild(mBtn);
-mRow.style.display = "none";
-panel.appendChild(mRow);
-var mHint = hint("Change your plan, update payment details, or cancel your subscription anytime.");
-mHint.style.display = "none";
-panel.appendChild(mHint);
-/* App is now free: no subscription to manage, keep this row hidden. */
+    
 
 var dRow = row("Delete account");
     var dBtn = document.createElement("button");
@@ -1092,7 +1072,7 @@ var dRow = row("Delete account");
     close.style.cssText = "margin-top:18px;width:100%;padding:11px;border:none;border-radius:14px;background:#6F4E37;color:#F5E6CA;font-size:15px;font-weight:600;cursor:pointer;font-family:inherit;";
     panel.appendChild(close);
 
-    function openPanel(){ paintSound(); disarmReset(); disarmDel(); overlay.style.display="flex"; }
+    function openPanel(){ disarmReset(); disarmDel(); overlay.style.display="flex"; }
     function closePanel(){ overlay.style.display="none"; }
     gear.addEventListener("click", function(e){ e.stopPropagation(); openPanel(); });
     close.addEventListener("click", closePanel);
@@ -1284,4 +1264,116 @@ window.addEventListener("beforeinstallprompt", function (e) {
       '#eeSettingsOverlay > div > div > span{flex:1 1 auto !important;}';
     document.head.appendChild(s);
   } catch(e){}
+})();
+
+
+/* ============================================================
+   SECTION 21 - Automatic image compression (protects user data)
+   Phone photos are 3-6MB each, and browsers only allow ~5MB of
+   local storage, so uploading even one raw photo could fail and
+   lose work. Every uploaded image is downscaled and re-encoded
+   before it is stored, which shrinks it roughly 15-25x. Users can
+   then save many images safely instead of just one.
+   ============================================================ */
+(function () {
+  if (window.__eeImgCompressPatched) return;
+  if (typeof FileReader === 'undefined' || !FileReader.prototype) return;
+  window.__eeImgCompressPatched = true;
+  var MAX_DIM = 1400;
+  var QUALITY = 0.72;
+  var original = FileReader.prototype.readAsDataURL;
+  FileReader.prototype.readAsDataURL = function (blob) {
+    var fr = this;
+    var t = blob && typeof blob.type === 'string' ? blob.type : '';
+    // Only shrink raster photos; leave SVG and non-images untouched.
+    if (t.indexOf('image/') !== 0 || t.indexOf('image/svg') === 0) {
+      return original.call(fr, blob);
+    }
+    var url;
+    try { url = URL.createObjectURL(blob); } catch (e) { return original.call(fr, blob); }
+    var img = new Image();
+    function fallback() {
+      try { URL.revokeObjectURL(url); } catch (e) {}
+      try { original.call(fr, blob); } catch (e) {}
+    }
+    img.onload = function () {
+      try {
+        var w = img.naturalWidth || img.width;
+        var h = img.naturalHeight || img.height;
+        if (!w || !h) return fallback();
+        var scale = Math.min(1, MAX_DIM / Math.max(w, h));
+        var cw = Math.max(1, Math.round(w * scale));
+        var ch = Math.max(1, Math.round(h * scale));
+        var cv = document.createElement('canvas');
+        cv.width = cw; cv.height = ch;
+        var ctx = cv.getContext('2d');
+        if (!ctx) return fallback();
+        ctx.drawImage(img, 0, 0, cw, ch);
+        var out = cv.toDataURL('image/jpeg', QUALITY);
+        try { URL.revokeObjectURL(url); } catch (e) {}
+        if (!out || out.length < 32) return fallback();
+        // Present the compressed image exactly like a normal FileReader would.
+        try { Object.defineProperty(fr, 'result', { value: out, configurable: true }); } catch (e) { return fallback(); }
+        var ev = { target: fr, currentTarget: fr, type: 'load' };
+        try { if (typeof fr.onload === 'function') fr.onload(ev); } catch (e) {}
+        try { if (typeof fr.onloadend === 'function') fr.onloadend(ev); } catch (e) {}
+      } catch (e) { fallback(); }
+    };
+    img.onerror = fallback;
+    img.src = url;
+  };
+})();
+
+
+/* ============================================================
+   SECTION 22 - Cloud sync safety net (prevents data loss)
+   Several tool pages load script.js but not the Supabase library,
+   so the sign-in session was never created there and everything the
+   user typed stayed only in that browser. If the library is missing
+   we load it, restore the session, and back up anything already
+   saved on the device so no work is stranded locally.
+   ============================================================ */
+(function () {
+  if (window.__eeSyncSafetyNet) return;
+  window.__eeSyncSafetyNet = true;
+  function libReady() {
+    return typeof supabase !== 'undefined' && !!supabase.createClient;
+  }
+  // If the page already loaded the library, the normal startup handled it.
+  if (libReady()) return;
+  function loadLib() {
+    return new Promise(function (resolve) {
+      var sc = document.createElement('script');
+      sc.src = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2';
+      sc.onload = function () { resolve(libReady()); };
+      sc.onerror = function () { resolve(false); };
+      (document.head || document.documentElement).appendChild(sc);
+    });
+  }
+  function backupLocalWork() {
+    // Additive only: uploads what is on this device, never overwrites it.
+    var keys = [];
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('elevate') === 0) keys.push(k);
+      }
+    } catch (e) { return; }
+    keys.forEach(function (k) {
+      try {
+        var raw = localStorage.getItem(k);
+        if (raw == null) return;
+        elevateAuth.syncToSupabase(k, JSON.parse(raw));
+      } catch (e) {}
+    });
+  }
+  loadLib().then(function (ok) {
+    if (!ok || typeof elevateAuth === 'undefined') return;
+    try {
+      elevateAuth.init();
+      elevateAuth.checkSession().then(function (hasSession) {
+        if (hasSession) backupLocalWork();
+      }).catch(function () {});
+    } catch (e) {}
+  });
 })();
