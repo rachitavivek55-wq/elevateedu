@@ -37,7 +37,7 @@ window.eeGetPremium = function () {
       var user = s && s.data && s.data.session ? s.data.session.user : null;
       if (!user) return { user: null, isPremium: false };
       var r = await c.from('profiles').select('is_premium').eq('id', user.id).single();
-      return { user: user, isPremium: !!(r.data && r.data.is_premium) };
+      return { user: user, isPremium: true }; /* App is now free: everyone gets full access */
     } catch (e) { return { user: null, isPremium: false }; }
   })();
   return window.__eePremiumPromise;
@@ -420,8 +420,10 @@ var elevatePremium = (function () {
   }
 
   function init() {
-    if (btn) btn.addEventListener('click', startCheckout);
-    checkPremium().then(markPremiumUI);
+    /* App is now free: hide the upgrade zone/button entirely. */
+    if (zone) zone.style.display = 'none';
+    if (btn) btn.style.display = 'none';
+    if (note) note.style.display = 'none';
   }
 
   return { init, checkPremium, markPremiumUI };
@@ -1059,7 +1061,7 @@ panel.appendChild(mRow);
 var mHint = hint("Change your plan, update payment details, or cancel your subscription anytime.");
 mHint.style.display = "none";
 panel.appendChild(mHint);
-(function(){ try { if(window.eeGetPremium){ window.eeGetPremium().then(function(r){ if(r && r.isPremium){ mRow.style.display = ""; mHint.style.display = ""; } }); } } catch(e){} })();
+/* App is now free: no subscription to manage, keep this row hidden. */
 
 var dRow = row("Delete account");
     var dBtn = document.createElement("button");
