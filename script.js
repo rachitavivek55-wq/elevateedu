@@ -210,9 +210,9 @@ var elevateAuth = (function () {
   }
 
   function showAuthScreen() {
-    authScreen.style.display = 'flex';
+    if (authScreen) authScreen.style.display = 'flex';
     if (authForm) authForm.reset();
-    authMsg.textContent = '';
+    if (authMsg) authMsg.textContent = '';
   }
 
   function hideAuthScreen() {
@@ -220,6 +220,7 @@ var elevateAuth = (function () {
   }
 
   function setMsg(text, color) {
+    if (!authMsg) return;
     authMsg.textContent = text;
     authMsg.style.color = color || 'var(--coffee)';
   }
@@ -250,20 +251,61 @@ try { showInstallFirstGuide(email); } catch (e) {}
     return false;
   }
 
-  async function syncFromSupabase() {
-    if (!currentSession) return;
+  async function syncFromSupabase(opts) {
+    if (!currentSession) return false;
+    var keepLocal = !!(opts && opts.keepLocal);
     var { data, error } = await supabaseClient
-      .from('user_data')
-      .select('data_key,data_value')
-      .eq('user_id', currentSession.user.id);
+      .from("user_data")
+      .select("*")
+      .eq("user_id", currentSession.user.id);
     if (error) {
-      console.error('Sync error:', error);
-      return;
+      console.error("Sync download error:", error);
+      return false;
     }
-    if (data)
-      data.forEach(function (row) {
-        localStorage.setItem(row.data_key, JSON.stringify(row.data_value));
-      });
+    var changed = false;
+    window.__eeApplyingRemote = true;
+    try {
+      if (data)
+        data.forEach(function (row) {
+          var incoming = JSON.stringify(row.data_value);
+          var existing = localStorage.getItem(row.data_key);
+          if (keepLocal && existing !== null) return;
+          if (existing === incoming) return;
+          try {
+            localStorage.setItem(row.data_key, incoming);
+            changed = true;
+          } catch (err) {}
+        });
+    } finally {
+      window.__eeApplyingRemote = false;
+    }
+    return changed;
+  }
+
+  /* Makes every device signed in to the same email show the same data.
+     First run on a device only fills gaps, so existing work is never lost,
+     then everything on this device is pushed up so the account is complete. */
+  async function cloudMerge() {
+    if (!currentSession) return false;
+    var firstRun = true;
+    try { firstRun = localStorage.getItem("ee_cloud_merged_v1") !== "1"; } catch (err) {}
+    var changed = await syncFromSupabase({ keepLocal: firstRun });
+    if (firstRun) {
+      var keys = [];
+      try {
+        for (var i = 0; i < localStorage.length; i++) {
+          var k = localStorage.key(i);
+          if (k && k.indexOf("elevate") === 0) keys.push(k);
+        }
+      } catch (err) {}
+      for (var j = 0; j < keys.length; j++) {
+        try {
+          await syncToSupabase(keys[j], JSON.parse(localStorage.getItem(keys[j])));
+        } catch (err) {}
+      }
+      try { localStorage.setItem("ee_cloud_merged_v1", "1"); } catch (err) {}
+    }
+    return changed;
   }
 
   async function syncToSupabase(key, value) {
@@ -273,7 +315,7 @@ try { showInstallFirstGuide(email); } catch (e) {}
       user_id: currentSession.user.id,
       data_key: key,
       data_value: jsonVal,
-    });
+    }, { onConflict: "user_id,data_key" });
     if (error) console.error('Sync upload error:', error);
   }
 
@@ -295,6 +337,7 @@ try { showInstallFirstGuide(email); } catch (e) {}
     init,
     checkSession,
     syncFromSupabase,
+    cloudMerge,
     syncToSupabase,
     logout,
     showAuthScreen,
@@ -307,9 +350,10 @@ try { showInstallFirstGuide(email); } catch (e) {}
   elevateAuth.init();
   elevateAuth.checkSession().then(function (hasSession) {
     if (hasSession) {
-      elevateAuth.syncFromSupabase().then(function () {
+      elevateAuth.cloudMerge().then(function (changed) {
         elevateAuth.hideAuthScreen();
         renderDate();
+        if (window.eeRefreshIfHydrated) window.eeRefreshIfHydrated(changed);
       });
     } else {
       elevateAuth.showAuthScreen();
@@ -333,7 +377,7 @@ try { showInstallFirstGuide(email); } catch (e) {}
       throw err;
     }
     if (key.indexOf('elevate') === 0 && elevateAuth) {
-      elevateAuth.syncToSupabase(key, value);
+      if (!window.__eeApplyingRemote) elevateAuth.syncToSupabase(key, value);
     }
   };
 })();
@@ -1372,8 +1416,30 @@ window.addEventListener("beforeinstallprompt", function (e) {
     try {
       elevateAuth.init();
       elevateAuth.checkSession().then(function (hasSession) {
-        if (hasSession) backupLocalWork();
+        if (hasSession)
+              elevateAuth
+                .cloudMerge()
+                .then(function (changed) {
+                  try { elevateAuth.hideAuthScreen(); } catch (err) {}
+                  if (window.eeRefreshIfHydrated) window.eeRefreshIfHydrated(changed);
+                })
+                .catch(function () {});
       }).catch(function () {});
     } catch (e) {}
   });
+})();
+
+/* ===== SECTION 23 - Show data that just arrived from the account =====
+   Tool pages draw themselves before the download finishes, so on a new device
+   we repaint once (and only once per tab) after new data lands. */
+(function () {
+  if (window.eeRefreshIfHydrated) return;
+  window.eeRefreshIfHydrated = function (changed) {
+    if (!changed) return;
+    try {
+      if (sessionStorage.getItem("ee_hydrate_reloaded") === "1") return;
+      sessionStorage.setItem("ee_hydrate_reloaded", "1");
+      location.reload();
+    } catch (err) {}
+  };
 })();
