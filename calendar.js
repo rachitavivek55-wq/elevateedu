@@ -6,6 +6,11 @@
   let endMin = 1320;
   let dayStart = 6;
   let dayEnd = 22;
+  // Effective grid bounds for the current render. They start from the user's
+  // preferred day window but widen automatically so an entry outside that
+  // window still lands at its true position instead of being clamped to an edge.
+  let gDayStart = 6;
+  let gDayEnd = 22;
   function deriveHours() {
     if (endMin <= startMin) endMin = Math.min(1439, startMin + 60);
     dayStart = Math.floor(startMin / 60);
@@ -237,9 +242,28 @@ let editingId = null;
       html += '</div>';
     }
 
+    // Widen the visible hour range if any entry on screen falls outside the
+    // user's preferred window, so every block sits at its real time.
+    gDayStart = dayStart;
+    gDayEnd = dayEnd;
+    days.forEach(function (d) {
+      entriesOn(d).forEach(function (e) {
+        var s0 = toMin(e.start || e.time);
+        if (s0 === null) return;
+        var e0 = toMin(e.end);
+        if (e0 === null || e0 <= s0) e0 = s0 + 30;
+        var sh = Math.floor(s0 / 60);
+        var eh = Math.ceil(e0 / 60) - 1;
+        if (sh < gDayStart) gDayStart = sh;
+        if (eh > gDayEnd) gDayEnd = eh;
+      });
+    });
+    if (gDayStart < 0) gDayStart = 0;
+    if (gDayEnd > 23) gDayEnd = 23;
+
     html +=
       '<div class="cal-timegrid' + (dayCount === 1 ? ' day-grid' : '') + '">';
-    for (let h = dayStart; h <= dayEnd; h++) {
+    for (let h = gDayStart; h <= gDayEnd; h++) {
       const ap = h >= 12 ? 'PM' : 'AM';
       const hh = h % 12 || 12;
       html += '<div class="cal-hourlabel">' + hh + ap + '</div>';
@@ -299,7 +323,7 @@ let editingId = null;
     // footprint, so a tiny event that would otherwise bleed onto the next one
     // gets bumped into its own side-by-side lane. Normal-length back-to-back
     // events are taller than this, so they stay full width and simply stack.
-    var MIN_MIN = 10;
+    var MIN_MIN = 18;
     var items = [];
     list.forEach(function (e) {
       var s = toMin(e.start || e.time);
@@ -367,20 +391,20 @@ let editingId = null;
   function placeEvent(e, date, col, dayCount, startMin, endMin, lane, lanes, capMin) {
     var grid = calBody.querySelector('.cal-timegrid');
     if (!grid) return;
-    var gridStartMin = dayStart * 60;
-    var gridEndMin = (dayEnd + 1) * 60; // dayEnd is the last labelled hour row
+    var gridStartMin = gDayStart * 60;
+    var gridEndMin = (gDayEnd + 1) * 60; // dayEnd is the last labelled hour row
     // clamp to the visible window so nothing renders off-grid
     var s = Math.max(startMin, gridStartMin);
     var en = Math.min(endMin, gridEndMin);
     if (en <= s) en = Math.min(s + 22, gridEndMin);
     // anchor to the first hour cell of this column so absolute px math is exact
     var anchor = grid.querySelector(
-      '.cal-cell[data-date="' + ymd(date) + '"][data-hour="' + dayStart + '"]'
+      '.cal-cell[data-date="' + ymd(date) + '"][data-hour="' + gDayStart + '"]'
     );
     if (!anchor) return;
     var PX_PER_MIN = 46 / 60;
     var top = (s - gridStartMin) * PX_PER_MIN;
-    var height = Math.max(6, (en - s) * PX_PER_MIN - 3);
+    var height = Math.max(14, (en - s) * PX_PER_MIN - 3);
     // never let a chip reach into a following same-lane event (keeps a 1px gap)
     if (capMin !== undefined && capMin !== Infinity) {
       var maxH = (capMin - s) * PX_PER_MIN - 1;
@@ -401,9 +425,20 @@ let editingId = null;
       chip.style.width = 'calc(' + span + '% - ' + (gutter * 2) + 'px)';
     }
     var timeStr = e.start ? fmtTime(e.start) : e.time ? fmtTime(e.time) : '';
+    var endStr = e.end ? fmtTime(e.end) : '';
+    var fullRange = timeStr + (endStr && endStr !== timeStr ? ' – ' + endStr : '');
+    // Only day view has room for the full range on one line; week view keeps
+    // just the start time so the title isn't squeezed.
+    var rangeStr = dayCount === 1 ? fullRange : timeStr;
     chip.innerHTML =
-      '<span class="ev-time">' + timeStr + '</span>' + escapeHtml(e.title);
-    chip.title = e.title + (e.notes ? ' — ' + e.notes : '');
+      '<span class="ev-time">' + rangeStr + '</span>' +
+      '<span class="ev-title">' + escapeHtml(e.title) + '</span>';
+    // Hide the inline time label when the chip is too small to show it neatly,
+    // so side-by-side and very short blocks stay readable.
+    if (lanes > 1) chip.classList.add('is-narrow');
+    if (height < 26) chip.classList.add('is-short');
+    chip.title =
+      (fullRange ? fullRange + ' · ' : '') + e.title + (e.notes ? ' — ' + e.notes : '');
     chip.addEventListener('click', function () { openModal(e); });
     anchor.appendChild(chip);
   }
@@ -591,6 +626,7 @@ let editingId = null;
     } else {
       document.getElementById('fDate').value = e.date || ymd(new Date());
       document.getElementById('fTime').value = e.time || '';
+      document.getElementById('fTimeEnd').value = e.end || '';
       if (e.type === 'exam')
         document.getElementById('fLocation').value = e.location || '';
       if (e.type === 'assignment' || e.type === 'task')
@@ -716,6 +752,7 @@ let editingId = null;
     } else {
       entry.date = document.getElementById('fDate').value;
       entry.time = document.getElementById('fTime').value;
+      entry.end = document.getElementById('fTimeEnd').value;
       if (currentType === 'exam')
         entry.location = document.getElementById('fLocation').value.trim();
       if (currentType === 'assignment' || currentType === 'task')
