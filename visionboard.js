@@ -10,6 +10,7 @@
   var BUCKET = 'visionboard';
   var URL_CACHE = {};
   var migrating = false;
+  var migrateTries = 0;
 
   function sbClient() {
     try { return window.eeSupabase ? window.eeSupabase() : null; } catch (e) { return null; }
@@ -88,6 +89,11 @@
   /* Move one inline picture at a time into the bucket, then shrink the saved copy. */
   function migrateImages() {
     if (migrating || !state || !state.boards) return;
+    if (!sbClient()) {
+      /* supabase-js is loaded async, so it may not be ready yet — try again shortly. */
+      if (migrateTries++ < 20) setTimeout(migrateImages, 1500);
+      return;
+    }
     var pending = null;
     for (var i = 0; i < state.boards.length && !pending; i++) {
       var items = state.boards[i].items || [];
@@ -101,7 +107,11 @@
     uploadImage(original)
       .then(function (path) {
         migrating = false;
-        if (!path || pending.image !== original) return;
+        if (!path) {
+          if (migrateTries++ < 20) setTimeout(migrateImages, 4000);
+          return;
+        }
+        if (pending.image !== original) return;
         pending.image = path;
         persistSafe();
         migrateImages();
