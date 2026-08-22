@@ -202,6 +202,41 @@ let editingId = null;
     });
     html += '</div>';
 
+
+    // All-day strip: entries saved without a time still need somewhere to live.
+    var adDays = days.map(function (d) {
+      return entriesOn(d).filter(function (e) {
+        return toMin(e.start || e.time) === null;
+      });
+    });
+    var hasAllDay = adDays.some(function (l) {
+      return l.length > 0;
+    });
+    if (hasAllDay) {
+      html +=
+        '<div class="cal-allday' + (dayCount === 1 ? ' day-allday' : '') + '">';
+      html += '<div class="cal-adlabel">All<br>day</div>';
+      days.forEach(function (d, i) {
+        html += '<div class="cal-adcell">';
+        adDays[i].forEach(function (e, j) {
+          html +=
+            '<div class="cal-adchip" data-adcol="' +
+            i +
+            '" data-adidx="' +
+            j +
+            '" style="background:' +
+            (e.color || '#6F4E37') +
+            '" title="' +
+            escapeHtml(e.title + (e.notes ? ' — ' + e.notes : '')) +
+            '">' +
+            escapeHtml(e.title) +
+            '</div>';
+        });
+        html += '</div>';
+      });
+      html += '</div>';
+    }
+
     html +=
       '<div class="cal-timegrid' + (dayCount === 1 ? ' day-grid' : '') + '">';
     for (let h = dayStart; h <= dayEnd; h++) {
@@ -220,7 +255,22 @@ let editingId = null;
     html += '</div></div>';
     calBody.innerHTML = html;
 
-    // place timed events (exact minute placement + side-by-side overlap layout)
+// make all-day chips open their entry, just like timed chips
+    Array.prototype.forEach.call(
+      calBody.querySelectorAll('.cal-adchip'),
+      function (el) {
+        var c = parseInt(el.getAttribute('data-adcol'), 10);
+        var k = parseInt(el.getAttribute('data-adidx'), 10);
+        var ent = adDays[c] && adDays[c][k];
+        if (ent) {
+          el.addEventListener('click', function () {
+            openModal(ent);
+          });
+        }
+      }
+    );
+
+        // place timed events (exact minute placement + side-by-side overlap layout)
   days.forEach((d, col) => {
     layoutDay(entriesOn(d)).forEach((it) => {
       placeEvent(it.e, d, col, dayCount, it.startMin, it.endMin, it.lane, it.lanes, it.capMin);
