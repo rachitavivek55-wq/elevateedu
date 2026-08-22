@@ -525,6 +525,7 @@ window.eeDeleteAccount = async function(){
 
   function showIOSHint(){
     var b = makeBtn();
+    if(!b) return;
     b.firstChild.textContent = '\u2193 Add to Home Screen';
     b.addEventListener('click', function(){
       alert('To install ElevateEdu:\n\n1. Tap the Share button (the square with an up-arrow) at the bottom of Safari.\n2. Scroll down and tap \u201cAdd to Home Screen\u201d.\n3. Tap Add \u2014 ElevateEdu will appear as an app icon!');
@@ -536,6 +537,7 @@ window.eeDeleteAccount = async function(){
     e.preventDefault();
     deferredPrompt = e;
     var b = makeBtn();
+    if(!b) return;
     b.addEventListener('click', function(){
       if(!deferredPrompt) return;
       deferredPrompt.prompt();
