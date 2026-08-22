@@ -441,6 +441,9 @@ let editingId = null;
       (fullRange ? fullRange + ' · ' : '') + e.title + (e.notes ? ' — ' + e.notes : '');
     chip.addEventListener('click', function () { openModal(e); });
     anchor.appendChild(chip);
+    // A split chip in a narrow week column can end up too small for any text;
+    // show a clean colour block instead of clipped characters (tap for detail).
+    if (chip.getBoundingClientRect().width < 34) chip.classList.add('is-tiny');
   }
 
     function renderMonth() {
