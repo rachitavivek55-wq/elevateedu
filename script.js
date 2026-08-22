@@ -1,3 +1,24 @@
+// PWA head tags — added on every page so ElevateEdu can be installed to a
+// phone's home screen and use the standalone (no browser chrome) styling.
+(function () {
+  var head = document.head;
+  if (!head) return;
+  function add(tag, attrs, probe) {
+    if (head.querySelector(probe)) return;
+    var el = document.createElement(tag);
+    for (var k in attrs) el.setAttribute(k, attrs[k]);
+    head.appendChild(el);
+  }
+  add('link', { rel: 'manifest', href: './manifest.json' }, 'link[rel=\'manifest\']');
+  add('link', { rel: 'apple-touch-icon', href: './apple-touch-icon.png' }, 'link[rel=\'apple-touch-icon\']');
+  add('link', { rel: 'icon', type: 'image/png', href: './icon-192.png' }, 'link[rel=\'icon\']');
+  add('meta', { name: 'theme-color', content: '#4b3832' }, 'meta[name=\'theme-color\']');
+  add('meta', { name: 'mobile-web-app-capable', content: 'yes' }, 'meta[name=\'mobile-web-app-capable\']');
+  add('meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }, 'meta[name=\'apple-mobile-web-app-capable\']');
+  add('meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }, 'meta[name=\'apple-mobile-web-app-status-bar-style\']');
+  add('meta', { name: 'apple-mobile-web-app-title', content: 'ElevateEdu' }, 'meta[name=\'apple-mobile-web-app-title\']');
+})();
+
 // ElevateEdu — shared app logic
 
 // 1) Live date in the title bar (always current)
