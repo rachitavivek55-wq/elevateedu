@@ -161,6 +161,12 @@
     var data = daily.slice(-7);
     if (data.length < 2) {
       svg.innerHTML = '';
+      // One recorded day isn't a trend yet, so say so instead of implying
+      // that nothing was saved.
+      empty.textContent =
+        data.length === 1
+          ? 'Saved. Check back tomorrow to start seeing your trend.'
+          : 'Add some money to start tracking';
       empty.hidden = false;
       return;
     }
