@@ -1,6 +1,113 @@
 (function () {
   'use strict';
   var KEY = 'elevate_visionboard';
+
+  /* ---------- Picture storage ----------
+     Photos live in a private Supabase Storage bucket; localStorage only keeps a
+     short path like 'sb:<user>/<id>.jpg'. If the bucket or the network is not
+     available the picture simply stays inline, exactly as before, so nothing is
+     ever lost. ---------------------------------------------------------------- */
+  var BUCKET = 'visionboard';
+  var URL_CACHE = {};
+  var migrating = false;
+
+  function sbClient() {
+    try { return window.eeSupabase ? window.eeSupabase() : null; } catch (e) { return null; }
+  }
+  function sbUser() {
+    var c = sbClient();
+    if (!c) return Promise.resolve(null);
+    return c.auth
+      .getSession()
+      .then(function (s) {
+        return s && s.data && s.data.session ? s.data.session.user : null;
+      })
+      .catch(function () { return null; });
+  }
+  function isStored(v) {
+    return typeof v === 'string' && v.slice(0, 3) === 'sb:';
+  }
+  function isInline(v) {
+    return typeof v === 'string' && v.slice(0, 5) === 'data:';
+  }
+  function dataUrlToBlob(d) {
+    var parts = d.split(',');
+    var mime = (parts[0].match(/:(.*?);/) || [])[1] || 'image/jpeg';
+    var bin = atob(parts[1]);
+    var n = bin.length;
+    var arr = new Uint8Array(n);
+    while (n--) arr[n] = bin.charCodeAt(n);
+    return new Blob([arr], { type: mime });
+  }
+  function uploadImage(dataUrl) {
+    var c = sbClient();
+    if (!c || !c.storage || !isInline(dataUrl)) return Promise.resolve(null);
+    return sbUser()
+      .then(function (user) {
+        if (!user) return null;
+        var path = user.id + '/' + uid() + '.jpg';
+        return c.storage
+          .from(BUCKET)
+          .upload(path, dataUrlToBlob(dataUrl), { contentType: 'image/jpeg', upsert: false })
+          .then(function (res) {
+            return res && res.error ? null : 'sb:' + path;
+          });
+      })
+      .catch(function () { return null; });
+  }
+  function signedUrl(val) {
+    if (!isStored(val)) return Promise.resolve(val || '');
+    var path = val.slice(3);
+    var hit = URL_CACHE[path];
+    if (hit && hit.exp > Date.now()) return Promise.resolve(hit.url);
+    var c = sbClient();
+    if (!c || !c.storage) return Promise.resolve('');
+    return c.storage
+      .from(BUCKET)
+      .createSignedUrl(path, 3600)
+      .then(function (res) {
+        if (!res || res.error || !res.data) return '';
+        URL_CACHE[path] = { url: res.data.signedUrl, exp: Date.now() + 3000000 };
+        return res.data.signedUrl;
+      })
+      .catch(function () { return ''; });
+  }
+  function setImgSrc(el, val, asBackground) {
+    if (!el || !val) return;
+    if (!isStored(val)) {
+      if (asBackground) el.style.backgroundImage = 'url(' + val + ')';
+      else el.src = val;
+      return;
+    }
+    signedUrl(val).then(function (u) {
+      if (!u) return;
+      if (asBackground) el.style.backgroundImage = 'url(' + u + ')';
+      else el.src = u;
+    });
+  }
+  /* Move one inline picture at a time into the bucket, then shrink the saved copy. */
+  function migrateImages() {
+    if (migrating || !state || !state.boards) return;
+    var pending = null;
+    for (var i = 0; i < state.boards.length && !pending; i++) {
+      var items = state.boards[i].items || [];
+      for (var j = 0; j < items.length; j++) {
+        if (isInline(items[j].image)) { pending = items[j]; break; }
+      }
+    }
+    if (!pending) return;
+    migrating = true;
+    var original = pending.image;
+    uploadImage(original)
+      .then(function (path) {
+        migrating = false;
+        if (!path || pending.image !== original) return;
+        pending.image = path;
+        persistSafe();
+        migrateImages();
+      })
+      .catch(function () { migrating = false; });
+  }
   var $ = function (id) {
     return document.getElementById(id);
   };
@@ -184,7 +291,7 @@
       }
     }
     if (firstImg) {
-      preview.style.backgroundImage = 'url(' + firstImg + ')';
+      setImgSrc(preview, firstImg, true);
       preview.style.backgroundSize = 'cover';
       preview.style.backgroundPosition = 'center';
     } else {
@@ -289,7 +396,7 @@
     if (item.image) {
       var img = document.createElement('img');
       img.className = 'vb-item-img';
-      img.src = item.image;
+      setImgSrc(img, item.image, false);
       img.alt = '';
       card.appendChild(img);
     }
@@ -474,7 +581,7 @@
   }
   function reflectImage() {
     if (draftImage) {
-      $('vbImageImg').src = draftImage;
+      setImgSrc($('vbImageImg'), draftImage, false);
       $('vbImagePreview').hidden = false;
       $('vbImageBtnText').textContent = 'Change picture';
     } else {
@@ -569,6 +676,7 @@
     if (persistSafe()) {
       closeItemSheet();
       renderDetail();
+      migrateImages();
     }
   }
   function askDeleteItem() {
@@ -720,6 +828,7 @@
 
     showBoards();
     refreshIcons();
+    migrateImages();
   }
 
   if (document.readyState === 'loading') {
