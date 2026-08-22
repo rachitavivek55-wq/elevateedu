@@ -252,6 +252,13 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+.cal-event.is-tiny {
+  padding: 2px;
+}
+.cal-event.is-tiny .ev-time,
+.cal-event.is-tiny .ev-title {
+  display: none;
+}
 
 /* ---- Month view ---- */
 .cal-month {
