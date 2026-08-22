@@ -229,6 +229,30 @@
   display: block;
 }
 
+/* Compact chips: keep short and side-by-side blocks readable */
+.cal-event .ev-title {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.cal-event.is-narrow {
+  padding: 3px 4px;
+}
+.cal-event.is-narrow .ev-time,
+.cal-event.is-short .ev-time {
+  display: none;
+}
+.cal-event.is-short {
+  padding: 1px 6px;
+  line-height: 1.25;
+}
+.cal-event .ev-time {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
 /* ---- Month view ---- */
 .cal-month {
   display: grid;
