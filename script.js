@@ -225,7 +225,7 @@ var elevateAuth = (function () {
     if (waiting && isStandalone()) {
       pendingEmail = waiting;
       codeBox();
-      setMsg('Type the 6-digit code we emailed to ' + waiting + '. Need a fresh one? Enter your email above again.');
+      setMsg('Waiting on the sign-in link we emailed to ' + waiting + '. Press and hold it in your email, choose Copy Link, then paste it below.');
     }
   }
 
@@ -248,6 +248,9 @@ var elevateAuth = (function () {
   /* A tapped email link always opens the browser, never an installed iPhone app,
      so we also accept the 6-digit code from the same email. That lets people sign
      in from inside the installed app without ever leaving it. */
+  /* Tapping the sign-in link in an email always opens the browser, never an
+     installed iPhone app, which used to leave the app stuck on the sign-in
+     screen. So the app also accepts the link pasted in, or a one-time code. */
   function codeBox() {
     var box = document.getElementById('eeCodeBox');
     if (box) { box.style.display = 'block'; return box; }
@@ -255,56 +258,90 @@ var elevateAuth = (function () {
     box.id = 'eeCodeBox';
     box.style.cssText = 'margin-top:16px;text-align:left;';
     var lab = document.createElement('div');
-    lab.textContent = 'Or type the 6-digit code from the email';
+    lab.textContent = 'Signing in on a phone app? Paste the link from the email here';
     lab.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:7px;opacity:0.85;';
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:8px;';
     var inp = document.createElement('input');
     inp.id = 'eeCodeInput';
     inp.type = 'text';
-    inp.inputMode = 'numeric';
-    inp.autocomplete = 'one-time-code';
-    inp.maxLength = 6;
-    inp.placeholder = '123456';
-    inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(75,56,50,0.28);background:#fffdf8;color:#4B3832;font-size:18px;letter-spacing:4px;text-align:center;font-family:inherit;';
+    inp.autocomplete = 'off';
+    inp.spellcheck = false;
+    inp.placeholder = 'Paste sign-in link';
+    inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(75,56,50,0.28);background:#fffdf8;color:#4B3832;font-size:15px;font-family:inherit;';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = 'Sign in';
     btn.style.cssText = 'border:none;background:#6F4E37;color:#F5E6CA;border-radius:14px;padding:13px 18px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;';
-    btn.addEventListener('click', function () { verifyCode(inp, btn); });
+    btn.addEventListener('click', function () { verifySignIn(inp, btn); });
     inp.addEventListener('keydown', function (ev) {
-      if (ev.key === 'Enter') { ev.preventDefault(); verifyCode(inp, btn); }
+      if (ev.key === 'Enter') { ev.preventDefault(); verifySignIn(inp, btn); }
     });
     row.appendChild(inp);
     row.appendChild(btn);
     box.appendChild(lab);
     box.appendChild(row);
+    var help = document.createElement('div');
+    help.innerHTML = 'In your email app, <b>press and hold</b> the sign-in link and choose <b>Copy Link</b> - then paste it above. Do not tap it, that opens your browser instead of this app.';
+    help.style.cssText = 'font-size:12px;margin-top:8px;opacity:0.75;line-height:1.5;';
+    box.appendChild(help);
     if (authForm && authForm.parentNode) authForm.parentNode.insertBefore(box, authForm.nextSibling);
     else if (authScreen) authScreen.appendChild(box);
     return box;
   }
 
-  async function verifyCode(inp, btn) {
-    var code = (inp.value || '').replace(/[^0-9]/g, '');
-    if (code.length !== 6) return setMsg('That code needs to be 6 digits.');
-    if (!pendingEmail) return setMsg('Enter your email above first.');
+  function readToken(raw) {
+    var v = (raw || '').trim();
+    if (!v) return null;
+    if (/^[0-9]{6}$/.test(v)) return { kind: 'code', token: v };
+    var a = v.match(/access_token=([^&#\s]+)/);
+    var r = v.match(/refresh_token=([^&#\s]+)/);
+    if (a && r) return { kind: 'session', access: a[1], refresh: r[1] };
+    var th = v.match(/token_hash=([^&#\s]+)/);
+    if (th) return { kind: 'hash', token: th[1] };
+    var tk = v.match(/[?&]token=([^&#\s]+)/);
+    if (tk) return { kind: 'hash', token: tk[1] };
+    return null;
+  }
+
+  async function verifySignIn(inp, btn) {
+    var parsed = readToken(inp.value);
+    if (!parsed) {
+      return setMsg('That does not look like the sign-in link. Press and hold the link in your email, choose Copy Link, then paste the whole thing here.');
+    }
     btn.disabled = true;
     setMsg('Signing you in...');
-    var res = await supabaseClient.auth.verifyOtp({
-      email: pendingEmail,
-      token: code,
-      type: 'email',
-    });
+    var res;
+    try {
+      if (parsed.kind === 'session') {
+        res = await supabaseClient.auth.setSession({
+          access_token: parsed.access,
+          refresh_token: parsed.refresh,
+        });
+      } else if (parsed.kind === 'hash') {
+        res = await supabaseClient.auth.verifyOtp({ token_hash: parsed.token, type: 'magiclink' });
+        if (res.error) {
+          res = await supabaseClient.auth.verifyOtp({ token_hash: parsed.token, type: 'email' });
+        }
+      } else {
+        res = await supabaseClient.auth.verifyOtp({
+          email: pendingEmail,
+          token: parsed.token,
+          type: 'email',
+        });
+      }
+    } catch (err) {
+      res = { error: err };
+    }
     btn.disabled = false;
-    if (res.error) {
+    if (!res || res.error) {
       inp.value = '';
-      return setMsg('That code did not work - it may have expired. Enter your email above for a new one.');
+      return setMsg('That link did not work - it may have been used already or expired. Enter your email above for a fresh one.');
     }
     try { localStorage.removeItem('ee_pending_email'); } catch (e) {}
     setMsg('You are in! Loading your stuff...');
     setTimeout(function () { window.location.reload(); }, 500);
   }
-
   async function handleMagicLink(e) {
     e.preventDefault();
     var email = authEmail.value.trim();
@@ -321,9 +358,9 @@ var elevateAuth = (function () {
     var box = document.getElementById('eeCodeInput');
     if (box) { box.value = ''; try { box.focus(); } catch (e3) {} }
     if (isStandalone()) {
-      setMsg('Check your email and type the 6-digit code below. The link in the email opens your browser, so the code is the quick way in here.');
+      setMsg('Check your email. Do not tap the link - press and hold it, choose Copy Link, then paste it in the box below. That signs you in right here in the app, for good.');
     } else {
-      setMsg('Check your email - tap the sign-in link, or type the 6-digit code below.');
+      setMsg('Check your email and tap the sign-in link. Adding the app to your phone? Use the paste box below instead.');
     }
     if (!isStandalone()) { try { showInstallFirstGuide(email); } catch (e4) {} }
     authEmail.value = '';
@@ -683,7 +720,7 @@ window.eeDeleteAccount = async function(){
     var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
     function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">' + t + '</div>'; }
     var SIGNIN = 'You stay signed in - the installed app uses the same session as your browser, so everything is already there.';
-    var IOSNOTE = 'iPhone keeps a home screen app and Safari separate, so open the new icon, type your email there, and enter the 6-digit code we send. That sign-in is the one that sticks, and everything you saved is already waiting.';
+    var IOSNOTE = 'iPhone keeps a home screen app and Safari separate, so sign in once inside the new icon: type your email, then press and hold the link in the email, copy it, and paste it into the app. That sign-in sticks, and everything you saved is already waiting.';
     if (ios && !safari) {
       return OL
         + '<li>Home screen apps can only be added from <b>Safari</b> on iPhone and iPad.</li>'
@@ -792,7 +829,7 @@ window.showInstallFirstGuide = function (email) {
     var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
     if (standalone) {
       return OL
-        + '<li>Check your email and type the <b>6-digit code</b> into the box on the sign-in screen.</li>'
+        + '<li>Check your email, press and hold the sign-in link, choose <b>Copy Link</b>, and paste it into the box on the sign-in screen.</li>'
         + '<li>That is it - you stay signed in from now on.</li>'
         + '</ol>';
     }
@@ -801,9 +838,9 @@ window.showInstallFirstGuide = function (email) {
         + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
         + '<li>Scroll down, tap <b>Add to Home Screen</b>, then tap <b>Add</b>.</li>'
         + '<li>Close Safari and open the new <b>ElevateEdu</b> icon on your home screen.</li>'
-        + '<li>Type your email in the app, then type the <b>6-digit code</b> we email you. You are in for good.</li>'
+        + '<li>In the app, type your email and tap send. Then open your email, <b>press and hold</b> the sign-in link, choose <b>Copy Link</b>, and paste it into the box in the app.</li>'
         + '</ol>'
-        + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so signing in <b>inside the app</b> is what makes it stick. Tapping the link in your email only signs you in to Safari - use the code instead.</div>';
+        + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so the sign-in has to happen <b>inside the app</b> to stick. Tapping the link opens Safari, which is why you copy it and paste it in instead. You only ever do this once.</div>';
     }
     if (isAndroid) {
       return OL
