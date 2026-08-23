@@ -576,20 +576,30 @@ window.eeDeleteAccount = async function(){
       { src: svgDataUri(512), sizes: '512x512', type: 'image/svg+xml', purpose: 'maskable' }
     ]
   };
-  try {
-    var blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
-    addLink('manifest', URL.createObjectURL(blob));
-  } catch(e){}
-  // 2) Meta tags for install + status bar look
-  addMeta('theme-color', COFFEE);
-  addMeta('mobile-web-app-capable', 'yes');
-  addMeta('apple-mobile-web-app-capable', 'yes');
-  addMeta('apple-mobile-web-app-status-bar-style', 'default');
-  addMeta('apple-mobile-web-app-title', 'ElevateEdu');
-  addMeta('application-name', 'ElevateEdu');
-  // 3) Icons (Apple home-screen icon + favicon)
-  addLink('apple-touch-icon', svgDataUri(180));
-  addLink('icon', svgDataUri(512), {type:'image/svg+xml'});
+    function haveLink(rel){ return !!document.querySelector("link[rel='" + rel + "']"); }
+    function haveMeta(n){ return !!document.querySelector("meta[name='" + n + "']"); }
+    // The real manifest.json and PNG icons are already linked at the top of
+    // this file. The inline SVG versions below are a FALLBACK ONLY. If they
+    // get added on top of the real ones, two things break: a blob: manifest
+    // overrides manifest.json and its start_url and scope can no longer be
+    // resolved, and iOS cannot use an SVG home screen icon so it silently
+    // falls back to a screenshot of the page. So only add what is missing.
+    try {
+      if (!haveLink('manifest')) {
+        var blob = new Blob([JSON.stringify(manifest)], {type: 'application/manifest+json'});
+        addLink('manifest', URL.createObjectURL(blob));
+      }
+    } catch(e){}
+    // 2) Meta tags for install + status bar look
+    if (!haveMeta('theme-color')) addMeta('theme-color', COFFEE);
+    if (!haveMeta('mobile-web-app-capable')) addMeta('mobile-web-app-capable', 'yes');
+    if (!haveMeta('apple-mobile-web-app-capable')) addMeta('apple-mobile-web-app-capable', 'yes');
+    if (!haveMeta('apple-mobile-web-app-status-bar-style')) addMeta('apple-mobile-web-app-status-bar-style', 'default');
+    if (!haveMeta('apple-mobile-web-app-title')) addMeta('apple-mobile-web-app-title', 'ElevateEdu');
+    if (!haveMeta('application-name')) addMeta('application-name', 'ElevateEdu');
+    // 3) Icons - the real PNG files win; these SVGs are only a fallback.
+    if (!haveLink('apple-touch-icon')) addLink('apple-touch-icon', svgDataUri(180));
+    if (!haveLink('icon')) addLink('icon', svgDataUri(512), {type:'image/svg+xml'});
   // 4) Register the service worker (offline + installable)
   if('serviceWorker' in navigator){
     window.addEventListener('load', function(){
