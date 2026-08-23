@@ -15,7 +15,11 @@
   gap: 14px;
   padding: 18px 18px 30px;
   background: var(--vb-cream);
-  min-height: 100%;
+  /* Was min-height:100%, which resolved to the full height of the phone
+     frame. That beat the flex sizing and pushed the bottom nav clean off
+     the bottom of the screen on a real phone. flex already fills the
+     space, so 0 is what a scrollable flex child needs. */
+  min-height: 0;
   position: relative;
 }
 
