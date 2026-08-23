@@ -591,24 +591,63 @@ window.eeDeleteAccount = async function(){
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   var isAndroid = /android/i.test(navigator.userAgent);
   function stepsHtml(){
-    if (isIOS) {
-      return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
-        + '<li>Tap the <b>Share</b> button (the square with an arrow) at the bottom of Safari.</li>'
-        + '<li>Scroll down and tap <b>"Add to Home Screen".</b></li>'
-        + '<li>Tap <b>Add</b> - ElevateEdu will appear as an app icon.</li>'
-        + '</ol>';
+    var ua = navigator.userAgent;
+    var iPadOS = /Macintosh/.test(ua) && navigator.maxTouchPoints > 1;
+    var ios = isIOS || iPadOS;
+    var safari = /Safari/.test(ua) && !/CriOS|FxiOS|EdgiOS|OPiOS|Chrome|Chromium|Edg\//.test(ua);
+    var samsung = /SamsungBrowser/i.test(ua);
+    var chromium = /Chrome|Chromium|CriOS|Edg\//.test(ua);
+    var mac = /Macintosh/.test(ua) && !iPadOS;
+    var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
+    function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">' + t + '</div>'; }
+    var SIGNIN = 'Open the new icon and sign in there once with the same email - after that it stays signed in and your work follows you to every device.';
+    if (ios && !safari) {
+      return OL
+        + '<li>Home screen apps can only be added from <b>Safari</b> on iPhone and iPad.</li>'
+        + '<li>Tap the <b>share</b> or <b>&#8943;</b> icon in this browser and choose <b>Open in Safari</b>.</li>'
+        + '<li>In Safari, tap <b>Share</b> (the square with an arrow going up), scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>'
+        + '</ol>' + tip(SIGNIN);
+    }
+    if (ios) {
+      return OL
+        + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
+        + '<li>Scroll down the grey list and tap <b>Add to Home Screen</b>.</li>'
+        + '<li>Tap <b>Add</b> in the top right corner.</li>'
+        + '</ol>' + tip('iPhone keeps apps and Safari separate, so sign in once inside the new icon with the same email. Everything you saved is waiting there.');
+    }
+    if (isAndroid && samsung) {
+      return OL
+        + '<li>Tap the <b>menu</b> (three lines, bottom right of Samsung Internet).</li>'
+        + '<li>Tap <b>Add page to</b>, then <b>Home screen</b>.</li>'
+        + '<li>Tap <b>Add</b> to confirm.</li>'
+        + '</ol>' + tip(SIGNIN);
     }
     if (isAndroid) {
-      return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
-        + '<li>Tap the <b>Install</b> button below, or open the <b>&#8942; menu</b> (top-right of Chrome).</li>'
-        + '<li>Tap <b>"Install app"</b> or <b>"Add to Home screen".</b></li>'
-        + '<li>Confirm - ElevateEdu will appear as an app icon.</li>'
-        + '</ol>';
+      return OL
+        + '<li>Tap the <b>Install</b> button below if you can see it - that is the quickest way.</li>'
+        + '<li>Otherwise tap the <b>&#8942;</b> menu in the top right of Chrome.</li>'
+        + '<li>Tap <b>Add to Home screen</b> or <b>Install app</b>, then <b>Install</b>.</li>'
+        + '</ol>' + tip(SIGNIN);
     }
-    return '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.7;">'
-      + '<li>Click the <b>install icon</b> in your browser address bar, or the <b>&#8942; menu</b>.</li>'
-      + '<li>Choose <b>"Install ElevateEdu".</b></li>'
-      + '</ol>';
+    if (mac && safari) {
+      return OL
+        + '<li>In the Safari menu bar, click <b>File</b>.</li>'
+        + '<li>Choose <b>Add to Dock</b>, then click <b>Add</b>.</li>'
+        + '<li>ElevateEdu now opens in its own window from your Dock.</li>'
+        + '</ol>' + tip('Needs macOS Sonoma or newer. On an older Mac, use Chrome instead.');
+    }
+    if (chromium) {
+      return OL
+        + '<li>Look for the <b>install icon</b> at the right of the address bar - a small screen with a downward arrow.</li>'
+        + '<li>Click it, then click <b>Install</b>. If you cannot see it, open the <b>&#8942;</b> menu and choose <b>Cast, save and share</b>, then <b>Install page as app</b>.</li>'
+        + '<li>ElevateEdu opens in its own window, with no tabs or address bar.</li>'
+        + '</ol>' + tip(SIGNIN);
+    }
+    return OL
+      + '<li>This browser cannot install web apps yet.</li>'
+      + '<li>Open ElevateEdu in <b>Chrome</b>, <b>Edge</b> or <b>Safari</b> and the option will appear.</li>'
+      + '<li>Or just bookmark this page - everything works the same, it simply opens in a tab.</li>'
+      + '</ol>' + tip('The phone version is the nicest one. Open this page on your phone and add it there too.');
   }
   function showCard(){
     if (document.getElementById('eeA2HS')) return;
@@ -617,8 +656,8 @@ window.eeDeleteAccount = async function(){
     ov.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.35);padding:16px;';
     var card = document.createElement('div');
     card.style.cssText = 'background:' + CREAM + ';color:' + ESPRESSO + ';max-width:460px;width:100%;border-radius:22px;padding:22px 22px calc(22px + env(safe-area-inset-bottom));box-shadow:0 12px 40px rgba(0,0,0,0.25);font-family:inherit;';
-    card.innerHTML = '<div style="font-size:19px;font-weight:700;color:' + COFFEE + ';">Add ElevateEdu to your home screen</div>'
-      + '<div style="font-size:14px;margin-top:6px;opacity:0.85;">Install it once and open it like a normal app - full screen, works offline.</div>'
+    card.innerHTML = '<div style="font-size:19px;font-weight:700;color:' + COFFEE + ';">You are signed in - now add the app</div>'
+      + '<div style="font-size:14px;margin-top:6px;opacity:0.85;">Put ElevateEdu on your home screen: it opens full screen, works offline, and keeps your notes, grades and pictures in sync on every device you use with this email.</div>'
       + stepsHtml();
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:10px;margin-top:18px;';
