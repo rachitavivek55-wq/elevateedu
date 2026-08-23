@@ -25,6 +25,17 @@
       })
       .catch(function () { return null; });
   }
+  function deleteImage(v) {
+    if (!isStored(v)) return;
+    var c = sbClient();
+    if (!c) return;
+    var key = v.slice(3);
+    try {
+      c.storage.from(BUCKET).remove([key]).then(function () {}, function () {});
+    } catch (e) {}
+    delete URL_CACHE[v];
+    delete URL_CACHE[key];
+  }
   function isStored(v) {
     return typeof v === 'string' && v.slice(0, 3) === 'sb:';
   }
@@ -530,6 +541,9 @@
     var b = getBoard(editingBoardId);
     if (!b) return;
     confirmAsk('Delete "' + b.name + '" and everything on it?', function () {
+      (b.items || []).forEach(function (x) {
+        if (x && x.image) deleteImage(x.image);
+      });
       state.boards = state.boards.filter(function (x) {
         return x.id !== editingBoardId;
       });
@@ -669,6 +683,7 @@
         it.notes = notes;
         it.date = date;
         it.pin = draftPin;
+        if (it.image && it.image !== draftImage) deleteImage(it.image);
         it.image = draftImage;
       }
     } else {
@@ -693,6 +708,10 @@
     var b = getBoard(currentBoardId);
     if (!b) return;
     confirmAsk('Remove this item from the board?', function () {
+      var gone = b.items.filter(function (x) {
+        return x.id === editingItemId;
+      })[0];
+      if (gone && gone.image) deleteImage(gone.image);
       b.items = b.items.filter(function (x) {
         return x.id !== editingItemId;
       });
