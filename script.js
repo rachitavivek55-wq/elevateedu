@@ -9,6 +9,24 @@
     for (var k in attrs) el.setAttribute(k, attrs[k]);
     head.appendChild(el);
   }
+  // Every page must opt into the full screen on notched iPhones. Without
+  // viewport-fit=cover, iOS shrinks the layout viewport so the page never
+  // reaches the bottom of the screen (the bottom nav floats above a dead
+  // strip) and every env(safe-area-inset-*) value reports 0. Most pages
+  // shipped without it and one shipped with no viewport tag at all, so
+  // normalise it here instead of in fifteen separate HTML files.
+  var vp = head.querySelector('meta[name="viewport"]');
+  if (!vp) {
+    vp = document.createElement('meta');
+    vp.setAttribute('name', 'viewport');
+    vp.setAttribute('content', 'width=device-width, initial-scale=1.0, viewport-fit=cover');
+    head.appendChild(vp);
+  } else {
+    var vpc = vp.getAttribute('content') || '';
+    if (!/viewport-fit\s*=\s*cover/i.test(vpc)) {
+      vp.setAttribute('content', (vpc.replace(/\s*,\s*$/, '') + ', viewport-fit=cover').replace(/^,\s*/, ''));
+    }
+  }
   add('link', { rel: 'manifest', href: './manifest.json' }, 'link[rel=\'manifest\']');
   add('link', { rel: 'apple-touch-icon', href: './apple-touch-icon.png' }, 'link[rel=\'apple-touch-icon\']');
   add('link', { rel: 'icon', type: 'image/png', href: './icon-192.png' }, 'link[rel=\'icon\']');
@@ -222,10 +240,18 @@ var elevateAuth = (function () {
     if (authMsg) authMsg.textContent = '';
     var waiting = '';
     try { waiting = localStorage.getItem('ee_pending_email') || ''; } catch (e) {}
-    if (waiting && isStandalone()) {
-      pendingEmail = waiting;
+    if (isStandalone()) {
+      // An installed iPhone app gets its own storage, separate from Safari, so
+      // being signed in in Safari does not carry over. Always offer the paste
+      // box here - on a fresh install there is no saved email to go on, and
+      // showing a bare sign-in form with no explanation just looks broken.
+      if (waiting) pendingEmail = waiting;
       codeBox();
-      setMsg('Waiting on the sign-in link we emailed to ' + waiting + '. Press and hold it in your email, choose Copy Link, then paste it below.');
+      if (waiting) {
+        setMsg('Waiting on the sign-in link we emailed to ' + waiting + '. Press and hold it in your email, choose Copy Link, then paste it below.');
+      } else {
+        setMsg('iPhone keeps this app and Safari separate, so it needs its own sign-in - just this once. Put your email in above, then paste the link from your email into the box below.');
+      }
     }
   }
 
