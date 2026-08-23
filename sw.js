@@ -1,5 +1,5 @@
 // ElevateEdu Service Worker — network-first so updates appear instantly
-const CACHE = 'elevateedu-v3';
+const CACHE = 'elevateedu-v4';
 // Full app shell, so every tool works offline from the moment it is installed.
 const CORE = [
   './',
@@ -57,18 +57,34 @@ self.addEventListener('activate', function(e){
 self.addEventListener('fetch', function(e){
   var req = e.request;
   if(req.method !== 'GET'){ return; }
-  var url = new URL(req.url);
+  var url;
+  try { url = new URL(req.url); } catch(err){ return; }
   // Only handle same-origin; let Supabase/Stripe/fonts go straight to network.
   if(url.origin !== self.location.origin){ return; }
-  // NETWORK-FIRST: always try the live network so code updates show immediately.
-  // Fall back to cache only when offline.
+  // Never intercept sign-in redirects. They carry one-time tokens that must
+  // reach the page untouched, and must never be written to disk.
+  if(url.search && /token|code|access|refresh|type/i.test(url.search)){ return; }
+  // NETWORK-FIRST: always try the live network so code updates show instantly.
   e.respondWith(
     fetch(req).then(function(res){
-      var copy = res.clone();
-      caches.open(CACHE).then(function(c){ c.put(req, copy); });
+      // Only store real, complete, successful pages. Without this guard an
+      // error page (a 404, or a 503 while the host is down) overwrites the
+      // good copy and then keeps getting served back as if it were the app.
+      var storable = res && res.status === 200 && res.ok && !url.search &&
+        (res.type === 'basic' || res.type === 'default');
+      if(storable){
+        var copy = res.clone();
+        caches.open(CACHE).then(function(c){ c.put(req, copy); }).catch(function(){});
+      }
       return res;
     }).catch(function(){
-      return caches.match(req).then(function(m){ return m || caches.match('./index.html'); });
+      // Offline: fall back to whatever was precached.
+      return caches.match(req).then(function(m){
+        return m || caches.match('./index.html');
+      }).then(function(m){
+        return m || new Response('ElevateEdu is offline right now.',
+          { status: 503, headers: { 'Content-Type': 'text/plain' } });
+      });
     })
   );
 });
