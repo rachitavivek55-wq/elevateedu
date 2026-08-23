@@ -600,13 +600,14 @@ window.eeDeleteAccount = async function(){
     var mac = /Macintosh/.test(ua) && !iPadOS;
     var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
     function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">' + t + '</div>'; }
-    var SIGNIN = 'Open the new icon and sign in there once with the same email - after that it stays signed in and your work follows you to every device.';
+    var SIGNIN = 'You stay signed in - the installed app uses the same session as your browser, so everything is already there.';
+    var IOSNOTE = 'iPhone keeps apps and Safari separate, so open the new icon and sign in once with the same email. Everything you saved is waiting there.';
     if (ios && !safari) {
       return OL
         + '<li>Home screen apps can only be added from <b>Safari</b> on iPhone and iPad.</li>'
         + '<li>Tap the <b>share</b> or <b>&#8943;</b> icon in this browser and choose <b>Open in Safari</b>.</li>'
         + '<li>In Safari, tap <b>Share</b> (the square with an arrow going up), scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>'
-        + '</ol>' + tip(SIGNIN);
+        + '</ol>' + tip(IOSNOTE);
     }
     if (ios) {
       return OL
@@ -634,7 +635,7 @@ window.eeDeleteAccount = async function(){
         + '<li>In the Safari menu bar, click <b>File</b>.</li>'
         + '<li>Choose <b>Add to Dock</b>, then click <b>Add</b>.</li>'
         + '<li>ElevateEdu now opens in its own window from your Dock.</li>'
-        + '</ol>' + tip('Needs macOS Sonoma or newer. On an older Mac, use Chrome instead.');
+        + '</ol>' + tip('Needs macOS Sonoma or newer - on an older Mac use Chrome instead. Sign in once inside the new window with the same email.');
     }
     if (chromium) {
       return OL
