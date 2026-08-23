@@ -220,6 +220,13 @@ var elevateAuth = (function () {
     if (authScreen) authScreen.style.display = 'flex';
     if (authForm) authForm.reset();
     if (authMsg) authMsg.textContent = '';
+    var waiting = '';
+    try { waiting = localStorage.getItem('ee_pending_email') || ''; } catch (e) {}
+    if (waiting && isStandalone()) {
+      pendingEmail = waiting;
+      codeBox();
+      setMsg('Type the 6-digit code we emailed to ' + waiting + '. Need a fresh one? Enter your email above again.');
+    }
   }
 
   function hideAuthScreen() {
@@ -232,6 +239,72 @@ var elevateAuth = (function () {
     authMsg.style.color = color || 'var(--coffee)';
   }
 
+  var pendingEmail = '';
+
+  function isStandalone() {
+    return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+  }
+
+  /* A tapped email link always opens the browser, never an installed iPhone app,
+     so we also accept the 6-digit code from the same email. That lets people sign
+     in from inside the installed app without ever leaving it. */
+  function codeBox() {
+    var box = document.getElementById('eeCodeBox');
+    if (box) { box.style.display = 'block'; return box; }
+    box = document.createElement('div');
+    box.id = 'eeCodeBox';
+    box.style.cssText = 'margin-top:16px;text-align:left;';
+    var lab = document.createElement('div');
+    lab.textContent = 'Or type the 6-digit code from the email';
+    lab.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:7px;opacity:0.85;';
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:8px;';
+    var inp = document.createElement('input');
+    inp.id = 'eeCodeInput';
+    inp.type = 'text';
+    inp.inputMode = 'numeric';
+    inp.autocomplete = 'one-time-code';
+    inp.maxLength = 6;
+    inp.placeholder = '123456';
+    inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(75,56,50,0.28);background:#fffdf8;color:#4B3832;font-size:18px;letter-spacing:4px;text-align:center;font-family:inherit;';
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.textContent = 'Sign in';
+    btn.style.cssText = 'border:none;background:#6F4E37;color:#F5E6CA;border-radius:14px;padding:13px 18px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;';
+    btn.addEventListener('click', function () { verifyCode(inp, btn); });
+    inp.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Enter') { ev.preventDefault(); verifyCode(inp, btn); }
+    });
+    row.appendChild(inp);
+    row.appendChild(btn);
+    box.appendChild(lab);
+    box.appendChild(row);
+    if (authForm && authForm.parentNode) authForm.parentNode.insertBefore(box, authForm.nextSibling);
+    else if (authScreen) authScreen.appendChild(box);
+    return box;
+  }
+
+  async function verifyCode(inp, btn) {
+    var code = (inp.value || '').replace(/[^0-9]/g, '');
+    if (code.length !== 6) return setMsg('That code needs to be 6 digits.');
+    if (!pendingEmail) return setMsg('Enter your email above first.');
+    btn.disabled = true;
+    setMsg('Signing you in...');
+    var res = await supabaseClient.auth.verifyOtp({
+      email: pendingEmail,
+      token: code,
+      type: 'email',
+    });
+    btn.disabled = false;
+    if (res.error) {
+      inp.value = '';
+      return setMsg('That code did not work - it may have expired. Enter your email above for a new one.');
+    }
+    try { localStorage.removeItem('ee_pending_email'); } catch (e) {}
+    setMsg('You are in! Loading your stuff...');
+    setTimeout(function () { window.location.reload(); }, 500);
+  }
+
   async function handleMagicLink(e) {
     e.preventDefault();
     var email = authEmail.value.trim();
@@ -242,8 +315,17 @@ var elevateAuth = (function () {
       options: { emailRedirectTo: window.location.origin },
     });
     if (error) return setMsg('Error: ' + error.message, 'var(--coffee)');
-    setMsg('Check your email for the sign-in link!', 'var(--coffee)');
-try { showInstallFirstGuide(email); } catch (e) {}
+    pendingEmail = email;
+    try { localStorage.setItem('ee_pending_email', email); } catch (e2) {}
+    codeBox();
+    var box = document.getElementById('eeCodeInput');
+    if (box) { box.value = ''; try { box.focus(); } catch (e3) {} }
+    if (isStandalone()) {
+      setMsg('Check your email and type the 6-digit code below. The link in the email opens your browser, so the code is the quick way in here.');
+    } else {
+      setMsg('Check your email - tap the sign-in link, or type the 6-digit code below.');
+    }
+    if (!isStandalone()) { try { showInstallFirstGuide(email); } catch (e4) {} }
     authEmail.value = '';
   }
 
@@ -601,7 +683,7 @@ window.eeDeleteAccount = async function(){
     var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
     function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">' + t + '</div>'; }
     var SIGNIN = 'You stay signed in - the installed app uses the same session as your browser, so everything is already there.';
-    var IOSNOTE = 'iPhone keeps apps and Safari separate, so open the new icon and sign in once with the same email. Everything you saved is waiting there.';
+    var IOSNOTE = 'iPhone keeps a home screen app and Safari separate, so open the new icon, type your email there, and enter the 6-digit code we send. That sign-in is the one that sticks, and everything you saved is already waiting.';
     if (ios && !safari) {
       return OL
         + '<li>Home screen apps can only be added from <b>Safari</b> on iPhone and iPad.</li>'
@@ -707,34 +789,35 @@ window.showInstallFirstGuide = function (email) {
   var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
 
   function steps() {
+    var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
     if (standalone) {
-      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
-        + "<li>Open your email and tap the <b>sign-in link</b> we just sent.</li>"
-        + "<li>It will bring you right back here, signed in. That is it!</li>"
-        + "</ol>";
+      return OL
+        + '<li>Check your email and type the <b>6-digit code</b> into the box on the sign-in screen.</li>'
+        + '<li>That is it - you stay signed in from now on.</li>'
+        + '</ol>';
     }
     if (isIOS) {
-      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
-        + "<li>Tap the <b>Share</b> button (square with an up-arrow) at the bottom of Safari.</li>"
-        + "<li>Scroll down and tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>"
-        + "<li>Open the new <b>ElevateEdu</b> icon from your home screen.</li>"
-        + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will be signed in and stay signed in.</li>"
-        + "</ol>";
+      return OL
+        + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
+        + '<li>Scroll down, tap <b>Add to Home Screen</b>, then tap <b>Add</b>.</li>'
+        + '<li>Close Safari and open the new <b>ElevateEdu</b> icon on your home screen.</li>'
+        + '<li>Type your email in the app, then type the <b>6-digit code</b> we email you. You are in for good.</li>'
+        + '</ol>'
+        + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so signing in <b>inside the app</b> is what makes it stick. Tapping the link in your email only signs you in to Safari - use the code instead.</div>';
     }
     if (isAndroid) {
-      return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
-        + "<li>Tap the <b>Install app</b> button below, or open Chrome menu (three dots, top-right) and tap <b>Install app</b> / <b>Add to Home screen</b>.</li>"
-        + "<li>Open the new <b>ElevateEdu</b> icon from your home screen.</li>"
-        + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will be signed in and stay signed in.</li>"
-        + "</ol>";
+      return OL
+        + '<li>Open your email and tap the <b>sign-in link</b> - that signs you in right away.</li>'
+        + '<li>Then tap the <b>Install app</b> button below, or open the Chrome menu (three dots, top right) and tap <b>Install app</b>.</li>'
+        + '<li>Open the new <b>ElevateEdu</b> icon - you are already signed in, nothing else to do.</li>'
+        + '</ol>';
     }
-    return "<ol style=\"margin:10px 0 0 18px;padding:0;line-height:1.7;\">"
-      + "<li>Install ElevateEdu: click the <b>install icon</b> in your browser address bar (or the menu).</li>"
-      + "<li>Open the installed <b>ElevateEdu</b> app.</li>"
-      + "<li>Inside the app, open your email and tap the <b>sign-in link</b> - you will stay signed in.</li>"
-      + "</ol>";
+    return OL
+      + '<li>Open your email and click the <b>sign-in link</b> - that signs you in right away.</li>'
+      + '<li>Then click the <b>install icon</b> at the right of the address bar and click <b>Install</b>.</li>'
+      + '<li>ElevateEdu opens in its own window, already signed in.</li>'
+      + '</ol>';
   }
-
   var existing = document.getElementById("eeInstallFirst");
   if (existing) existing.remove();
   var ov = document.createElement("div");
