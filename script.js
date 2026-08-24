@@ -307,6 +307,26 @@ var elevateAuth = (function () {
     row.appendChild(btn);
     box.appendChild(lab);
     box.appendChild(row);
+    // One-tap paste. iOS pops its own little Paste confirmation, so this is
+    // a single tap instead of tap-the-box-then-long-press-then-Paste.
+    if (navigator.clipboard && navigator.clipboard.readText) {
+      var pb = document.createElement('button');
+      pb.type = 'button';
+      pb.textContent = 'Paste sign-in link';
+      pb.style.cssText = 'margin-top:9px;width:100%;border:1px solid rgba(75,56,50,0.28);background:transparent;color:#4B3832;border-radius:14px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;';
+      pb.addEventListener('click', function () {
+        navigator.clipboard.readText().then(function (txt) {
+          if (!txt || !txt.trim()) {
+            return setMsg('Nothing copied yet. Open your email, press and hold the sign-in link, choose Copy Link, then come back and tap this again.');
+          }
+          inp.value = txt.trim();
+          verifySignIn(inp, btn);
+        }).catch(function () {
+          setMsg('Your phone would not share the clipboard. Tap the box above and paste the link in there instead.');
+        });
+      });
+      box.appendChild(pb);
+    }
     var help = document.createElement('div');
     help.innerHTML = 'In your email app, <b>press and hold</b> the sign-in link and choose <b>Copy Link</b> - then paste it above. Do not tap it, that opens your browser instead of this app.';
     help.style.cssText = 'font-size:12px;margin-top:8px;opacity:0.75;line-height:1.5;';
