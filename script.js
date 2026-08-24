@@ -240,6 +240,12 @@ var elevateAuth = (function () {
     if (authMsg) authMsg.textContent = '';
     var waiting = '';
     try { waiting = localStorage.getItem('ee_pending_email') || ''; } catch (e) {}
+    var eeNote = document.getElementById('elevateAuthNote');
+    if (eeNote) {
+      eeNote.textContent = isStandalone()
+        ? 'This app keeps its own sign-in, separate from Safari. You only have to do this once.'
+        : 'We email you a one-time sign-in link, so there is no password to remember. It works for 1 hour.';
+    }
     if (isStandalone()) {
       // An installed iPhone app gets its own storage, separate from Safari, so
       // being signed in in Safari does not carry over. Always offer the paste
@@ -250,7 +256,7 @@ var elevateAuth = (function () {
       if (waiting) {
         setMsg('Paste the sign-in code you copied in Safari, or the link we emailed to ' + waiting + '.');
       } else {
-        setMsg('iPhone keeps this app and Safari apart. Open ElevateEdu in Safari, tap Install app, then Copy my sign-in code - and paste it below.');
+        setMsg('iPhone keeps this app and Safari apart. In Safari, tap Install app, then Copy my sign-in code, and paste it in the box above.');
       }
     }
   }
@@ -317,7 +323,7 @@ var elevateAuth = (function () {
       pb.addEventListener('click', function () {
         navigator.clipboard.readText().then(function (txt) {
           if (!txt || !txt.trim()) {
-            return setMsg('Nothing copied yet. Open your email, press and hold the sign-in link, choose Copy Link, then come back and tap this again.');
+            return setMsg('Nothing copied yet. In Safari tap Install app, then Copy my sign-in code - or press and hold the link in your email and choose Copy Link.');
           }
           inp.value = txt.trim();
           verifySignIn(inp, btn);
@@ -328,7 +334,7 @@ var elevateAuth = (function () {
       box.appendChild(pb);
     }
     var help = document.createElement('div');
-    help.innerHTML = 'In your email app, <b>press and hold</b> the sign-in link and choose <b>Copy Link</b> - then paste it above. Do not tap it, that opens your browser instead of this app.';
+    help.innerHTML = 'Easiest way: in Safari tap <b>Install app</b>, then <b>Copy my sign-in code</b>, and paste it here. Or in your email app <b>press and hold</b> the sign-in link and choose <b>Copy Link</b> - do not tap it, that opens the browser instead of this app.';
     help.style.cssText = 'font-size:12px;margin-top:8px;opacity:0.75;line-height:1.5;';
     box.appendChild(help);
     if (authForm && authForm.parentNode) authForm.parentNode.insertBefore(box, authForm.nextSibling);
@@ -790,6 +796,7 @@ window.eeDeleteAccount = async function(){
         + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
         + '<li>Scroll down the grey list and tap <b>Add to Home Screen</b>.</li>'
         + '<li>Tap <b>Add</b> in the top right corner.</li>'
+        + '<li>Open the new <b>ElevateEdu</b> icon, then tap <b>Paste from clipboard</b> to finish signing in.</li>'
         + '</ol>' + tip('iPhone keeps apps and Safari separate, so sign in once inside the new icon with the same email. Everything you saved is waiting there.');
     }
     if (isAndroid && samsung) {
