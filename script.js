@@ -248,9 +248,9 @@ var elevateAuth = (function () {
       if (waiting) pendingEmail = waiting;
       codeBox();
       if (waiting) {
-        setMsg('Waiting on the sign-in link we emailed to ' + waiting + '. Press and hold it in your email, choose Copy Link, then paste it below.');
+        setMsg('Paste the sign-in code you copied in Safari, or the link we emailed to ' + waiting + '.');
       } else {
-        setMsg('iPhone keeps this app and Safari separate, so it needs its own sign-in - just this once. Put your email in above, then paste the link from your email into the box below.');
+        setMsg('iPhone keeps this app and Safari apart. Open ElevateEdu in Safari, tap Install app, then Copy my sign-in code - and paste it below.');
       }
     }
   }
@@ -284,7 +284,7 @@ var elevateAuth = (function () {
     box.id = 'eeCodeBox';
     box.style.cssText = 'margin-top:16px;text-align:left;';
     var lab = document.createElement('div');
-    lab.textContent = 'Signing in on a phone app? Paste the link from the email here';
+    lab.textContent = 'Paste your sign-in code, or the link from your email';
     lab.style.cssText = 'font-size:13px;font-weight:700;margin-bottom:7px;opacity:0.85;';
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:8px;';
@@ -293,7 +293,7 @@ var elevateAuth = (function () {
     inp.type = 'text';
     inp.autocomplete = 'off';
     inp.spellcheck = false;
-    inp.placeholder = 'Paste sign-in link';
+    inp.placeholder = 'Paste code or link';
     inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(75,56,50,0.28);background:#fffdf8;color:#4B3832;font-size:15px;font-family:inherit;';
     var btn = document.createElement('button');
     btn.type = 'button';
@@ -312,7 +312,7 @@ var elevateAuth = (function () {
     if (navigator.clipboard && navigator.clipboard.readText) {
       var pb = document.createElement('button');
       pb.type = 'button';
-      pb.textContent = 'Paste sign-in link';
+      pb.textContent = 'Paste from clipboard';
       pb.style.cssText = 'margin-top:9px;width:100%;border:1px solid rgba(75,56,50,0.28);background:transparent;color:#4B3832;border-radius:14px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;';
       pb.addEventListener('click', function () {
         navigator.clipboard.readText().then(function (txt) {
@@ -382,7 +382,7 @@ var elevateAuth = (function () {
     btn.disabled = false;
     if (!res || res.error) {
       inp.value = '';
-      return setMsg('That link did not work - it may have been used already or expired. Enter your email above for a fresh one.');
+      return setMsg('That did not work. Email links only work once - in Safari, tap Install app, then Copy my sign-in code, and paste that here instead.', '#b3261e');
     }
     try { localStorage.removeItem('ee_pending_email'); } catch (e) {}
     setMsg('You are in! Loading your stuff...');
@@ -703,7 +703,8 @@ window.eeDeleteAccount = async function(){
     if(!b) return;
     b.firstChild.textContent = '\u2193 Add to Home Screen';
     b.addEventListener('click', function(){
-      alert('To install ElevateEdu:\n\n1. Tap the Share button (the square with an up-arrow) at the bottom of Safari.\n2. Scroll down and tap \u201cAdd to Home Screen\u201d.\n3. Tap Add \u2014 ElevateEdu will appear as an app icon!');
+      if (window.__eeShowA2HS) { return window.__eeShowA2HS(); }
+      alert('To install ElevateEdu:\n\n1. Tap the Share button in Safari.\n2. Choose Add to Home Screen.\n3. Tap Add.');
     });
   }
 
@@ -835,6 +836,60 @@ window.eeDeleteAccount = async function(){
     card.innerHTML = '<div style="font-size:19px;font-weight:700;color:' + COFFEE + ';">You are signed in - now add the app</div>'
       + '<div style="font-size:14px;margin-top:6px;opacity:0.85;">Put ElevateEdu on your home screen: it opens full screen, works offline, and keeps your notes, grades and pictures in sync on every device you use with this email.</div>'
       + stepsHtml();
+    /* iPhone gives a home-screen app its own private storage, so signing in
+       here in Safari does not carry over, and an emailed link only works once.
+       Let the user copy this session and paste it into the installed app. */
+    var iPadHere = /Macintosh/.test(navigator.userAgent) && navigator.maxTouchPoints > 1;
+    if (isIOS || iPadHere) {
+      var hs = '';
+      try {
+        for (var hi = 0; hi < localStorage.length; hi++) {
+          var hk = localStorage.key(hi);
+          if (!/^sb-.+-auth-token$/.test(hk)) continue;
+          var hv = JSON.parse(localStorage.getItem(hk) || 'null');
+          var hsess = hv && (hv.currentSession || hv);
+          if (hsess && hsess.access_token && hsess.refresh_token) {
+            hs = 'access_token=' + hsess.access_token + '&refresh_token=' + hsess.refresh_token;
+            break;
+          }
+        }
+      } catch (e) { hs = ''; }
+      if (hs) {
+        var hw = document.createElement('div');
+        hw.style.cssText = 'margin-top:16px;padding:12px;border-radius:12px;background:rgba(111,78,55,0.10);';
+        var hl = document.createElement('div');
+        hl.style.cssText = 'font-size:13px;line-height:1.45;';
+        hl.innerHTML = '<b>One extra step, just once.</b> The home-screen app cannot tell that you are already signed in here. Copy your sign-in code now, then paste it the first time you open the app.';
+        var hb = document.createElement('button');
+        hb.type = 'button';
+        hb.textContent = 'Copy my sign-in code';
+        hb.style.cssText = 'margin-top:10px;width:100%;border:none;background:' + COFFEE + ';color:' + CREAM + ';padding:12px;border-radius:10px;font-weight:800;font-size:14px;cursor:pointer;';
+        hb.addEventListener('click', function () {
+          function finish(good) {
+            if (good) {
+              hb.textContent = 'Copied - now paste it in the app';
+              try { localStorage.setItem('ee_app_linked', '1'); } catch (e) {}
+              return;
+            }
+            hb.textContent = 'Copy the text below by hand';
+            if (document.getElementById('eeHandTa')) return;
+            var ta = document.createElement('textarea');
+            ta.id = 'eeHandTa';
+            ta.value = hs;
+            ta.readOnly = true;
+            ta.style.cssText = 'margin-top:8px;width:100%;height:70px;font-size:11px;border-radius:8px;padding:6px;box-sizing:border-box;';
+            hw.appendChild(ta);
+            try { ta.focus(); ta.setSelectionRange(0, ta.value.length); } catch (e) {}
+          }
+          if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(hs).then(function () { finish(true); }, function () { finish(false); });
+          } else { finish(false); }
+        });
+        hw.appendChild(hl);
+        hw.appendChild(hb);
+        card.appendChild(hw);
+      }
+    }
     var row = document.createElement('div');
     row.style.cssText = 'display:flex;gap:10px;margin-top:18px;';
     var later = document.createElement('button');
@@ -850,6 +905,7 @@ window.eeDeleteAccount = async function(){
     row.appendChild(later); row.appendChild(got); card.appendChild(row); ov.appendChild(card);
     document.body.appendChild(ov);
   }
+  window.__eeShowA2HS = showCard;
   function watch(){
     if (alreadyDone()) return;
     try {
