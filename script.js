@@ -527,6 +527,43 @@ var elevateAuth = (function () {
     return false;
   }
 
+  /* ---------- Pending write queue ----------
+     A local save fires an upload, but if the page closes before that request
+     finishes, the cloud still holds the older copy - and the next download
+     used to write that older copy straight over the newer local one. That is
+     how checklist edits vanished. Every local save is now queued until its
+     upload is confirmed. Downloads skip queued keys, and the queue is retried
+     on load, on a timer, and when the tab is hidden. */
+  var PEND_KEY = 'ee_pending_v1';
+  function pendList() {
+    try {
+      var a = JSON.parse(localStorage.getItem(PEND_KEY) || '[]');
+      return Object.prototype.toString.call(a) === '[object Array]' ? a : [];
+    } catch (e) { return []; }
+  }
+  function pendSave(a) {
+    try { localStorage.setItem(PEND_KEY, JSON.stringify(a)); } catch (e) {}
+  }
+  function pendAdd(k) {
+    var a = pendList();
+    if (a.indexOf(k) < 0) { a.push(k); pendSave(a); }
+  }
+  function pendDone(k) {
+    var a = pendList();
+    var i = a.indexOf(k);
+    if (i >= 0) { a.splice(i, 1); pendSave(a); }
+  }
+  /* Sends anything still queued. Keys that fail stay queued for next time. */
+  async function flushPending() {
+    if (!currentSession) return;
+    var a = pendList();
+    for (var i = 0; i < a.length; i++) {
+      var raw = null;
+      try { raw = localStorage.getItem(a[i]); } catch (e) {}
+      if (raw === null) { pendDone(a[i]); continue; }
+      await syncToSupabase(a[i], raw);
+    }
+  }
   async function syncFromSupabase(opts) {
     if (!currentSession) return false;
     var keepLocal = !!(opts && opts.keepLocal);
@@ -539,6 +576,7 @@ var elevateAuth = (function () {
       return false;
     }
     var changed = false;
+    var pend = pendList();
     window.__eeApplyingRemote = true;
     try {
       if (data)
@@ -546,6 +584,7 @@ var elevateAuth = (function () {
           var incoming = JSON.stringify(row.data_value);
           var existing = localStorage.getItem(row.data_key);
           if (keepLocal && existing !== null) return;
+          if (pend.indexOf(row.data_key) >= 0) return; /* newer local edit */
           if (existing === incoming) return;
           try {
             localStorage.setItem(row.data_key, incoming);
@@ -563,6 +602,9 @@ var elevateAuth = (function () {
      then everything on this device is pushed up so the account is complete. */
   async function cloudMerge() {
     if (!currentSession) return false;
+    /* Push anything this device never managed to upload BEFORE downloading,
+       so the download can never land on top of newer local work. */
+    try { await flushPending(); } catch (e) {}
     var firstRun = true;
     try { firstRun = localStorage.getItem("ee_cloud_merged_v1") !== "1"; } catch (err) {}
     var changed = await syncFromSupabase({ keepLocal: firstRun });
@@ -586,13 +628,28 @@ var elevateAuth = (function () {
 
   async function syncToSupabase(key, value) {
     if (!currentSession) return;
-    var jsonVal = typeof value === 'string' ? JSON.parse(value) : value;
-    var { error } = await supabaseClient.from('user_data').upsert({
-      user_id: currentSession.user.id,
-      data_key: key,
-      data_value: jsonVal,
-    }, { onConflict: "user_id,data_key" });
-    if (error) console.error('Sync upload error:', error);
+    var jsonVal;
+    try {
+      jsonVal = typeof value === 'string' ? JSON.parse(value) : value;
+    } catch (e) {
+      /* Not valid JSON, so there is nothing sensible to store up there. */
+      pendDone(key);
+      return;
+    }
+    try {
+      var { error } = await supabaseClient.from('user_data').upsert({
+        user_id: currentSession.user.id,
+        data_key: key,
+        data_value: jsonVal,
+      }, { onConflict: 'user_id,data_key' });
+      if (error) {
+        console.error('Sync upload error:', error);
+        return; /* stays queued */
+      }
+      pendDone(key);
+    } catch (e) {
+      /* Offline, or the page is closing mid-request: leave it queued. */
+    }
   }
 
   async function logout() {
@@ -615,6 +672,8 @@ var elevateAuth = (function () {
     syncFromSupabase,
     cloudMerge,
     syncToSupabase,
+    flushPending,
+    pendMark: pendAdd,
     logout,
     showAuthScreen,
     hideAuthScreen,
@@ -653,7 +712,12 @@ var elevateAuth = (function () {
       throw err;
     }
     if (key.indexOf('elevate') === 0 && elevateAuth) {
-      if (!window.__eeApplyingRemote) elevateAuth.syncToSupabase(key, value);
+      if (!window.__eeApplyingRemote) {
+        /* Queue first, upload second. If this page closes mid-request the key
+           stays queued and goes up on the next load instead of being lost. */
+        try { elevateAuth.pendMark(key); } catch (e) {}
+        elevateAuth.syncToSupabase(key, value);
+      }
     }
   };
 })();
@@ -1542,4 +1606,25 @@ window.addEventListener("beforeinstallprompt", function (e) {
   window.eeOpenSettings = openSheet;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
+})();
+
+/* ==============================================================
+   SECTION 24 - Keep the cloud copy honest
+   Retries anything still sitting in the upload queue every 20
+   seconds, and again the moment the tab is hidden or the app is
+   closed, so a save is never left stranded on one device.
+   ============================================================== */
+(function () {
+  function flush() {
+    try {
+      if (typeof elevateAuth !== 'undefined' && elevateAuth && elevateAuth.flushPending) {
+        elevateAuth.flushPending();
+      }
+    } catch (e) {}
+  }
+  setInterval(flush, 20000);
+  document.addEventListener('visibilitychange', function () {
+    if (document.visibilityState === 'hidden') flush();
+  });
+  window.addEventListener('pagehide', flush);
 })();
