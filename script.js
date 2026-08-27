@@ -239,6 +239,48 @@ var elevateAuth = (function () {
      and dead. It matters most on an installed iPhone app: Google finishes the
      whole thing inside the app, with nothing to copy across from Safari. */
   var googleChecked = false;
+  /* A browser tab is easy to lose, and on iPhone an installed app gets its
+     own storage - so signing in before installing means doing it twice.
+     Showing the install steps first saves people that whole detour. */
+  function installSteps() {
+    var ua = navigator.userAgent || '';
+    var ios = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
+    var ipadDesktopMode = /macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
+    if (ios || ipadDesktopMode) {
+      return ['Make sure this page is open in Safari',
+              'Tap the Share button at the bottom of the screen',
+              'Scroll down and tap "Add to Home Screen"',
+              'Open ElevateEdu from your home screen'];
+    }
+    if (/android/i.test(ua)) {
+      return ['Make sure this page is open in Chrome',
+              'Tap the three dots at the top right',
+              'Tap "Install app" or "Add to Home screen"',
+              'Open ElevateEdu from your home screen'];
+    }
+    return ['Click the install icon in the address bar',
+            'Or open the browser menu and choose "Install ElevateEdu"',
+            'It then opens in its own window, like an app'];
+  }
+  function installCard(before) {
+    if (document.getElementById('eeInstallCard')) return;
+    if (isStandalone()) return; /* already running as an app */
+    if (!before || !before.parentNode) return;
+    var steps = installSteps();
+    var box = document.createElement('div');
+    box.id = 'eeInstallCard';
+    box.style.cssText = 'background:rgba(255,255,255,.55);border:1px solid rgba(111,78,55,.18);'
+      + 'border-radius:18px;padding:13px 15px;margin-bottom:16px;text-align:left;';
+    var html = '<div style="font-size:12.5px;font-weight:700;color:#4b3832;margin-bottom:7px;">'
+      + 'First, add ElevateEdu to your home screen</div>'
+      + '<ol style="margin:0;padding-left:17px;font-size:11.5px;line-height:1.65;color:#6f4e37;">';
+    for (var i = 0; i < steps.length; i++) html += '<li>' + steps[i] + '</li>';
+    html += '</ol><div style="font-size:10.5px;line-height:1.5;color:#6f4e37;opacity:.75;'
+      + 'margin-top:8px;">It opens full screen, keeps working offline, and stays signed in.'
+      + ' Then sign in just once, below.</div>';
+    box.innerHTML = html;
+    before.parentNode.insertBefore(box, before);
+  }
   function addGoogleBtn() {
     if (document.getElementById('eeGoogleBtn')) return;
     var form = document.getElementById('elevateAuthForm');
@@ -264,7 +306,7 @@ var elevateAuth = (function () {
           options: { redirectTo: window.location.origin + window.location.pathname },
         });
       } catch (e) {
-        setMsg('Google sign-in is not available right now. Use your email instead.', '#b3261e');
+        setMsg('Google could not open just now. Check your connection and try again.', '#b3261e');
       }
     });
     wrap.appendChild(b);
@@ -272,25 +314,14 @@ var elevateAuth = (function () {
     safe.textContent = 'Google checks your password, not us. We never see it.';
     safe.style.cssText = 'text-align:center;font-size:11px;line-height:1.45;opacity:.6;margin-top:10px;';
     wrap.appendChild(safe);
-    var alt = document.createElement('button');
-    alt.id = 'eeAltBtn';
-    alt.type = 'button';
-    alt.textContent = 'Use my email instead';
-    alt.style.cssText = 'display:block;margin:12px auto 0;background:none;border:none;padding:4px;font-family:inherit;font-size:12px;color:var(--coffee);opacity:.65;text-decoration:underline;cursor:pointer;';
-    alt.addEventListener('click', function () {
-      alt.style.display = 'none';
-      form.style.display = '';
-      var nt2 = document.getElementById('elevateAuthNote');
-      if (nt2) nt2.style.display = '';
-      if (isStandalone()) codeBox();
-      var em = document.getElementById('elevateAuthEmail');
-      if (em) em.focus();
-    });
-    wrap.appendChild(alt);
+    /* The email magic link is no longer offered here: Google sign-in is the
+       one and only way in. If Google is ever reported off, the branch further
+       down puts the email form back so nobody is locked out. */
     form.style.display = 'none';
     var nt = document.getElementById('elevateAuthNote');
     if (nt) nt.style.display = 'none';
     form.parentNode.insertBefore(wrap, form);
+    installCard(wrap);
   }
   function maybeGoogleBtn() {
     var cached = '';
