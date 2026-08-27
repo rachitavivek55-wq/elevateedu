@@ -1310,6 +1310,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
   var CSS =
     '#eeGear{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
     '#eeGear:active{transform:scale(.9)}' +
+    '#eeGear svg{width:18px;height:18px}' +
     '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
     '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
     '#eeSetOverlay.ee-open{display:flex}' +
@@ -1334,10 +1335,26 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:#8a6f5c;line-height:1.6}' +
     '#eeSetFoot a{color:#6f4e37;text-decoration:underline;margin:0 6px}';
 
-  var GEAR = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-    '<circle cx="12" cy="12" r="3.1"></circle>' +
-    '<path d="M12 2.6l1 2.6 2.7-.7 1.4 2.4-1.9 2 1.9 2-1.4 2.4-2.7-.7-1 2.6h-2.8l-1-2.6-2.7.7-1.4-2.4 1.9-2-1.9-2 1.4-2.4 2.7.7 1-2.6z" transform="translate(1.4 2.4) scale(0.88)"></path>' +
+  /* Every other icon in the app is drawn by Lucide, so we ask Lucide for
+     the cog too and it lines up with the rest of the set exactly. The
+     hand-drawn one below is only a stand-in for the rare load where
+     Lucide never arrives. */
+  var GEAR = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="3.4"></circle>' +
+    '<path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"></path>' +
     '</svg>';
+
+  function drawGear(btn) {
+    try {
+      if (window.lucide && window.lucide.createIcons) {
+        btn.innerHTML = '<i data-lucide="settings"></i>';
+        window.lucide.createIcons();
+        if (btn.querySelector('svg')) return true;
+      }
+    } catch (e) {}
+    btn.innerHTML = GEAR;
+    return false;
+  }
 
   function addStyle() {
     if (document.getElementById('eeSetStyle')) return;
@@ -1504,7 +1521,10 @@ window.addEventListener("beforeinstallprompt", function (e) {
     btn.id = 'eeGear';
     btn.type = 'button';
     btn.setAttribute('aria-label', 'Settings');
-    btn.innerHTML = GEAR;
+    if (!drawGear(btn)) {
+      /* Lucide might still be loading, so try once more in a moment. */
+      setTimeout(function () { drawGear(btn); }, 1200);
+    }
     btn.addEventListener('click', openSheet);
     var chip = bar.querySelector('.date-chip');
     if (chip && chip.parentNode) {
