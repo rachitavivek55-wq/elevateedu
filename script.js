@@ -1559,6 +1559,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
         '<div class="eeSetRow"><div class="eeL">' +
           '<b>Delete my account</b><i>Removes the account itself along with all of its data. Cannot be undone.</i></div>' +
           '<button class="eeSetBtn ee-danger" id="eeSetDel" type="button">Delete</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Menu bar position</b><i>If your phone hides part of the bottom bar, nudge it into place.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetNav" type="button">Adjust</button></div>' +
         '<div id="eeSetConfirm"><p id="eeSetConfirmText"></p>' +
           '<input id="eeSetType" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type here">' +
           '<button class="eeSetBtn ee-danger" id="eeSetGo" type="button">Yes, do it</button> ' +
@@ -1575,6 +1578,11 @@ window.addEventListener("beforeinstallprompt", function (e) {
       document.getElementById('eeSetConfirm').style.display = 'none';
     });
     document.getElementById('eeSetOut').addEventListener('click', doLogout);
+    document.getElementById('eeSetNav').addEventListener('click', function () {
+      /* Close first, otherwise this sheet covers the very bar being moved. */
+      closeSheet();
+      try { if (window.eeNavLift) window.eeNavLift.adjust(); } catch (e) {}
+    });
     document.getElementById('eeSetWipe').addEventListener('click', function () { askFor('wipe'); });
     document.getElementById('eeSetDel').addEventListener('click', function () { askFor('gone'); });
     document.getElementById('eeSetInstall').addEventListener('click', function () {
@@ -1658,4 +1666,108 @@ window.addEventListener("beforeinstallprompt", function (e) {
     if (document.visibilityState === 'hidden') flush();
   });
   window.addEventListener('pagehide', flush);
+})();
+
+/* ==============================================================
+   SECTION 25 - A bottom bar that really sits at the bottom
+   .phone is a full-height flex column with the nav as its last
+   row, which only lands on the true bottom edge when the browser
+   agrees about how tall the screen is. Safari's floating toolbar
+   and older iOS (no dvh unit) both break that, leaving the bar
+   floating mid-screen or tucked behind the toolbar. Measuring the
+   visible viewport ourselves fixes it, and a nudge control in
+   Settings covers any device that still needs a few pixels.
+   ============================================================== */
+(function () {
+  var KEY = 'ee_nav_lift';
+  var MIN = -24, MAX = 60;
+
+  function getLift() {
+    var n = 0;
+    try { n = parseInt(localStorage.getItem(KEY) || '0', 10); } catch (e) {}
+    if (isNaN(n)) n = 0;
+    return Math.max(MIN, Math.min(MAX, n));
+  }
+  function phoneLayout() {
+    try {
+      if (window.matchMedia('(display-mode: standalone)').matches) return true;
+      if (window.navigator.standalone) return true;
+    } catch (e) {}
+    return (window.innerWidth || 0) <= 900;
+  }
+  function apply() {
+    var ph = document.querySelector('.phone');
+    if (!ph) return;
+    if (!phoneLayout()) { ph.style.height = ''; return; }
+    var lift = getLift();
+    var vv = window.visualViewport;
+    var h = vv && vv.height ? vv.height : (window.innerHeight || 0);
+    h = Math.round(h) - lift;
+    /* Guard against a mid-gesture measurement of nearly nothing. */
+    if (h > 240) ph.style.height = h + 'px';
+  }
+  var queued = false;
+  function schedule() {
+    if (queued) return;
+    queued = true;
+    window.requestAnimationFrame(function () { queued = false; apply(); });
+  }
+  function setLift(n) {
+    n = Math.max(MIN, Math.min(MAX, n | 0));
+    try { localStorage.setItem(KEY, String(n)); } catch (e) {}
+    apply();
+    return n;
+  }
+
+  var BTN = 'border:0;border-radius:12px;padding:7px 11px;font-size:12px;font-weight:600;'
+    + 'font-family:inherit;background:#efe3cc;color:#4b3832;cursor:pointer;';
+  function adjuster() {
+    var old = document.getElementById('eeNavAdj');
+    if (old) { old.parentNode.removeChild(old); return; }
+    var box = document.createElement('div');
+    box.id = 'eeNavAdj';
+    /* Sits at the TOP of the screen so it never hides the bar being moved. */
+    box.style.cssText = 'position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;'
+      + 'transform:translateX(-50%);z-index:100000;background:#fbf4e6;'
+      + 'border:1px solid rgba(111,78,55,.18);border-radius:18px;padding:9px 11px;'
+      + 'box-shadow:0 10px 26px rgba(75,56,50,.22);display:flex;align-items:center;'
+      + 'gap:7px;font-family:inherit;font-size:12px;color:#4b3832;max-width:94vw;';
+    box.innerHTML = '<span style="font-weight:600">Menu bar</span>'
+      + '<button type="button" data-d="4" style="' + BTN + '">Up</button>'
+      + '<button type="button" data-d="-4" style="' + BTN + '">Down</button>'
+      + '<button type="button" data-reset="1" style="' + BTN + '">Reset</button>'
+      + '<button type="button" data-done="1" style="' + BTN
+      + 'background:#6f4e37;color:#fbf4e6;">Done</button>';
+    document.body.appendChild(box);
+    box.addEventListener('click', function (ev) {
+      var t = ev.target;
+      while (t && t !== box && t.tagName !== 'BUTTON') t = t.parentNode;
+      if (!t || t === box) return;
+      if (t.getAttribute('data-done')) {
+        if (box.parentNode) box.parentNode.removeChild(box);
+        return;
+      }
+      if (t.getAttribute('data-reset')) { setLift(0); return; }
+      setLift(getLift() + parseInt(t.getAttribute('data-d'), 10));
+    });
+  }
+
+  window.eeNavLift = { get: getLift, set: setLift, adjust: adjuster };
+
+  function boot() {
+    apply();
+    window.addEventListener('resize', schedule);
+    window.addEventListener('orientationchange', function () {
+      setTimeout(apply, 260);
+    });
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', schedule);
+      window.visualViewport.addEventListener('scroll', schedule);
+    }
+    /* Safari settles its toolbars a beat after load. */
+    setTimeout(apply, 400);
+    setTimeout(apply, 1200);
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
 })();
