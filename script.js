@@ -267,11 +267,25 @@ var elevateAuth = (function () {
         setMsg('Google sign-in is not available right now. Use your email instead.', '#b3261e');
       }
     });
-    var or = document.createElement('div');
-    or.textContent = 'or use your email';
-    or.style.cssText = 'text-align:center;font-size:12px;opacity:0.6;margin-top:12px;';
     wrap.appendChild(b);
-    wrap.appendChild(or);
+    var safe = document.createElement('div');
+    safe.textContent = 'Google checks your password, not us. We never see it.';
+    safe.style.cssText = 'text-align:center;font-size:11px;line-height:1.45;opacity:.6;margin-top:10px;';
+    wrap.appendChild(safe);
+    var alt = document.createElement('button');
+    alt.id = 'eeAltBtn';
+    alt.type = 'button';
+    alt.textContent = 'Use my email instead';
+    alt.style.cssText = 'display:block;margin:12px auto 0;background:none;border:none;padding:4px;font-family:inherit;font-size:12px;color:var(--coffee);opacity:.65;text-decoration:underline;cursor:pointer;';
+    alt.addEventListener('click', function () {
+      alt.style.display = 'none';
+      form.style.display = '';
+      if (isStandalone()) codeBox();
+      var em = document.getElementById('elevateAuthEmail');
+      if (em) em.focus();
+    });
+    wrap.appendChild(alt);
+    form.style.display = 'none';
     form.parentNode.insertBefore(wrap, form);
   }
   function maybeGoogleBtn() {
@@ -288,7 +302,9 @@ var elevateAuth = (function () {
           try { localStorage.setItem('ee_google_on', on ? '1' : '0'); } catch (e) {}
           if (on) { addGoogleBtn(); return; }
           var w = document.getElementById('eeGoogleWrap');
-          if (w) w.parentNode.removeChild(w);
+          if (w && w.parentNode) w.parentNode.removeChild(w);
+          var backForm = document.getElementById('elevateAuthForm');
+          if (backForm) backForm.style.display = '';
         })
         .catch(function () {});
     } catch (e) {}
@@ -306,6 +322,18 @@ var elevateAuth = (function () {
         ? 'This app keeps its own sign-in, separate from Safari. You only have to do this once.'
         : 'We email you a one-time sign-in link, so there is no password to remember. It works for 1 hour.';
     }
+    var sub = document.querySelector('.auth-subtitle');
+    if (sub) sub.textContent = 'Sign in safely - no password to remember';
+    if (eeNote && eeNote.parentNode && !document.getElementById('eeTrust')) {
+      var tr = document.createElement('p');
+      tr.id = 'eeTrust';
+      tr.style.cssText = 'font-size:10px;line-height:1.5;color:var(--coffee);opacity:.45;margin-top:10px;text-align:center;';
+      tr.innerHTML = 'Your work stays private in your own account. '
+        + '<a href="privacy.html" style="color:inherit;text-decoration:underline;">Privacy</a>'
+        + ' &middot; '
+        + '<a href="terms.html" style="color:inherit;text-decoration:underline;">Terms</a>';
+      eeNote.parentNode.insertBefore(tr, eeNote.nextSibling);
+    }
     maybeGoogleBtn();
     if (isStandalone()) {
       // An installed iPhone app gets its own storage, separate from Safari, so
@@ -313,6 +341,9 @@ var elevateAuth = (function () {
       // box here - on a fresh install there is no saved email to go on, and
       // showing a bare sign-in form with no explanation just looks broken.
       if (waiting) pendingEmail = waiting;
+      var gOn = '';
+      try { gOn = localStorage.getItem('ee_google_on') || ''; } catch (e) {}
+      if (!waiting && gOn === '1') return;
       codeBox();
       if (waiting) {
         setMsg('Paste the sign-in code you copied in Safari, or the link we emailed to ' + waiting + '.');
