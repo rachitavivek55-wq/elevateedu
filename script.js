@@ -280,12 +280,16 @@ var elevateAuth = (function () {
     alt.addEventListener('click', function () {
       alt.style.display = 'none';
       form.style.display = '';
+      var nt2 = document.getElementById('elevateAuthNote');
+      if (nt2) nt2.style.display = '';
       if (isStandalone()) codeBox();
       var em = document.getElementById('elevateAuthEmail');
       if (em) em.focus();
     });
     wrap.appendChild(alt);
     form.style.display = 'none';
+    var nt = document.getElementById('elevateAuthNote');
+    if (nt) nt.style.display = 'none';
     form.parentNode.insertBefore(wrap, form);
   }
   function maybeGoogleBtn() {
@@ -305,6 +309,8 @@ var elevateAuth = (function () {
           if (w && w.parentNode) w.parentNode.removeChild(w);
           var backForm = document.getElementById('elevateAuthForm');
           if (backForm) backForm.style.display = '';
+          var backNote = document.getElementById('elevateAuthNote');
+          if (backNote) backNote.style.display = '';
         })
         .catch(function () {});
     } catch (e) {}
