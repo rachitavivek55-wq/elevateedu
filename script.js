@@ -1296,3 +1296,230 @@ window.addEventListener("beforeinstallprompt", function (e) {
     } catch (err) {}
   };
 })();
+
+/* ==============================================================
+   SECTION 23 - Settings sheet (the gear in the title bar)
+   Every page already loads this file and already has a .titlebar,
+   so mounting the gear here puts it on Home, Planner, Calendar and
+   Vision Board at once. The sheet holds the account email, Log out,
+   Erase my data, Delete my account, an install shortcut and the
+   privacy / terms links. Both destructive actions need the user to
+   type a word first, so nothing can be wiped by a stray tap.
+   ============================================================== */
+(function () {
+  var CSS =
+    '#eeGear{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
+    '#eeGear:active{transform:scale(.9)}' +
+    '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
+    '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
+    '#eeSetOverlay.ee-open{display:flex}' +
+    '#eeSetCard{width:100%;max-width:430px;background:#fbf4e6;border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(75,56,50,.20);animation:eeSetUp .22s ease}' +
+    '@keyframes eeSetUp{from{transform:translateY(28px);opacity:.5}to{transform:translateY(0);opacity:1}}' +
+    '#eeSetCard h3{margin:0;font-size:17px;color:#4b3832;font-weight:600}' +
+    '.eeSetTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}' +
+    '#eeSetClose{border:0;background:#efe3cc;color:#6f4e37;width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;font-family:inherit}' +
+    '#eeSetWho{font-size:12px;color:#8a6f5c;margin:0 0 6px;word-break:break-all}' +
+    '.eeSetRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(111,78,55,.10)}' +
+    '.eeSetRow .eeL{flex:1 1 auto}' +
+    '.eeSetRow .eeL b{display:block;font-size:14px;color:#4b3832;font-weight:600}' +
+    '.eeSetRow .eeL i{display:block;font-style:normal;font-size:11.5px;color:#8a6f5c;margin-top:3px;line-height:1.35}' +
+    '.eeSetBtn{border:0;border-radius:14px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:#efe3cc;color:#4b3832;white-space:nowrap;font-family:inherit}' +
+    '.eeSetBtn.ee-warn{background:#f0dcc6;color:#8a5a2f}' +
+    '.eeSetBtn.ee-danger{background:#e7b9a4;color:#6b2f18}' +
+    '.eeSetBtn:active{transform:scale(.96)}' +
+    '.eeSetBtn[disabled]{opacity:.55}' +
+    '#eeSetConfirm{display:none;margin-top:12px;background:#f7ece0;border:1px solid rgba(111,78,55,.16);border-radius:16px;padding:12px}' +
+    '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:#6f4e37;line-height:1.45}' +
+    '#eeSetType{width:100%;box-sizing:border-box;border:1px solid rgba(111,78,55,.25);border-radius:12px;padding:9px 10px;font-size:13px;font-family:inherit;color:#4b3832;background:#fff;margin-bottom:8px}' +
+    '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:#8a6f5c;line-height:1.6}' +
+    '#eeSetFoot a{color:#6f4e37;text-decoration:underline;margin:0 6px}';
+
+  var GEAR = '<svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+    '<circle cx="12" cy="12" r="3.1"></circle>' +
+    '<path d="M12 2.6l1 2.6 2.7-.7 1.4 2.4-1.9 2 1.9 2-1.4 2.4-2.7-.7-1 2.6h-2.8l-1-2.6-2.7.7-1.4-2.4 1.9-2-1.9-2 1.4-2.4 2.7.7 1-2.6z" transform="translate(1.4 2.4) scale(0.88)"></path>' +
+    '</svg>';
+
+  function addStyle() {
+    if (document.getElementById('eeSetStyle')) return;
+    var s = document.createElement('style');
+    s.id = 'eeSetStyle';
+    s.textContent = CSS;
+    document.head.appendChild(s);
+  }
+
+  /* The email lives in the saved session, so we can show it without
+     asking the network again. */
+  function showWho() {
+    var el = document.getElementById('eeSetWho');
+    if (!el) return;
+    var mail = '';
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('sb-') === 0 && k.indexOf('-auth-') > 0) {
+          var o = JSON.parse(localStorage.getItem(k) || '{}');
+          mail = (o && o.user && o.user.email) || '';
+          if (mail) break;
+        }
+      }
+    } catch (e) {}
+    el.textContent = mail ? ('Signed in as ' + mail) : 'Signed in on this device';
+  }
+
+  function closeSheet() {
+    var o = document.getElementById('eeSetOverlay');
+    if (o) o.classList.remove('ee-open');
+  }
+
+  /* Erase keeps the account but empties it everywhere. Writing an empty
+     value first lets the normal sync push the blank up to the cloud, so
+     the data does not come back on the next device. */
+  function eraseData() {
+    var go = document.getElementById('eeSetGo');
+    if (go) { go.textContent = 'Erasing...'; go.disabled = true; }
+    var mine = [], i, k;
+    for (i = 0; i < localStorage.length; i++) {
+      k = localStorage.key(i);
+      if (k && (k.indexOf('elevate') === 0 || k.indexOf('ee_') === 0)) mine.push(k);
+    }
+    mine.forEach(function (key) {
+      if (key.indexOf('elevate') !== 0) return;
+      var v = localStorage.getItem(key) || '';
+      var blank = v.charAt(0) === '[' ? '[]' : (v.charAt(0) === '{' ? '{}' : '""');
+      try { localStorage.setItem(key, blank); } catch (e) {}
+    });
+    setTimeout(function () {
+      mine.forEach(function (key) { try { localStorage.removeItem(key); } catch (e) {} });
+      try { sessionStorage.removeItem('ee_hydrate_reloaded'); } catch (e) {}
+      window.location.href = 'index.html';
+    }, 2600);
+  }
+
+  function doLogout() {
+    var b = document.getElementById('eeSetOut');
+    if (b) { b.textContent = 'Bye...'; b.disabled = true; }
+    var done = function () { window.location.href = 'index.html'; };
+    try {
+      if (typeof elevateAuth !== 'undefined' && elevateAuth && elevateAuth.logout) {
+        var p = elevateAuth.logout();
+        if (p && p.then) p.then(done, done); else done();
+      } else { done(); }
+    } catch (e) { done(); }
+  }
+
+  var pending = null;
+
+  function askFor(kind) {
+    pending = kind;
+    var box = document.getElementById('eeSetConfirm');
+    var txt = document.getElementById('eeSetConfirmText');
+    var inp = document.getElementById('eeSetType');
+    var word = kind === 'wipe' ? 'ERASE' : 'DELETE';
+    txt.innerHTML = kind === 'wipe'
+      ? 'This empties every task, note, event and vision board photo on all of your devices. Type <b>ERASE</b> below if that is what you want.'
+      : 'This removes your account and everything in it, for good. Type <b>DELETE</b> below if that is what you want.';
+    inp.value = '';
+    inp.placeholder = word;
+    inp.style.borderColor = 'rgba(111,78,55,.25)';
+    box.style.display = 'block';
+    try { inp.focus(); } catch (e) {}
+  }
+
+  function buildSheet() {
+    var o = document.getElementById('eeSetOverlay');
+    if (o) return o;
+    o = document.createElement('div');
+    o.id = 'eeSetOverlay';
+    o.innerHTML =
+      '<div id="eeSetCard" role="dialog" aria-modal="true" aria-label="Settings">' +
+        '<div class="eeSetTop"><h3>Settings</h3>' +
+        '<button id="eeSetClose" type="button" aria-label="Close settings">&#215;</button></div>' +
+        '<p id="eeSetWho">Signed in on this device</p>' +
+        '<div class="eeSetRow" id="eeSetInstallRow" style="display:none"><div class="eeL">' +
+          '<b>Add to home screen</b><i>Keep ElevateEdu one tap away, like a normal app.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetInstall" type="button">Show me</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetOut" type="button">Log out</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Erase my data</b><i>Starts you fresh - empties everything you saved, on every device. Your account stays.</i></div>' +
+          '<button class="eeSetBtn ee-warn" id="eeSetWipe" type="button">Erase</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Delete my account</b><i>Removes the account itself along with all of its data. Cannot be undone.</i></div>' +
+          '<button class="eeSetBtn ee-danger" id="eeSetDel" type="button">Delete</button></div>' +
+        '<div id="eeSetConfirm"><p id="eeSetConfirmText"></p>' +
+          '<input id="eeSetType" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type here">' +
+          '<button class="eeSetBtn ee-danger" id="eeSetGo" type="button">Yes, do it</button> ' +
+          '<button class="eeSetBtn" id="eeSetNo" type="button">Never mind</button></div>' +
+        '<p id="eeSetFoot">ElevateEdu - free forever, no ads<br>' +
+          '<a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></p>' +
+      '</div>';
+    document.body.appendChild(o);
+
+    o.addEventListener('click', function (ev) { if (ev.target === o) closeSheet(); });
+    document.getElementById('eeSetClose').addEventListener('click', closeSheet);
+    document.getElementById('eeSetNo').addEventListener('click', function () {
+      pending = null;
+      document.getElementById('eeSetConfirm').style.display = 'none';
+    });
+    document.getElementById('eeSetOut').addEventListener('click', doLogout);
+    document.getElementById('eeSetWipe').addEventListener('click', function () { askFor('wipe'); });
+    document.getElementById('eeSetDel').addEventListener('click', function () { askFor('gone'); });
+    document.getElementById('eeSetInstall').addEventListener('click', function () {
+      closeSheet();
+      try { if (window.__eeShowA2HS) window.__eeShowA2HS(); } catch (e) {}
+    });
+    document.getElementById('eeSetGo').addEventListener('click', function () {
+      var inp = document.getElementById('eeSetType');
+      var want = pending === 'wipe' ? 'ERASE' : 'DELETE';
+      if ((inp.value || '').trim().toUpperCase() !== want) {
+        inp.style.borderColor = '#c0704f';
+        inp.placeholder = 'Please type ' + want;
+        return;
+      }
+      if (pending === 'wipe') eraseData();
+      else if (window.eeDeleteAccount) window.eeDeleteAccount();
+    });
+    document.addEventListener('keydown', function (ev) {
+      if (ev.key === 'Escape') closeSheet();
+    });
+    return o;
+  }
+
+  function openSheet() {
+    addStyle();
+    var o = buildSheet();
+    showWho();
+    document.getElementById('eeSetConfirm').style.display = 'none';
+    pending = null;
+    var row = document.getElementById('eeSetInstallRow');
+    if (row) row.style.display = window.__eeShowA2HS ? 'flex' : 'none';
+    o.classList.add('ee-open');
+  }
+
+  function mountGear() {
+    var bar = document.querySelector('.titlebar');
+    if (!bar || document.getElementById('eeGear')) return;
+    var btn = document.createElement('button');
+    btn.id = 'eeGear';
+    btn.type = 'button';
+    btn.setAttribute('aria-label', 'Settings');
+    btn.innerHTML = GEAR;
+    btn.addEventListener('click', openSheet);
+    var chip = bar.querySelector('.date-chip');
+    if (chip && chip.parentNode) {
+      var wrap = document.createElement('div');
+      wrap.id = 'eeTitleRight';
+      chip.parentNode.insertBefore(wrap, chip);
+      wrap.appendChild(btn);
+      wrap.appendChild(chip);
+    } else {
+      bar.appendChild(btn);
+    }
+  }
+
+  function boot() { addStyle(); mountGear(); }
+  window.eeOpenSettings = openSheet;
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
+})();
