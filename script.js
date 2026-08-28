@@ -619,7 +619,9 @@ var elevateAuth = (function () {
           if (existing === incoming) return;
           try {
             localStorage.setItem(row.data_key, incoming);
-            changed = true;
+            /* Only count it as a change once the value is really stored, so a
+               storage failure can never keep asking the page to repaint. */
+            if (localStorage.getItem(row.data_key) === incoming) changed = true;
           } catch (err) {}
         });
     } finally {
@@ -1383,10 +1385,27 @@ window.addEventListener("beforeinstallprompt", function (e) {
 (function () {
   if (window.eeRefreshIfHydrated) return;
   window.eeRefreshIfHydrated = function (changed) {
-    if (!changed) return;
+    var key = 'ee_hydrate_reloads:' + location.pathname;
+    if (!changed) {
+      /* Nothing new arrived, so give this page a clean slate for next time. */
+      try {
+        sessionStorage.removeItem(key);
+      } catch (err) {}
+      return;
+    }
+    /* Every tool reads its saved work the moment the page loads, so anything
+       the download brings in after that is invisible to it - and the tool's
+       next save would put its old copy straight back over the new data. That
+       is how a checklist can look like it never saved. Repainting once the new
+       data lands is what prevents it, so it has to be allowed on every page
+       and not just the first page opened in the tab. This cannot loop: after
+       the repaint the copy on this device already matches the account, so
+       "changed" comes back false. The counter is only a safety stop. */
     try {
-      if (sessionStorage.getItem("ee_hydrate_reloaded") === "1") return;
-      sessionStorage.setItem("ee_hydrate_reloaded", "1");
+      var n = parseInt(sessionStorage.getItem(key) || '0', 10);
+      if (!(n >= 0)) n = 0;
+      if (n >= 3) return;
+      sessionStorage.setItem(key, String(n + 1));
       location.reload();
     } catch (err) {}
   };
