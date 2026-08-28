@@ -818,10 +818,20 @@
     var bookView = document.getElementById('bookView');
     if (view) view.hidden = true;
     if (bookView) bookView.hidden = false;
+    // Scores may have changed while the class was open, so let the book page
+    // redraw its averages instead of showing a stale number.
+    if (typeof window.eeGradebookRefresh === 'function') {
+      try {
+        window.eeGradebookRefresh();
+      } catch (e) {}
+    }
   }
 
   function gbGradeBadge(cls) {
     if (!cls) return '';
+    // A grade worked out from real logged scores beats anything typed by hand.
+    var auto = classAvg(cls);
+    if (auto !== null) return fmtPct(auto);
     if (cls.gradeType === 'letter' && cls.gradeValue)
       return esc(cls.gradeValue);
     if (
