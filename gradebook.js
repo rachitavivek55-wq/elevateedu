@@ -22,30 +22,32 @@
     } catch (e) {}
     return { books: [], activeBook: null };
   }
-  function save() {
-    // gbscores.js writes category scores into the same key from its own copy of
-    // the data. Re-read what is on disk and keep those scores so a save from
-    // this file can never wipe out a score that was logged a moment ago.
+  // gbscores.js writes category scores into the same key from its own copy of
+  // the data. Pull those scores back in so this file never renders or saves a
+  // stale version of them.
+  function pullCats() {
     try {
       var live = JSON.parse(localStorage.getItem(KEY));
-      if (live && live.books) {
-        var cats = {};
-        live.books.forEach(function (b) {
-          (b.periods || []).forEach(function (p) {
-            (p.classes || []).forEach(function (c) {
-              if (c && c.id && c.categories) cats[c.id] = c.categories;
-            });
+      if (!live || !live.books) return;
+      var cats = {};
+      live.books.forEach(function (b) {
+        (b.periods || []).forEach(function (p) {
+          (p.classes || []).forEach(function (c) {
+            if (c && c.id && c.categories) cats[c.id] = c.categories;
           });
         });
-        (DB.books || []).forEach(function (b) {
-          (b.periods || []).forEach(function (p) {
-            (p.classes || []).forEach(function (c) {
-              if (c && cats[c.id]) c.categories = cats[c.id];
-            });
+      });
+      (DB.books || []).forEach(function (b) {
+        (b.periods || []).forEach(function (p) {
+          (p.classes || []).forEach(function (c) {
+            if (c && cats[c.id]) c.categories = cats[c.id];
           });
         });
-      }
+      });
     } catch (e) {}
+  }
+  function save() {
+    pullCats();
     localStorage.setItem(KEY, JSON.stringify(DB));
   }
   var DB = load();
@@ -288,6 +290,7 @@
 
   /* ---------- render: books grid ---------- */
   function renderBooks() {
+    pullCats();
     var wrap = $('gbBooks');
     wrap.innerHTML = '';
     if (!DB.books.length) {
@@ -365,6 +368,7 @@
   }
 
   function renderBook() {
+    pullCats();
     var b = getBook();
     if (!b) return;
     $('gbBookTitle').textContent = b.name;
@@ -1206,4 +1210,14 @@
     renderBooks();
     show('booksView');
   });
+  // gbscores.js calls this after a score changes so the averages redraw.
+  window.eeGradebookRefresh = function () {
+    pullCats();
+    try {
+      renderBooks();
+    } catch (e) {}
+    try {
+      if (getBook()) renderBook();
+    } catch (e) {}
+  };
 })();
