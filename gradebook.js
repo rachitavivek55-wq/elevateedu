@@ -23,6 +23,29 @@
     return { books: [], activeBook: null };
   }
   function save() {
+    // gbscores.js writes category scores into the same key from its own copy of
+    // the data. Re-read what is on disk and keep those scores so a save from
+    // this file can never wipe out a score that was logged a moment ago.
+    try {
+      var live = JSON.parse(localStorage.getItem(KEY));
+      if (live && live.books) {
+        var cats = {};
+        live.books.forEach(function (b) {
+          (b.periods || []).forEach(function (p) {
+            (p.classes || []).forEach(function (c) {
+              if (c && c.id && c.categories) cats[c.id] = c.categories;
+            });
+          });
+        });
+        (DB.books || []).forEach(function (b) {
+          (b.periods || []).forEach(function (p) {
+            (p.classes || []).forEach(function (c) {
+              if (c && cats[c.id]) c.categories = cats[c.id];
+            });
+          });
+        });
+      }
+    } catch (e) {}
     localStorage.setItem(KEY, JSON.stringify(DB));
   }
   var DB = load();
@@ -34,8 +57,10 @@
     return new Date().toISOString();
   }
   function fmtDate(iso) {
+    if (!iso) return '';
+    var d = new Date(iso);
+    if (isNaN(d.getTime())) return '';
     try {
-      var d = new Date(iso);
       return d.toLocaleDateString(undefined, {
         month: 'short',
         day: 'numeric',
@@ -44,6 +69,10 @@
     } catch (e) {
       return '';
     }
+  }
+  function addedLabel(iso) {
+    var s = fmtDate(iso);
+    return s ? 'added ' + s : '';
   }
 
   /* ---------- grade conversion ---------- */
@@ -103,8 +132,67 @@
     if (p >= 60) return 0.7;
     return 0.0;
   }
+  /* ---------- weighted scores (kept in sync with gbscores.js) ---------- */
+  // One logged score -> a percent, or null when it cannot be read.
+  function scoreItemPct(s) {
+    if (!s) return null;
+    if (s.type === 'letter') return letterToPct(s.value);
+    if (s.type === 'percent') {
+      var p = parseFloat(s.value);
+      return isNaN(p) ? null : p;
+    }
+    if (s.type === 'points') {
+      var got = parseFloat(s.got),
+        out = parseFloat(s.out);
+      if (isNaN(got) || isNaN(out) || out === 0) return null;
+      return (got / out) * 100;
+    }
+    return null;
+  }
+  // Average of every score logged for a class, honouring category weights.
+  // Categories with no scores yet sit the round out, so a 10% homework
+  // category still moves the total straight away.
+  function scoresAvg(cls) {
+    if (!cls || !cls.categories || !cls.categories.length) return null;
+    var parts = [];
+    cls.categories.forEach(function (c) {
+      var items = (c && c.items) || [];
+      var vals = items.map(scoreItemPct).filter(function (x) {
+        return x !== null;
+      });
+      if (!vals.length) return;
+      var a =
+        vals.reduce(function (x, y) {
+          return x + y;
+        }, 0) / vals.length;
+      var w = parseFloat(c.weight);
+      parts.push({ a: a, w: isNaN(w) || w <= 0 ? null : w });
+    });
+    if (!parts.length) return null;
+    var anyW = parts.some(function (p) {
+      return p.w !== null;
+    });
+    if (anyW) {
+      var tw = 0,
+        ts = 0;
+      parts.forEach(function (p) {
+        var w = p.w === null ? 0 : p.w;
+        tw += w;
+        ts += p.a * w;
+      });
+      return tw ? ts / tw : null;
+    }
+    return (
+      parts.reduce(function (s, p) {
+        return s + p.a;
+      }, 0) / parts.length
+    );
+  }
   // returns percent (number) or null
   function gradeToPct(cls) {
+    // Logged scores always win over a hand-typed grade.
+    var auto = scoresAvg(cls);
+    if (auto !== null) return auto;
     if (cls.gradeType === 'percent') {
       var v = parseFloat(cls.gradeValue);
       return isNaN(v) ? null : v;
@@ -122,6 +210,8 @@
     return null;
   }
   function gradeDisplay(cls) {
+    var autoD = scoresAvg(cls);
+    if (autoD !== null) return Math.round(autoD * 10) / 10 + '%';
     if (cls.gradeType === 'letter') {
       return (cls.gradeValue || '').toUpperCase();
     }
@@ -374,8 +464,7 @@
           '</span>' +
           '<span class="gb-class-sub">' +
           (c.teacher ? esc(c.teacher) + ' · ' : '') +
-          'added ' +
-          fmtDate(c.dateAdded) +
+          addedLabel(c.dateAdded) +
           '</span>' +
           '</span>' +
           '<span class="gb-class-grade" style="color:' +
