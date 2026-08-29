@@ -1715,15 +1715,25 @@ window.addEventListener("beforeinstallprompt", function (e) {
     return (window.innerWidth || 0) <= 900;
   }
   function apply() {
+    var n = getLift();
+    /* The bar keeps its exact size — only its position moves. */
     var ph = document.querySelector('.phone');
-    if (!ph) return;
-    if (!phoneLayout()) { ph.style.height = ''; return; }
-    var lift = getLift();
-    var vv = window.visualViewport;
-    var h = vv && vv.height ? vv.height : (window.innerHeight || 0);
-    h = Math.round(h) - lift;
-    /* Guard against a mid-gesture measurement of nearly nothing. */
-    if (h > 240) ph.style.height = h + 'px';
+    if (ph && ph.style.height) ph.style.height = '';
+    var bars = document.querySelectorAll('.bottom-nav');
+    for (var i = 0; i < bars.length; i++) {
+      bars[i].style.transform = n ? 'translateY(' + -n + 'px)' : '';
+    }
+    /* Give the page the same amount of extra room so nothing hides behind it. */
+    var scr = document.querySelectorAll('.screen');
+    for (var j = 0; j < scr.length; j++) {
+      var s = scr[j];
+      if (s.getAttribute('data-eepad') === null) {
+        var base = parseFloat(window.getComputedStyle(s).paddingBottom) || 0;
+        s.setAttribute('data-eepad', String(base));
+      }
+      var b = parseFloat(s.getAttribute('data-eepad')) || 0;
+      s.style.paddingBottom = n > 0 ? b + n + 'px' : '';
+    }
   }
   var queued = false;
   function schedule() {
