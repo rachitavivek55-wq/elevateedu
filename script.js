@@ -1723,7 +1723,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
   var KEY = 'ee_nav_lift';
   /* Plenty of travel both ways, so the bar can always be slid right down to
      the very bottom edge of the screen, whatever the device. */
-  var MIN = -140, MAX = 140;
+  var MIN = -240, MAX = 240;
 
   function getLift() {
     var n = 0;
@@ -1814,15 +1814,32 @@ window.addEventListener("beforeinstallprompt", function (e) {
       + 'transform:translateX(-50%);z-index:100000;background:#fbf4e6;'
       + 'border:1px solid rgba(111,78,55,.18);border-radius:18px;padding:9px 11px;'
       + 'box-shadow:0 10px 26px rgba(75,56,50,.22);display:flex;align-items:center;'
-      + 'gap:7px;font-family:inherit;font-size:12px;color:#4b3832;max-width:94vw;';
+      + 'gap:7px;flex-wrap:wrap;justify-content:center;font-family:inherit;'
+      + 'font-size:12px;color:#4b3832;max-width:94vw;width:300px;';
     box.innerHTML = '<span style="font-weight:600">Menu bar</span>'
       + '<button type="button" data-d="4" style="' + BTN + '">Up</button>'
       + '<button type="button" data-d="-4" style="' + BTN + '">Down</button>'
-      + '<button type="button" data-snap="1" style="' + BTN + '">To bottom</button>'
       + '<button type="button" data-reset="1" style="' + BTN + '">Reset</button>'
       + '<button type="button" data-done="1" style="' + BTN
-      + 'background:#6f4e37;color:#fbf4e6;">Done</button>';
+      + 'background:#6f4e37;color:#fbf4e6;">Done</button>'
+      /* A drag slider is the only control that can be trusted here: some phones
+         report the bar as already touching the bottom of the screen even while a
+         strip of dead space is still showing, so anything based on measuring the
+         screen moves it nowhere. Dragging lets the position be set by eye. */
+      + '<input type="range" id="eeNavSlide" step="1"'
+      + ' min="' + (-MAX) + '" max="' + (-MIN) + '"'
+      + ' style="flex:0 0 100%;width:100%;height:28px;margin:5px 0 0;'
+      + 'accent-color:#6f4e37;touch-action:none;" />';
     document.body.appendChild(box);
+    var slide = box.querySelector('#eeNavSlide');
+    /* Keep the knob in step with the buttons so the two never disagree. */
+    function syncSlide() { if (slide) slide.value = String(-getLift()); }
+    syncSlide();
+    if (slide) {
+      slide.addEventListener('input', function () {
+        setLift(-(parseInt(slide.value, 10) || 0));
+      });
+    }
     box.addEventListener('click', function (ev) {
       var t = ev.target;
       while (t && t !== box && t.tagName !== 'BUTTON') t = t.parentNode;
@@ -1832,8 +1849,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
         return;
       }
       if (t.getAttribute("data-snap")) { snapBottom(); return; }
-      if (t.getAttribute('data-reset')) { setLift(0); return; }
+      if (t.getAttribute('data-reset')) { setLift(0); syncSlide(); return; }
       setLift(getLift() + parseInt(t.getAttribute('data-d'), 10));
+      syncSlide();
     });
   }
 
