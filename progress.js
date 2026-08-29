@@ -23,6 +23,166 @@
     collageB = null,
     viewerPhoto = null;
 
+
+  /* ---------- Photo storage ----------
+     Pictures live in a private Supabase Storage bucket; localStorage only keeps
+     a short path like 'sb:<user>/progress-<id>.jpg'. If the bucket or the
+     network is not available the picture simply stays inline, exactly as
+     before, so nothing is ever lost. ------------------------------------- */
+  var PG_BUCKET = 'visionboard';
+  var PG_URLC = {};
+  var pgMigrating = false;
+  var pgMigTries = 0;
+  function sbClient() {
+    try {
+      return window.eeSupabase ? window.eeSupabase() : null;
+    } catch (e) {
+      return null;
+    }
+  }
+  function sbUser() {
+    var c = sbClient();
+    if (!c) return Promise.resolve(null);
+    return c.auth
+      .getSession()
+      .then(function (s) {
+        return s && s.data && s.data.session ? s.data.session.user : null;
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+  function isStored(v) {
+    return typeof v === 'string' && v.indexOf('sb:') === 0;
+  }
+  function isInline(v) {
+    return typeof v === 'string' && v.indexOf('data:') === 0;
+  }
+  function dataUrlToBlob(d) {
+    var parts = String(d).split(',');
+    var head = parts[0] || '';
+    var mime = (head.match(/:(.*?);/) || [null, 'image/jpeg'])[1];
+    var bin = atob(parts[1] || '');
+    var arr = new Uint8Array(bin.length);
+    for (var i = 0; i < bin.length; i++) arr[i] = bin.charCodeAt(i);
+    return new Blob([arr], { type: mime });
+  }
+  function uploadImage(dataUrl) {
+    var c = sbClient();
+    if (!c || !c.storage || !isInline(dataUrl)) return Promise.resolve(null);
+    return sbUser()
+      .then(function (user) {
+        if (!user) return null;
+        var path = user.id + '/progress-' + uid() + '.jpg';
+        return c.storage
+          .from(PG_BUCKET)
+          .upload(path, dataUrlToBlob(dataUrl), {
+            contentType: 'image/jpeg',
+            upsert: false,
+          })
+          .then(function (res) {
+            return res && res.error ? null : 'sb:' + path;
+          });
+      })
+      .catch(function () {
+        return null;
+      });
+  }
+  function signedUrl(val) {
+    if (!isStored(val)) return Promise.resolve(val || '');
+    var path = val.slice(3);
+    var hit = PG_URLC[path];
+    if (hit && hit.exp > Date.now()) return Promise.resolve(hit.u);
+    var c = sbClient();
+    if (!c || !c.storage) return Promise.resolve('');
+    return c.storage
+      .from(PG_BUCKET)
+      .createSignedUrl(path, 3600)
+      .then(function (res) {
+        if (!res || res.error || !res.data) return '';
+        PG_URLC[path] = { u: res.data.signedUrl, exp: Date.now() + 3000000 };
+        return res.data.signedUrl;
+      })
+      .catch(function () {
+        return '';
+      });
+  }
+  /* Swap any <img src="sb:..."> for a real signed link, whenever one appears. */
+  function fixImg(el) {
+    if (!el || el.tagName !== 'IMG') return;
+    var val = el.getAttribute('src') || '';
+    if (!isStored(val)) return;
+    if (el.getAttribute('data-pgtok') === val) return;
+    el.setAttribute('data-pgtok', val);
+    signedUrl(val).then(function (u) {
+      if (u) el.src = u;
+    });
+  }
+  function scanImgs(root) {
+    if (!root || root.nodeType !== 1) return;
+    if (root.tagName === 'IMG') fixImg(root);
+    if (!root.querySelectorAll) return;
+    var list = root.querySelectorAll('img');
+    for (var i = 0; i < list.length; i++) fixImg(list[i]);
+  }
+  function hookImages() {
+    scanImgs(document.body);
+    if (!window.MutationObserver) return;
+    var mo = new MutationObserver(function (recs) {
+      for (var i = 0; i < recs.length; i++) {
+        var r = recs[i];
+        if (r.type === 'attributes') {
+          fixImg(r.target);
+        } else {
+          for (var j = 0; j < r.addedNodes.length; j++) scanImgs(r.addedNodes[j]);
+        }
+      }
+    });
+    mo.observe(document.body, {
+      childList: true,
+      subtree: true,
+      attributes: true,
+      attributeFilter: ['src'],
+    });
+  }
+  /* Move one inline picture at a time into the bucket so localStorage stays small. */
+  function migrateImages() {
+    if (pgMigrating || !state || !state.length) return;
+    if (!sbClient()) {
+      if (pgMigTries++ < 20) setTimeout(migrateImages, 1500);
+      return;
+    }
+    var target = null;
+    for (var i = 0; i < state.length && !target; i++) {
+      var ph = state[i] && state[i].photos;
+      if (!ph) continue;
+      for (var j = 0; j < ph.length; j++) {
+        if (isInline(ph[j].src)) {
+          target = ph[j];
+          break;
+        }
+      }
+    }
+    if (!target) return;
+    pgMigrating = true;
+    var original = target.src;
+    uploadImage(original).then(
+      function (path) {
+        pgMigrating = false;
+        if (!path) {
+          if (pgMigTries++ < 20) setTimeout(migrateImages, 4000);
+          return;
+        }
+        if (target.src === original) target.src = path;
+        PG_URLC[path.slice(3)] = { u: original, exp: Date.now() + 20000 };
+        save();
+        migrateImages();
+      },
+      function () {
+        pgMigrating = false;
+      }
+    );
+  }
   function uid() {
     return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
   }
@@ -320,6 +480,7 @@
     render();
     closePhotoSheet();
     if (!$('pgDetailBackdrop').hidden) renderDetail();
+    migrateImages();
     toast('Photo saved');
   }
 
@@ -454,6 +615,11 @@
 
   // ---- Collage builder ----
   function loadImg(src) {
+    if (isStored(src)) {
+      return signedUrl(src).then(function (u) {
+        return u ? loadImg(u) : null;
+      });
+    }
     return new Promise(function (res) {
       var i = new Image();
       i.onload = function () {
@@ -717,6 +883,8 @@
     render();
     wire();
     icon();
+    hookImages();
+    migrateImages();
   }
   if (document.readyState === 'loading')
     document.addEventListener('DOMContentLoaded', init);
