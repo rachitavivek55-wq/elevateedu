@@ -1721,7 +1721,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
    ============================================================== */
 (function () {
   var KEY = 'ee_nav_lift';
-  var MIN = -24, MAX = 60;
+  /* Plenty of travel both ways, so the bar can always be slid right down to
+     the very bottom edge of the screen, whatever the device. */
+  var MIN = -140, MAX = 140;
 
   function getLift() {
     var n = 0;
@@ -1739,17 +1741,23 @@ window.addEventListener("beforeinstallprompt", function (e) {
   function apply() {
     var n = getLift();
     var ph = document.querySelector(".phone");
-    if (ph) ph.style.height = "";
+    if (ph) {
+      ph.style.height = "";
+      /* Sliding down means leaving the app frame, so stop the frame cropping
+         the bar. The screen edge still clips it, which is what we want. */
+      ph.style.overflow = n < 0 ? "visible" : "";
+    }
     var bars = document.querySelectorAll(".bottom-nav");
     for (var i = 0; i < bars.length; i++) {
       var b = bars[i];
       if (n) {
-        /* Move the whole bar as one piece: same length, same height. */
+        /* The whole bar travels as one piece. Length and height never change. */
         b.style.transform = "translateY(" + (-n) + "px)";
-        /* Fill the strip the bar left behind with the bar's own colour, so it
-           still looks joined to the bottom edge of the screen. */
+        /* Fills the strip the bar left behind in the bar's own colour, above it
+           when it slid down and below it when it slid up, so there is never a
+           pale gap and the bar still looks joined to the edge. */
         var bg = window.getComputedStyle(b).backgroundColor;
-        b.style.boxShadow = n > 0 ? "0 " + n + "px 0 0 " + bg : "";
+        b.style.boxShadow = "0 " + n + "px 0 0 " + bg;
       } else {
         b.style.transform = "";
         b.style.boxShadow = "";
