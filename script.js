@@ -1788,6 +1788,22 @@ window.addEventListener("beforeinstallprompt", function (e) {
 
   var BTN = 'border:0;border-radius:12px;padding:7px 11px;font-size:12px;font-weight:600;'
     + 'font-family:inherit;background:#efe3cc;color:#4b3832;cursor:pointer;';
+  /* One tap: works out exactly how far the bar is from the true bottom of the
+     screen and closes that distance, so it ends up flush at the very bottom.
+     Measured from the bar's neutral spot so repeat taps stay accurate. */
+  function snapBottom() {
+    var b = document.querySelector(".bottom-nav");
+    if (!b) return;
+    var keepT = b.style.transform, keepS = b.style.boxShadow;
+    b.style.transform = "";
+    b.style.boxShadow = "";
+    var vv = window.visualViewport;
+    var screenBottom = vv ? (vv.height + vv.offsetTop) : window.innerHeight;
+    var want = Math.round(b.getBoundingClientRect().bottom - screenBottom);
+    b.style.transform = keepT;
+    b.style.boxShadow = keepS;
+    setLift(want);
+  }
   function adjuster() {
     var old = document.getElementById('eeNavAdj');
     if (old) { old.parentNode.removeChild(old); return; }
@@ -1802,6 +1818,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     box.innerHTML = '<span style="font-weight:600">Menu bar</span>'
       + '<button type="button" data-d="4" style="' + BTN + '">Up</button>'
       + '<button type="button" data-d="-4" style="' + BTN + '">Down</button>'
+      + '<button type="button" data-snap="1" style="' + BTN + '">To bottom</button>'
       + '<button type="button" data-reset="1" style="' + BTN + '">Reset</button>'
       + '<button type="button" data-done="1" style="' + BTN
       + 'background:#6f4e37;color:#fbf4e6;">Done</button>';
@@ -1814,6 +1831,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
         if (box.parentNode) box.parentNode.removeChild(box);
         return;
       }
+      if (t.getAttribute("data-snap")) { snapBottom(); return; }
       if (t.getAttribute('data-reset')) { setLift(0); return; }
       setLift(getLift() + parseInt(t.getAttribute('data-d'), 10));
     });
