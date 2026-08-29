@@ -732,17 +732,36 @@ var elevateAuth = (function () {
 // ===== 10) Wrap localStorage.setItem to sync =====
 (function () {
   var originalSetItem = localStorage.setItem;
+  /* Anything that will not fit on this device is held here, so the app keeps
+     working and the change still travels up to the account. */
+  var eeOverlay = {};
+  var eeOriginalGetItem = localStorage.getItem;
+  localStorage.getItem = function (key) {
+    var v = eeOriginalGetItem.call(this, key);
+    if (v === null && Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
+    return v;
+  };
+  function eeRoomNote() {
+    if (window.__eeQuotaWarned) return;
+    window.__eeQuotaWarned = true;
+    try {
+      var n = document.createElement("div");
+      n.textContent = "This device is low on space, so this change was kept in your account instead. It will be here when you sign in. Deleting a few large pictures frees up room.";
+      n.style.cssText = "position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:300px;background:#3a2f26;color:#fff;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.45;z-index:10001;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center";
+      document.body.appendChild(n);
+      setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 6000);
+    } catch (e) {}
+  }
   localStorage.setItem = function (key, value) {
     try {
       originalSetItem.call(this, key, value);
     } catch (err) {
-      /* Storage full: warn the user instead of losing data silently. */
+      /* Out of room on this device. Hold the change in memory so the screen
+         still shows it, and let the sync just below carry it to the account,
+         instead of throwing it away. */
+      eeOverlay[key] = String(value);
       try { window.eeStorageFull && window.eeStorageFull(key); } catch (e2) {}
-      if (!window.__eeQuotaWarned) {
-        window.__eeQuotaWarned = true;
-        alert("This device is out of storage space, so your latest change could not be saved locally. Older items are still safe. Try removing a few large images to free up room.");
-      }
-      throw err;
+      try { eeRoomNote(); } catch (e3) {}
     }
     if (key.indexOf('elevate') === 0 && elevateAuth) {
       if (!window.__eeApplyingRemote) {
@@ -1716,23 +1735,31 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
   function apply() {
     var n = getLift();
-    /* The bar keeps its exact size — only its position moves. */
-    var ph = document.querySelector('.phone');
-    if (ph && ph.style.height) ph.style.height = '';
-    var bars = document.querySelectorAll('.bottom-nav');
+    var ph = document.querySelector(".phone");
+    if (ph) ph.style.height = "";
+    var bars = document.querySelectorAll(".bottom-nav");
     for (var i = 0; i < bars.length; i++) {
-      bars[i].style.transform = n ? 'translateY(' + -n + 'px)' : '';
-    }
-    /* Give the page the same amount of extra room so nothing hides behind it. */
-    var scr = document.querySelectorAll('.screen');
-    for (var j = 0; j < scr.length; j++) {
-      var s = scr[j];
-      if (s.getAttribute('data-eepad') === null) {
-        var base = parseFloat(window.getComputedStyle(s).paddingBottom) || 0;
-        s.setAttribute('data-eepad', String(base));
+      var b = bars[i];
+      if (n) {
+        /* Move the whole bar as one piece: same length, same height. */
+        b.style.transform = "translateY(" + (-n) + "px)";
+        /* Fill the strip the bar left behind with the bar's own colour, so it
+           still looks joined to the bottom edge of the screen. */
+        var bg = window.getComputedStyle(b).backgroundColor;
+        b.style.boxShadow = n > 0 ? "0 " + n + "px 0 0 " + bg : "";
+      } else {
+        b.style.transform = "";
+        b.style.boxShadow = "";
       }
-      var b = parseFloat(s.getAttribute('data-eepad')) || 0;
-      s.style.paddingBottom = n > 0 ? b + n + 'px' : '';
+    }
+    var scr = document.querySelectorAll(".screen");
+    for (var j = 0; j < scr.length; j++) {
+      var sc = scr[j];
+      if (!sc.getAttribute("data-eepad")) {
+        sc.setAttribute("data-eepad", String(parseInt(window.getComputedStyle(sc).paddingBottom, 10) || 0));
+      }
+      var base = parseInt(sc.getAttribute("data-eepad"), 10) || 0;
+      sc.style.paddingBottom = n > 0 ? (base + n) + "px" : "";
     }
   }
   var queued = false;
