@@ -652,11 +652,12 @@ let editingId = null;
         del.addEventListener('click', function () {
           if (editingId == null) return;
           var __t = document.getElementById('fTitle').value || 'this entry';
-          if (!confirm('Delete "' + __t + '"? This can\'t be undone.')) return;
+          calAsk('Delete "' + __t + '"? This can\'t be undone.', function () {
           entries = entries.filter(function (x) { return x.id !== editingId; });
           save();
           closeModal();
           render();
+          });
         });
         actions.insertBefore(del, actions.firstChild);
       }
@@ -736,7 +737,12 @@ let editingId = null;
   form.addEventListener('submit', (ev) => {
     ev.preventDefault();
     const title = document.getElementById('fTitle').value.trim();
-    if (!title) return;
+    if (!title) {
+      calNote('Give it a title first.');
+      var __ti = document.getElementById('fTitle');
+      if (__ti) __ti.focus();
+      return;
+    }
     const entry = {
       id: Date.now(),
       type: currentType,
@@ -746,7 +752,7 @@ let editingId = null;
     };
     if (currentType === 'commitment') {
       if (selectedDays.length === 0) {
-        alert('Pick at least one day this repeats on.');
+        calNote('Pick at least one day this repeats on.');
         return;
       }
       entry.days = selectedDays.slice();
@@ -774,11 +780,11 @@ let editingId = null;
   });
 
   function removePrompt(e) {
-    if (confirm('Delete "' + e.title + '"?')) {
+    calAsk('Delete "' + e.title + '"?', function () {
       entries = entries.filter((x) => x.id !== e.id);
       save();
       render();
-    }
+    });
   }
 
   // ---------- hours settings ----------
@@ -901,4 +907,72 @@ let editingId = null;
       render();
     }
   }, 30000);
+
+  // ---------- in-app toast + confirm (no native browser popups) ----------
+  var __toastEl = null;
+  var __toastT = null;
+  function calNote(msg) {
+    if (!__toastEl) {
+      __toastEl = document.createElement('div');
+      __toastEl.style.cssText =
+        'position:fixed;left:50%;bottom:104px;transform:translateX(-50%) translateY(8px);' +
+        'background:#2b2b2b;color:#fff;padding:10px 18px;border-radius:999px;' +
+        'font-size:13px;font-weight:500;font-family:inherit;max-width:78%;text-align:center;' +
+        'box-shadow:0 8px 20px rgba(0,0,0,0.3);z-index:9999;pointer-events:none;opacity:0;' +
+        'transition:opacity 0.18s ease, transform 0.18s ease;';
+      document.body.appendChild(__toastEl);
+    }
+    __toastEl.textContent = msg;
+    __toastEl.style.opacity = '1';
+    __toastEl.style.transform = 'translateX(-50%) translateY(0)';
+    if (__toastT) clearTimeout(__toastT);
+    __toastT = setTimeout(function () {
+      __toastEl.style.opacity = '0';
+      __toastEl.style.transform = 'translateX(-50%) translateY(8px)';
+    }, 1900);
+  }
+  function calAsk(msg, onYes) {
+    var wrap = document.createElement('div');
+    wrap.setAttribute('data-cal-ask', '1');
+    wrap.style.cssText =
+      'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.45);' +
+      'z-index:10000;display:flex;align-items:center;justify-content:center;padding:24px;';
+    var card = document.createElement('div');
+    card.style.cssText =
+      'background:#fff;border-radius:18px;padding:22px 20px 18px;max-width:320px;width:100%;' +
+      'font-family:inherit;box-shadow:0 18px 40px rgba(0,0,0,0.25);text-align:center;';
+    var p = document.createElement('p');
+    p.textContent = msg;
+    p.style.cssText = 'margin:0 0 18px;font-size:15px;line-height:1.45;color:#222;';
+    var row = document.createElement('div');
+    row.style.cssText = 'display:flex;gap:10px;';
+    var btn = function (label, bg, fg) {
+      var b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = label;
+      b.style.cssText =
+        'flex:1;padding:12px 0;border:0;border-radius:12px;background:' + bg + ';color:' + fg + ';' +
+        'font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;';
+      return b;
+    };
+    var no = btn('Keep it', '#ececec', '#333');
+    var yes = btn('Delete', '#c0392b', '#fff');
+    function close() {
+      if (wrap.parentNode) wrap.parentNode.removeChild(wrap);
+    }
+    no.addEventListener('click', close);
+    yes.addEventListener('click', function () {
+      close();
+      onYes();
+    });
+    wrap.addEventListener('click', function (ev) {
+      if (ev.target === wrap) close();
+    });
+    row.appendChild(no);
+    row.appendChild(yes);
+    card.appendChild(p);
+    card.appendChild(row);
+    wrap.appendChild(card);
+    document.body.appendChild(wrap);
+  }
 })();
