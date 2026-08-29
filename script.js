@@ -737,9 +737,10 @@ var elevateAuth = (function () {
   var eeOverlay = {};
   var eeOriginalGetItem = localStorage.getItem;
   localStorage.getItem = function (key) {
-    var v = eeOriginalGetItem.call(this, key);
-    if (v === null && Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
-    return v;
+    /* A change we could not fit on disk still reads back, so the screen and
+       every tool keep showing it for the rest of the visit. */
+    if (Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
+    return eeOriginalGetItem.call(this, key);
   };
   function eeRoomNote() {
     if (window.__eeQuotaWarned) return;
@@ -755,6 +756,8 @@ var elevateAuth = (function () {
   localStorage.setItem = function (key, value) {
     try {
       originalSetItem.call(this, key, value);
+      /* It fit this time, so stop shadowing it from memory. */
+      if (Object.prototype.hasOwnProperty.call(eeOverlay, key)) delete eeOverlay[key];
     } catch (err) {
       /* Out of room on this device. Hold the change in memory so the screen
          still shows it, and let the sync just below carry it to the account,
