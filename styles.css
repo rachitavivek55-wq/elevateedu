@@ -596,3 +596,37 @@ input, select, textarea, button {
     padding-bottom: calc(16px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+
+/* ---- Menu bar sits on the bottom edge of the screen ----
+   On a phone the app frame does not always reach the very bottom, which left a
+   pale strip of page under the bar, and nudging the bar down by hand only made
+   the frame clip it. Taking the bar out of the frame with fixed positioning
+   parks it on the bottom edge of the screen no matter what the frame is doing,
+   and it covers any strip that is left over. */
+@media (max-width: 480px), (display-mode: standalone),
+       (hover: none) and (pointer: coarse) {
+  .bottom-nav {
+    position: fixed !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    /* Beats the by-hand nudge that used to shift and outline the bar. */
+    transform: none !important;
+    box-shadow: none !important;
+    z-index: 50;
+  }
+  /* The bar no longer takes up room in the layout, so hold that room open or
+     the last card on every page hides behind it. */
+  .screen {
+    padding-bottom: calc(95px + env(safe-area-inset-bottom)) !important;
+  }
+  /* Anything showing behind the frame now matches the bar instead of glaring. */
+  html, body {
+    background: var(--tile) !important;
+  }
+  /* Placing itself correctly means the by-hand control is just clutter. */
+  #eeSetNav {
+    display: none !important;
+  }
+}
