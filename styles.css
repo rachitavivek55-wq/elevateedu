@@ -618,13 +618,32 @@ input, select, textarea, button {
        floated the icons well clear of the bottom edge. Take whichever of the two
        is larger rather than adding them, minus a touch, so the icons sit low
        without straying onto the home indicator. */
-    padding-bottom: max(8px, calc(env(safe-area-inset-bottom) - 10px)) !important;
+    padding-bottom: max(6px, calc(env(safe-area-inset-bottom) - 22px)) !important;
+    /* Trim the top to match, so the row is not tall and top-heavy once the
+       bottom gap closes up. */
+    padding-top: 6px !important;
     z-index: 50;
   }
   /* The bar no longer takes up room in the layout, so hold that room open or
      the last card on every page hides behind it. */
   .screen {
-    padding-bottom: calc(95px + env(safe-area-inset-bottom)) !important;
+    padding-bottom: max(56px, calc(env(safe-area-inset-bottom) + 25px)) !important;
+  }
+
+  /* The icons looked high because the bar itself was a tall panel, not because
+     of the gap under them. Tighten the row into a slim strip instead, close to
+     the height a phone's own tab bar uses, so the icons end up near the edge. */
+  .nav-item {
+    padding: 3px 10px !important;
+    gap: 3px !important;
+    border-radius: 12px !important;
+  }
+  .nav-icon svg {
+    width: 20px !important;
+    height: 20px !important;
+  }
+  .nav-label {
+    font-size: 10px !important;
   }
   /* Anything showing behind the frame now matches the bar instead of glaring. */
   html, body {
