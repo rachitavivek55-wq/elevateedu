@@ -1600,9 +1600,6 @@ window.addEventListener("beforeinstallprompt", function (e) {
         '<div class="eeSetRow"><div class="eeL">' +
           '<b>Delete my account</b><i>Removes the account itself along with all of its data. Cannot be undone.</i></div>' +
           '<button class="eeSetBtn ee-danger" id="eeSetDel" type="button">Delete</button></div>' +
-        '<div class="eeSetRow"><div class="eeL">' +
-          '<b>Menu bar position</b><i>If your phone hides part of the bottom bar, nudge it into place.</i></div>' +
-          '<button class="eeSetBtn" id="eeSetNav" type="button">Adjust</button></div>' +
         '<div id="eeSetConfirm"><p id="eeSetConfirmText"></p>' +
           '<input id="eeSetType" type="text" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Type here">' +
           '<button class="eeSetBtn ee-danger" id="eeSetGo" type="button">Yes, do it</button> ' +
@@ -1619,11 +1616,6 @@ window.addEventListener("beforeinstallprompt", function (e) {
       document.getElementById('eeSetConfirm').style.display = 'none';
     });
     document.getElementById('eeSetOut').addEventListener('click', doLogout);
-    document.getElementById('eeSetNav').addEventListener('click', function () {
-      /* Close first, otherwise this sheet covers the very bar being moved. */
-      closeSheet();
-      try { if (window.eeNavLift) window.eeNavLift.adjust(); } catch (e) {}
-    });
     document.getElementById('eeSetWipe').addEventListener('click', function () { askFor('wipe'); });
     document.getElementById('eeSetDel').addEventListener('click', function () { askFor('gone'); });
     document.getElementById('eeSetInstall').addEventListener('click', function () {
@@ -1710,167 +1702,30 @@ window.addEventListener("beforeinstallprompt", function (e) {
 })();
 
 /* ==============================================================
-   SECTION 25 - A bottom bar that really sits at the bottom
-   .phone is a full-height flex column with the nav as its last
-   row, which only lands on the true bottom edge when the browser
-   agrees about how tall the screen is. Safari's floating toolbar
-   and older iOS (no dvh unit) both break that, leaving the bar
-   floating mid-screen or tucked behind the toolbar. Measuring the
-   visible viewport ourselves fixes it, and a nudge control in
-   Settings covers any device that still needs a few pixels.
+   SECTION 25 - Clear away the old menu bar nudge
+   The stylesheet now parks the bar on the screen edge itself, so
+   nothing here needs to move it. Phones that used the old nudge
+   still had the saved offset stored, and it was re-applied on
+   every page change, which is why the bar sometimes dropped for
+   no reason. Wipe that leftover once and hand the bar back to
+   the stylesheet.
    ============================================================== */
 (function () {
-  var KEY = 'ee_nav_lift';
-  /* Plenty of travel both ways, so the bar can always be slid right down to
-     the very bottom edge of the screen, whatever the device. */
-  var MIN = -240, MAX = 240;
-
-  function getLift() {
-    var n = 0;
-    try { n = parseInt(localStorage.getItem(KEY) || '0', 10); } catch (e) {}
-    if (isNaN(n)) n = 0;
-    return Math.max(MIN, Math.min(MAX, n));
-  }
-  function phoneLayout() {
-    try {
-      if (window.matchMedia('(display-mode: standalone)').matches) return true;
-      if (window.navigator.standalone) return true;
-    } catch (e) {}
-    return (window.innerWidth || 0) <= 900;
-  }
-  function apply() {
-    var n = getLift();
-    var ph = document.querySelector(".phone");
-    if (ph) {
-      ph.style.height = "";
-      /* Sliding down means leaving the app frame, so stop the frame cropping
-         the bar. The screen edge still clips it, which is what we want. */
-      ph.style.overflow = n < 0 ? "visible" : "";
-    }
-    var bars = document.querySelectorAll(".bottom-nav");
+  'use strict';
+  function clean() {
+    try { localStorage.removeItem('ee_nav_lift'); } catch (e) {}
+    var bars = document.querySelectorAll('.bottom-nav');
     for (var i = 0; i < bars.length; i++) {
-      var b = bars[i];
-      if (n) {
-        /* The whole bar travels as one piece. Length and height never change. */
-        b.style.transform = "translateY(" + (-n) + "px)";
-        /* Fills the strip the bar left behind in the bar's own colour, above it
-           when it slid down and below it when it slid up, so there is never a
-           pale gap and the bar still looks joined to the edge. */
-        var bg = window.getComputedStyle(b).backgroundColor;
-        b.style.boxShadow = "0 " + n + "px 0 0 " + bg;
-      } else {
-        b.style.transform = "";
-        b.style.boxShadow = "";
-      }
+      bars[i].style.transform = '';
+      bars[i].style.boxShadow = '';
     }
-    var scr = document.querySelectorAll(".screen");
-    for (var j = 0; j < scr.length; j++) {
-      var sc = scr[j];
-      if (!sc.getAttribute("data-eepad")) {
-        sc.setAttribute("data-eepad", String(parseInt(window.getComputedStyle(sc).paddingBottom, 10) || 0));
-      }
-      var base = parseInt(sc.getAttribute("data-eepad"), 10) || 0;
-      sc.style.paddingBottom = n > 0 ? (base + n) + "px" : "";
-    }
+    var scr = document.querySelectorAll('.screen');
+    for (var j = 0; j < scr.length; j++) scr[j].style.paddingBottom = '';
+    var ph = document.querySelector('.phone');
+    if (ph) ph.style.overflow = '';
+    var panel = document.getElementById('eeNavAdj');
+    if (panel && panel.parentNode) panel.parentNode.removeChild(panel);
   }
-  var queued = false;
-  function schedule() {
-    if (queued) return;
-    queued = true;
-    window.requestAnimationFrame(function () { queued = false; apply(); });
-  }
-  function setLift(n) {
-    n = Math.max(MIN, Math.min(MAX, n | 0));
-    try { localStorage.setItem(KEY, String(n)); } catch (e) {}
-    apply();
-    return n;
-  }
-
-  var BTN = 'border:0;border-radius:12px;padding:7px 11px;font-size:12px;font-weight:600;'
-    + 'font-family:inherit;background:#efe3cc;color:#4b3832;cursor:pointer;';
-  /* One tap: works out exactly how far the bar is from the true bottom of the
-     screen and closes that distance, so it ends up flush at the very bottom.
-     Measured from the bar's neutral spot so repeat taps stay accurate. */
-  function snapBottom() {
-    var b = document.querySelector(".bottom-nav");
-    if (!b) return;
-    var keepT = b.style.transform, keepS = b.style.boxShadow;
-    b.style.transform = "";
-    b.style.boxShadow = "";
-    var vv = window.visualViewport;
-    var screenBottom = vv ? (vv.height + vv.offsetTop) : window.innerHeight;
-    var want = Math.round(b.getBoundingClientRect().bottom - screenBottom);
-    b.style.transform = keepT;
-    b.style.boxShadow = keepS;
-    setLift(want);
-  }
-  function adjuster() {
-    var old = document.getElementById('eeNavAdj');
-    if (old) { old.parentNode.removeChild(old); return; }
-    var box = document.createElement('div');
-    box.id = 'eeNavAdj';
-    /* Sits at the TOP of the screen so it never hides the bar being moved. */
-    box.style.cssText = 'position:fixed;top:calc(10px + env(safe-area-inset-top));left:50%;'
-      + 'transform:translateX(-50%);z-index:100000;background:#fbf4e6;'
-      + 'border:1px solid rgba(111,78,55,.18);border-radius:18px;padding:9px 11px;'
-      + 'box-shadow:0 10px 26px rgba(75,56,50,.22);display:flex;align-items:center;'
-      + 'gap:7px;flex-wrap:wrap;justify-content:center;font-family:inherit;'
-      + 'font-size:12px;color:#4b3832;max-width:94vw;width:300px;';
-    box.innerHTML = '<span style="font-weight:600">Menu bar</span>'
-      + '<button type="button" data-d="4" style="' + BTN + '">Up</button>'
-      + '<button type="button" data-d="-4" style="' + BTN + '">Down</button>'
-      + '<button type="button" data-reset="1" style="' + BTN + '">Reset</button>'
-      + '<button type="button" data-done="1" style="' + BTN
-      + 'background:#6f4e37;color:#fbf4e6;">Done</button>'
-      /* A drag slider is the only control that can be trusted here: some phones
-         report the bar as already touching the bottom of the screen even while a
-         strip of dead space is still showing, so anything based on measuring the
-         screen moves it nowhere. Dragging lets the position be set by eye. */
-      + '<input type="range" id="eeNavSlide" step="1"'
-      + ' min="' + (-MAX) + '" max="' + (-MIN) + '"'
-      + ' style="flex:0 0 100%;width:100%;height:28px;margin:5px 0 0;'
-      + 'accent-color:#6f4e37;touch-action:none;" />';
-    document.body.appendChild(box);
-    var slide = box.querySelector('#eeNavSlide');
-    /* Keep the knob in step with the buttons so the two never disagree. */
-    function syncSlide() { if (slide) slide.value = String(-getLift()); }
-    syncSlide();
-    if (slide) {
-      slide.addEventListener('input', function () {
-        setLift(-(parseInt(slide.value, 10) || 0));
-      });
-    }
-    box.addEventListener('click', function (ev) {
-      var t = ev.target;
-      while (t && t !== box && t.tagName !== 'BUTTON') t = t.parentNode;
-      if (!t || t === box) return;
-      if (t.getAttribute('data-done')) {
-        if (box.parentNode) box.parentNode.removeChild(box);
-        return;
-      }
-      if (t.getAttribute("data-snap")) { snapBottom(); return; }
-      if (t.getAttribute('data-reset')) { setLift(0); syncSlide(); return; }
-      setLift(getLift() + parseInt(t.getAttribute('data-d'), 10));
-      syncSlide();
-    });
-  }
-
-  window.eeNavLift = { get: getLift, set: setLift, adjust: adjuster };
-
-  function boot() {
-    apply();
-    window.addEventListener('resize', schedule);
-    window.addEventListener('orientationchange', function () {
-      setTimeout(apply, 260);
-    });
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', schedule);
-      window.visualViewport.addEventListener('scroll', schedule);
-    }
-    /* Safari settles its toolbars a beat after load. */
-    setTimeout(apply, 400);
-    setTimeout(apply, 1200);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
-  else boot();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', clean);
+  else clean();
 })();
