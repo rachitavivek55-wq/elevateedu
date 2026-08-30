@@ -247,14 +247,17 @@ var elevateAuth = (function () {
     var ios = /iphone|ipad|ipod/i.test(ua) && !window.MSStream;
     var ipadDesktopMode = /macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1;
     if (ios || ipadDesktopMode) {
+      /* The icon is drawn inline because people find the button on their own
+         toolbar much faster from the picture than from a description. */
       return ['Make sure this page is open in Safari',
-              'Tap the Share button at the bottom of the screen',
-              'Scroll down and tap "Add to Home Screen"',
+              'Tap the Share button at the bottom of the screen: <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin:0 1px;"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M20 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5"/></svg>',
+              'Scroll down the list to find "Add to Home Screen" - some iPhones call it "Add as Web App" - and tap it',
+              'Tap "Add" in the top corner to confirm',
               'Open ElevateEdu from your home screen'];
     }
     if (/android/i.test(ua)) {
       return ['Make sure this page is open in Chrome',
-              'Tap the three dots at the top right',
+              'Tap the three dots at the top right: <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-2px;margin:0 1px;"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg>',
               'Tap "Install app" or "Add to Home screen"',
               'Open ElevateEdu from your home screen'];
     }
