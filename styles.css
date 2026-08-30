@@ -614,6 +614,11 @@ input, select, textarea, button {
     /* Beats the by-hand nudge that used to shift and outline the bar. */
     transform: none !important;
     box-shadow: none !important;
+    /* The safe-area allowance was being piled on top of the bar's own 20px, which
+       floated the icons well clear of the bottom edge. Take whichever of the two
+       is larger rather than adding them, minus a touch, so the icons sit low
+       without straying onto the home indicator. */
+    padding-bottom: max(8px, calc(env(safe-area-inset-bottom) - 10px)) !important;
     z-index: 50;
   }
   /* The bar no longer takes up room in the layout, so hold that room open or
