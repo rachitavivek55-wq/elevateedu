@@ -619,15 +619,15 @@ input, select, textarea, button {
        is larger rather than adding them, minus a touch, so the icons sit low
        without straying onto the home indicator. */
     padding-bottom: max(6px, calc(env(safe-area-inset-bottom) - 22px)) !important;
-    /* Trim the top to match, so the row is not tall and top-heavy once the
-       bottom gap closes up. */
-    padding-top: 6px !important;
+    /* Give the top the exact same gap as the bottom, so the icons are centred
+       in the strip rather than being shoved upward by a bigger gap below. */
+    padding-top: max(6px, calc(env(safe-area-inset-bottom) - 22px)) !important;
     z-index: 50;
   }
   /* The bar no longer takes up room in the layout, so hold that room open or
      the last card on every page hides behind it. */
   .screen {
-    padding-bottom: max(64px, calc(env(safe-area-inset-bottom) + 36px)) !important;
+    padding-bottom: max(70px, calc(env(safe-area-inset-bottom) + 42px)) !important;
   }
 
   /* The icons looked high because the bar itself was a tall panel, not because
