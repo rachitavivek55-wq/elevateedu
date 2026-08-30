@@ -627,7 +627,7 @@ input, select, textarea, button {
   /* The bar no longer takes up room in the layout, so hold that room open or
      the last card on every page hides behind it. */
   .screen {
-    padding-bottom: max(56px, calc(env(safe-area-inset-bottom) + 25px)) !important;
+    padding-bottom: max(64px, calc(env(safe-area-inset-bottom) + 36px)) !important;
   }
 
   /* The icons looked high because the bar itself was a tall panel, not because
