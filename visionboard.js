@@ -241,11 +241,19 @@
   function persistSafe() {
     try {
       localStorage.setItem(KEY, JSON.stringify(state));
-      return true;
     } catch (e) {
-      toast('Storage full — try a smaller image');
+      toast('This device is out of space — delete a few pictures, then try again');
       return false;
     }
+    /* A change that did not fit is only held in memory for this visit, so check
+       before telling anyone it was saved. */
+    try {
+      if (window.eeOverlayHas && window.eeOverlayHas(KEY)) {
+        toast('This device is out of space — delete a few pictures, then try again');
+        return false;
+      }
+    } catch (e2) {}
+    return true;
   }
 
   function getBoard(id) {
@@ -633,30 +641,46 @@
     };
     reader.readAsDataURL(file);
   }
+  var VB_BUDGET = 120000; // how much of a data link we are happy to keep here
   function resizeImage(dataUrl, cb) {
     var img = new Image();
     img.onload = function () {
-      var maxDim = 900,
-        w = img.width,
-        h = img.height;
-      if (w > maxDim || h > maxDim) {
-        if (w >= h) {
-          h = Math.round((h * maxDim) / w);
-          w = maxDim;
-        } else {
-          w = Math.round((w * maxDim) / h);
-          h = maxDim;
-        }
-      }
-      var canvas = document.createElement('canvas');
-      canvas.width = w;
-      canvas.height = h;
-      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      /* Step the picture down until it is small enough to store comfortably, so
+         one phone photo cannot fill the whole allowance on its own. */
+      var steps = [
+        [900, 0.8],
+        [800, 0.72],
+        [700, 0.62],
+        [600, 0.54],
+        [500, 0.46],
+      ];
+      var out = '';
       try {
-        cb(canvas.toDataURL('image/jpeg', 0.85));
+        for (var s = 0; s < steps.length; s++) {
+          var maxDim = steps[s][0],
+            w = img.width,
+            h = img.height;
+          if (w > maxDim || h > maxDim) {
+            if (w >= h) {
+              h = Math.round((h * maxDim) / w);
+              w = maxDim;
+            } else {
+              w = Math.round((w * maxDim) / h);
+              h = maxDim;
+            }
+          }
+          var canvas = document.createElement('canvas');
+          canvas.width = w;
+          canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          out = canvas.toDataURL('image/jpeg', steps[s][1]);
+          if (out.length <= VB_BUDGET) break;
+        }
       } catch (e) {
         cb(dataUrl);
+        return;
       }
+      cb(out || dataUrl);
     };
     img.onerror = function () {
       cb(dataUrl);
@@ -669,6 +693,7 @@
     var title = $('vbTitle').value.trim();
     var notes = $('vbNotes').value.trim();
     var date = $('vbDate').value;
+    var added = null;
     if (!title && !notes && !draftImage) {
       toast('Add a title, note or picture');
       return;
@@ -687,7 +712,7 @@
         it.image = draftImage;
       }
     } else {
-      b.items.unshift({
+      added = {
         id: uid(),
         type: draftType,
         title: title,
@@ -696,12 +721,25 @@
         pin: draftPin,
         image: draftImage,
         created: Date.now(),
-      });
+      };
+      b.items.unshift(added);
     }
     if (persistSafe()) {
       closeItemSheet();
       renderDetail();
       migrateImages();
+      return;
+    }
+    /* It would not fit, so take a brand new item back out instead of leaving one
+       on screen that would disappear the next time the app opens. */
+    if (added) {
+      b.items = b.items.filter(function (x) {
+        return x !== added;
+      });
+      try {
+        localStorage.setItem(KEY, JSON.stringify(state));
+      } catch (e) {}
+      renderDetail();
     }
   }
   function askDeleteItem() {

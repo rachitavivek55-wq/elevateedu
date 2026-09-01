@@ -739,18 +739,35 @@ var elevateAuth = (function () {
      working and the change still travels up to the account. */
   var eeOverlay = {};
   var eeOriginalGetItem = localStorage.getItem;
+  /* Tools ask this before they say something was saved, so a change that only
+     fits in memory is never shown as if it had been written to the device. */
+  window.eeOverlayHas = function (key) {
+    return Object.prototype.hasOwnProperty.call(eeOverlay, key);
+  };
   localStorage.getItem = function (key) {
     /* A change we could not fit on disk still reads back, so the screen and
        every tool keep showing it for the rest of the visit. */
     if (Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
     return eeOriginalGetItem.call(this, key);
   };
+  function eeSignedIn() {
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf("sb-") === 0 && k.indexOf("-auth-token") > 0) return true;
+      }
+    } catch (e) {}
+    return false;
+  }
   function eeRoomNote() {
-    if (window.__eeQuotaWarned) return;
-    window.__eeQuotaWarned = true;
+    var now = Date.now();
+    if (window.__eeQuotaNoteAt && now - window.__eeQuotaNoteAt < 15000) return;
+    window.__eeQuotaNoteAt = now;
     try {
       var n = document.createElement("div");
-      n.textContent = "This device is low on space, so this change was kept in your account instead. It will be here when you sign in. Deleting a few large pictures frees up room.";
+      n.textContent = eeSignedIn()
+        ? "This device is out of space, so this change was kept in your account instead of on the phone. Deleting a few large pictures frees up room here."
+        : "This device is out of space, so this change could not be saved. Delete a few large pictures, or sign in so your work is kept in your account.";
       n.style.cssText = "position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:300px;background:#3a2f26;color:#fff;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.45;z-index:10001;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center";
       document.body.appendChild(n);
       setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 6000);

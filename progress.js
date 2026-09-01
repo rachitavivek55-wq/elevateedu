@@ -198,8 +198,14 @@
     try {
       localStorage.setItem(PG_KEY, JSON.stringify(state));
     } catch (e) {
-      toast('Storage full — try smaller photos');
+      return false;
     }
+    /* A change that did not fit is only held in memory for this visit, so check
+       before telling anyone it was saved. */
+    try {
+      if (window.eeOverlayHas && window.eeOverlayHas(PG_KEY)) return false;
+    } catch (e2) {}
+    return true;
   }
   function esc(s) {
     return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
@@ -391,28 +397,50 @@
   }
 
   // ---- Photo helpers: resize to keep localStorage small ----
+  var PG_BUDGET = 120000; // how much of a data link we are happy to keep here
+  function encodeFitted(img) {
+    /* Step the picture down until it is small enough to store comfortably, so
+       a phone photo cannot fill the whole allowance on its own. */
+    var steps = [
+      [1000, 0.8],
+      [900, 0.72],
+      [800, 0.64],
+      [700, 0.56],
+      [560, 0.48],
+    ];
+    var out = '';
+    for (var s = 0; s < steps.length; s++) {
+      var max = steps[s][0],
+        w = img.width,
+        h = img.height;
+      if (w > max || h > max) {
+        if (w > h) {
+          h = Math.round((h * max) / w);
+          w = max;
+        } else {
+          w = Math.round((w * max) / h);
+          h = max;
+        }
+      }
+      var cv = document.createElement('canvas');
+      cv.width = w;
+      cv.height = h;
+      cv.getContext('2d').drawImage(img, 0, 0, w, h);
+      out = cv.toDataURL('image/jpeg', steps[s][1]);
+      if (out.length <= PG_BUDGET) return out;
+    }
+    return out;
+  }
   function fileToResized(file, cb) {
     var reader = new FileReader();
     reader.onload = function (e) {
       var img = new Image();
       img.onload = function () {
-        var max = 1000,
-          w = img.width,
-          h = img.height;
-        if (w > max || h > max) {
-          if (w > h) {
-            h = Math.round((h * max) / w);
-            w = max;
-          } else {
-            w = Math.round((w * max) / h);
-            h = max;
-          }
+        try {
+          cb(encodeFitted(img));
+        } catch (err) {
+          cb(null);
         }
-        var cv = document.createElement('canvas');
-        cv.width = w;
-        cv.height = h;
-        cv.getContext('2d').drawImage(img, 0, 0, w, h);
-        cb(cv.toDataURL('image/jpeg', 0.82));
       };
       img.onerror = function () {
         cb(null);
@@ -470,13 +498,45 @@
       return;
     }
     if (!cat.photos) cat.photos = [];
-    cat.photos.push({
+    var entry = {
       id: uid(),
       src: pendingSrc,
       date: $('pgPhotoDate').value || todayYMD(),
       note: $('pgPhotoNote').value.trim(),
+    };
+    cat.photos.push(entry);
+    if (save()) {
+      afterPhotoSaved();
+      return;
+    }
+    /* There is no room left on this device. Try to park the picture in the
+       private account storage, so only a short link has to be kept here. */
+    var inline = entry.src;
+    var btn = $('pgPhotoSave');
+    btn.disabled = true;
+    btn.textContent = 'Saving…';
+    uploadImage(inline).then(function (path) {
+      btn.disabled = false;
+      btn.textContent = 'Save photo';
+      if (path) {
+        entry.src = path;
+        PG_URLC[path.slice(3)] = { u: inline, exp: Date.now() + 3000000 };
+        if (save()) {
+          afterPhotoSaved();
+          return;
+        }
+      }
+      /* Nowhere to keep it. Take it back out rather than showing a photo that
+         would quietly disappear the next time the app opens. */
+      var at = cat.photos.indexOf(entry);
+      if (at > -1) cat.photos.splice(at, 1);
+      save();
+      render();
+      if (!$('pgDetailBackdrop').hidden) renderDetail();
+      toast('This device is out of space — delete a few older photos, then try again');
     });
-    save();
+  }
+  function afterPhotoSaved() {
     render();
     closePhotoSheet();
     if (!$('pgDetailBackdrop').hidden) renderDetail();
