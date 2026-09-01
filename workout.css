@@ -479,6 +479,14 @@
   display: flex;
   gap: 10px;
   margin-top: 20px;
+  /* A routine with a few exercises makes this form taller than a phone screen,
+     which used to push Cancel and Save Workout down out of sight. Pinning the
+     row to the bottom of the sheet keeps them in reach however long it gets. */
+  position: sticky;
+  bottom: -22px;
+  background: var(--wk-card);
+  padding: 12px 0 22px;
+  margin-bottom: -22px;
 }
 .wk-btn {
   flex: 1 1 0;

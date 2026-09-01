@@ -392,6 +392,18 @@
   background: linear-gradient(135deg, var(--mp-coffee), var(--mp-espresso));
   color: var(--mp-cream);
 }
+
+/* The add-meal form is taller than a phone screen, so Save meal used to sit
+   below the fold with nothing to show it was there. Pinning it to the bottom
+   of the sheet keeps it visible while the rest of the form scrolls behind. */
+.mp-sheet > .mp-btn-primary {
+  position: sticky;
+  bottom: -24px;
+  flex-shrink: 0;
+  margin-bottom: -24px;
+  padding-bottom: calc(13px + env(safe-area-inset-bottom));
+  box-shadow: 0 -14px 16px var(--mp-white);
+}
 .mp-btn-primary:disabled {
   opacity: 0.5;
   cursor: default;
