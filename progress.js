@@ -533,7 +533,10 @@
       save();
       render();
       if (!$('pgDetailBackdrop').hidden) renderDetail();
-      toast('This device is out of space — delete a few older photos, then try again');
+      /* The app already shows a low-space note, so do not stack a second one. */
+      if (!window.__eeQuotaNoteAt || Date.now() - window.__eeQuotaNoteAt > 6000) {
+        toast('This device is out of space — delete a few older photos, then try again');
+      }
     });
   }
   function afterPhotoSaved() {

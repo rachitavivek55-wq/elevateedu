@@ -249,7 +249,10 @@
        before telling anyone it was saved. */
     try {
       if (window.eeOverlayHas && window.eeOverlayHas(KEY)) {
-        toast('This device is out of space — delete a few pictures, then try again');
+        /* The app already shows a low-space note, so do not stack a second one. */
+        if (!window.__eeQuotaNoteAt || Date.now() - window.__eeQuotaNoteAt > 6000) {
+          toast('This device is out of space — delete a few pictures, then try again');
+        }
         return false;
       }
     } catch (e2) {}
