@@ -2,7 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Add commitments, assignments, exams and tasks, and see your whole month at a glance." />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#4b3832" />
+    <link rel="icon" type="image/png" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ElevateEdu" />
     <title>Calendar — ElevateEdu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link
@@ -18,7 +27,7 @@
       <header class="titlebar">
         <div class="brand">
           <a href="planner.html" class="back-btn"
-            ><i data-lucide="arrow-left"></i
+             aria-label="Back"><i data-lucide="arrow-left"></i
           ></a>
           <h1 class="brand-name">Calendar</h1>
         </div>
@@ -39,7 +48,7 @@
 
         <!-- Period navigation -->
         <div class="cal-nav">
-          <button class="cal-arrow" id="calPrev">
+          <button class="cal-arrow" id="calPrev" aria-label="Previous month">
             <i data-lucide="chevron-left"></i>
           </button>
           <div class="cal-period">
@@ -53,7 +62,7 @@
           >
             <i data-lucide="settings-2"></i>
           </button>
-          <button class="cal-arrow" id="calNext">
+          <button class="cal-arrow" id="calNext" aria-label="Next month">
             <i data-lucide="chevron-right"></i>
           </button>
         </div>
@@ -72,7 +81,7 @@
         <div class="cal-modal cal-modal-sm" role="dialog" aria-modal="true">
           <div class="cal-modal-head">
             <h2 class="cal-modal-title">Day view hours</h2>
-            <button class="cal-close" id="calSetClose">
+            <button class="cal-close" id="calSetClose" aria-label="Close settings">
               <i data-lucide="x"></i>
             </button>
           </div>
@@ -124,7 +133,7 @@
         <div class="cal-modal" role="dialog" aria-modal="true">
           <div class="cal-modal-head">
             <h2 class="cal-modal-title" id="calModalTitle">New Entry</h2>
-            <button class="cal-close" id="calClose">
+            <button class="cal-close" id="calClose" aria-label="Close">
               <i data-lucide="x"></i>
             </button>
           </div>
@@ -258,36 +267,42 @@
                   type="button"
                   class="cal-swatch"
                   data-color="#6F4E37"
+                  aria-label="Coffee"
                   style="background: #6f4e37"
                 ></button>
                 <button
                   type="button"
                   class="cal-swatch"
                   data-color="#A9746E"
+                  aria-label="Rose"
                   style="background: #a9746e"
                 ></button>
                 <button
                   type="button"
                   class="cal-swatch"
                   data-color="#8C9A5B"
+                  aria-label="Olive"
                   style="background: #8c9a5b"
                 ></button>
                 <button
                   type="button"
                   class="cal-swatch"
                   data-color="#C08457"
+                  aria-label="Caramel"
                   style="background: #c08457"
                 ></button>
                 <button
                   type="button"
                   class="cal-swatch"
                   data-color="#6B8E9E"
+                  aria-label="Slate blue"
                   style="background: #6b8e9e"
                 ></button>
                 <button
                   type="button"
                   class="cal-swatch"
                   data-color="#9B7EBD"
+                  aria-label="Lilac"
                   style="background: #9b7ebd"
                 ></button>
                 <label class="cal-wheel" title="Custom color">

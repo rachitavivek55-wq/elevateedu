@@ -2,7 +2,16 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="description" content="Break big jobs into small checklists and tick them off as you go." />
+    <link rel="manifest" href="./manifest.json" />
+    <meta name="theme-color" content="#4b3832" />
+    <link rel="icon" type="image/png" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="ElevateEdu" />
     <title>Checklists — ElevateEdu</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -18,7 +27,7 @@
       <header class="titlebar">
         <div class="brand">
           <a href="planner.html" class="back-btn"
-            ><i data-lucide="arrow-left"></i
+             aria-label="Back"><i data-lucide="arrow-left"></i
           ></a>
           <h1 class="brand-name">Checklists</h1>
         </div>
@@ -72,7 +81,7 @@
               placeholder="Add a task…"
               maxlength="120"
             />
-            <button type="submit" class="ck-icon-btn ck-primary">
+            <button type="submit" class="ck-icon-btn ck-primary" aria-label="Add task">
               <i data-lucide="plus"></i>
             </button>
           </form>
