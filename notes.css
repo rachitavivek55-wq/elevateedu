@@ -337,7 +337,8 @@
   position: absolute;
   inset: 0;
   background: rgba(75, 56, 50, 0.34);
-  z-index: 20;
+  /* 40+ keeps the sheet clear of the fixed menu bar (z-index 35). */
+  z-index: 40;
 }
 .nt-sheet {
   position: absolute;
@@ -347,7 +348,7 @@
   background: var(--nt-cream);
   border-radius: 24px 24px 0 0;
   padding: 18px 18px 24px;
-  z-index: 21;
+  z-index: 41;
   box-shadow: 0 -8px 24px rgba(75, 56, 50, 0.2);
 }
 .nt-sheet-head {
@@ -470,7 +471,8 @@
   position: absolute;
   inset: 0;
   background: rgba(75, 56, 50, 0.34);
-  z-index: 30;
+  /* Above the sheet it is asked from. */
+  z-index: 60;
   display: grid;
   place-items: center;
   padding: 24px;
