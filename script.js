@@ -760,17 +760,43 @@ var elevateAuth = (function () {
     return false;
   }
   function eeRoomNote() {
-    var now = Date.now();
-    if (window.__eeQuotaNoteAt && now - window.__eeQuotaNoteAt < 15000) return;
-    window.__eeQuotaNoteAt = now;
+    /* A change that will not fit is easy to miss, and a tool may show its own
+       "saved" message straight afterwards. So this stays on screen until it is
+       dismissed, rather than fading out on its own. */
+    window.__eeQuotaNoteAt = Date.now();
     try {
-      var n = document.createElement("div");
-      n.textContent = eeSignedIn()
-        ? "This device is out of space, so this change was kept in your account instead of on the phone. Deleting a few large pictures frees up room here."
-        : "This device is out of space, so this change could not be saved. Delete a few large pictures, or sign in so your work is kept in your account.";
-      n.style.cssText = "position:fixed;left:50%;bottom:96px;transform:translateX(-50%);max-width:300px;background:#3a2f26;color:#fff;padding:12px 16px;border-radius:14px;font-size:13px;line-height:1.45;z-index:10001;box-shadow:0 8px 24px rgba(0,0,0,.25);text-align:center";
-      document.body.appendChild(n);
-      setTimeout(function () { if (n.parentNode) n.parentNode.removeChild(n); }, 6000);
+      if (!document.body) return;
+      var signedIn = eeSignedIn();
+      var n = document.getElementById("eeRoomBanner");
+      if (!n) {
+        n = document.createElement("div");
+        n.id = "eeRoomBanner";
+        n.setAttribute("role", "status");
+        n.style.cssText =
+          "position:fixed;left:12px;right:12px;top:12px;z-index:10001;padding:12px 42px 12px 14px;border-radius:14px;font-size:13px;line-height:1.45;box-shadow:0 8px 24px rgba(0,0,0,.28);text-align:left";
+        var t = document.createElement("span");
+        t.id = "eeRoomBannerText";
+        n.appendChild(t);
+        var x = document.createElement("button");
+        x.type = "button";
+        x.setAttribute("aria-label", "Dismiss this message");
+        x.textContent = "\u00d7";
+        x.style.cssText =
+          "position:absolute;right:6px;top:6px;width:30px;height:30px;border:0;background:transparent;color:inherit;font-size:20px;line-height:1;cursor:pointer";
+        x.onclick = function () {
+          if (n.parentNode) n.parentNode.removeChild(n);
+        };
+        n.appendChild(x);
+        document.body.appendChild(n);
+      }
+      n.style.background = signedIn ? "#3a2f26" : "#7c2f22";
+      n.style.color = "#fff";
+      var txt = document.getElementById("eeRoomBannerText");
+      if (txt) {
+        txt.textContent = signedIn
+          ? "This device is out of space. Your latest changes were kept in your account instead of on the phone, so they are safe. Deleting a few large pictures frees up room here."
+          : "This device is out of space, so your latest changes were not saved and will be gone when you close the app. Delete a few large pictures to free up room, or sign in so your work is kept in your account.";
+      }
     } catch (e) {}
   }
   localStorage.setItem = function (key, value) {
