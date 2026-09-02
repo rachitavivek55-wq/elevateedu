@@ -8,19 +8,20 @@
   --mp-line: rgba(111, 78, 55, 0.16);
 }
 .mp-screen {
-  padding: 16px 16px 96px;
+  padding: 16px 18px 96px;
 }
 .mp-intro {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .mp-intro-title {
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--mp-espresso);
-  margin: 0 0 4px;
+  margin: 0 0 5px;
+  letter-spacing: -0.3px;
 }
 .mp-intro-sub {
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.5;
   color: var(--mp-coffee);
   margin: 0;
@@ -64,9 +65,9 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding-bottom: 4px;
-  margin-bottom: 14px;
   scrollbar-width: none;
+  margin: 0 -18px 14px;
+  padding: 2px 18px 6px;
 }
 .mp-tabs::-webkit-scrollbar {
   display: none;

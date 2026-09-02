@@ -183,7 +183,8 @@
   padding: 34px 20px;
   color: var(--as-muted);
 }
-.as-empty i {
+.as-empty i,
+.as-empty svg {
   width: 34px;
   height: 34px;
   opacity: 0.5;

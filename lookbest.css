@@ -17,7 +17,7 @@
 }
 
 .lb-intro {
-  margin: 4px 2px 16px;
+  margin: 2px 0 16px;
   font-size: 13.5px;
   line-height: 1.5;
   color: rgba(75, 56, 50, 0.72);
@@ -28,8 +28,8 @@
   display: flex;
   gap: 8px;
   overflow-x: auto;
-  padding: 2px 2px 12px;
-  margin: 0 -2px 6px;
+  padding: 2px 18px 12px;
+  margin: 0 -18px 6px;
   scrollbar-width: none;
 }
 .lb-chips::-webkit-scrollbar {
@@ -52,7 +52,8 @@
   white-space: nowrap;
   transition: background 0.18s ease, color 0.18s ease, transform 0.12s ease;
 }
-.lb-chip i {
+.lb-chip i,
+.lb-chip svg {
   width: 15px;
   height: 15px;
 }
@@ -104,7 +105,8 @@
   font-weight: 500;
   color: var(--lb-coffee);
 }
-.lb-card-tag i {
+.lb-card-tag i,
+.lb-card-tag svg {
   width: 13px;
   height: 13px;
 }

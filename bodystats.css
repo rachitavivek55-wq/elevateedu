@@ -12,19 +12,21 @@
 } /* */
 
 .bs-screen {
-  padding: 14px 16px 96px;
+  padding: 14px 18px 96px;
 }
 
 .bs-intro h1 {
-  font-size: 24px;
+  font-size: 22px;
   font-weight: 700;
   color: var(--bs-espresso);
-  margin: 6px 0 2px;
+  margin: 0 0 5px;
+  letter-spacing: -0.3px;
 }
 .bs-sub {
   font-size: 13.5px;
   color: var(--bs-muted);
   margin: 0 0 16px;
+  line-height: 1.5;
 }
 
 /* Summary strip */
@@ -172,7 +174,8 @@
   color: var(--bs-coffee);
   margin-bottom: 14px;
 }
-.bs-empty-icon i {
+.bs-empty-icon i,
+.bs-empty-icon svg {
   width: 30px;
   height: 30px;
 }

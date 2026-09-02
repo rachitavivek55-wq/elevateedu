@@ -18,10 +18,10 @@
 
 /* hint */
 .nt-hint {
-  font-size: 13px;
+  font-size: 13.5px;
   line-height: 1.5;
   color: var(--nt-muted);
-  margin: 0 2px 16px;
+  margin: 2px 0 16px;
 }
 
 /* section cards */
@@ -184,7 +184,8 @@
   padding: 40px 20px;
   color: var(--nt-muted);
 }
-.nt-empty i {
+.nt-empty i,
+.nt-empty svg {
   width: 34px;
   height: 34px;
   color: var(--nt-beige);

@@ -60,7 +60,7 @@
     var d = new Date();
     var dd = $('dateDay'),
       dm = $('dateMonth');
-    if (dd) dd.textContent = String(d.getDate()).padStart(2, '0');
+    if (dd) dd.textContent = d.getDate();
     if (dm)
       dm.textContent = d
         .toLocaleDateString('en-US', { month: 'short' })

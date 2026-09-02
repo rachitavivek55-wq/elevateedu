@@ -7,21 +7,22 @@
   --md-shadow: 0 10px 30px rgba(75, 56, 50, 0.14);
   --md-line: rgba(111, 78, 55, 0.16);
 }
-. md-screen {
-  padding: 16px 16px 96px;
+.md-screen {
+  padding: 16px 18px 96px;
 }
 
 .md-intro {
   margin-bottom: 16px;
 }
 .md-intro-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--md-espresso);
-  margin: 0 0 4px;
+  margin: 0 0 5px;
+  letter-spacing: -0.3px;
 }
 .md-intro-sub {
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.5;
   color: rgba(75, 56, 50, 0.7);
   margin: 0;
@@ -223,7 +224,8 @@
   padding: 30px 20px;
   color: rgba(75, 56, 50, 0.5);
 }
-.md-empty i {
+.md-empty i,
+.md-empty svg {
   width: 34px;
   height: 34px;
   color: var(--md-beige);

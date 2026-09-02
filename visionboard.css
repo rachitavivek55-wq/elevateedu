@@ -13,7 +13,7 @@
   display: flex;
   flex-direction: column;
   gap: 14px;
-  padding: 18px 18px 30px;
+  padding: 18px 18px 96px;
   background: var(--vb-cream);
   /* Was min-height:100%, which resolved to the full height of the phone
      frame. That beat the flex sizing and pushed the bottom nav clean off
@@ -24,10 +24,11 @@
 }
 
 .vb-intro {
-  font-size: 13px;
+  font-size: 13.5px;
   color: var(--vb-coffee);
   opacity: 0.8;
   margin: 0;
+  line-height: 1.5;
 }
 
 /* Style switcher */
@@ -312,7 +313,8 @@
   padding: 40px 24px;
   color: var(--vb-coffee);
 }
-.vb-empty i {
+.vb-empty i,
+.vb-empty svg {
   width: 34px;
   height: 34px;
   opacity: 0.6;
@@ -779,7 +781,8 @@
   padding: 30px 18px;
   color: var(--vb-coffee);
 }
-.vb-boards-empty i {
+.vb-boards-empty i,
+.vb-boards-empty svg {
   width: 34px;
   height: 34px;
   opacity: 0.5;

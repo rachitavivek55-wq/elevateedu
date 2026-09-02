@@ -9,16 +9,17 @@
 }
 
 .mt-intro {
-  margin-bottom: 14px;
+  margin-bottom: 16px;
 }
 .mt-intro-title {
-  font-size: 24px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: var(--mt-espresso);
-  margin: 0 0 4px;
+  margin: 0 0 5px;
+  letter-spacing: -0.3px;
 }
 .mt-intro-sub {
-  font-size: 14px;
+  font-size: 13.5px;
   line-height: 1.5;
   color: rgba(75, 56, 50, 0.7);
   margin: 0;

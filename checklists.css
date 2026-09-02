@@ -10,8 +10,11 @@
 }
 
 .ck-intro {
-  margin: 0 0 24px;
+  margin: 2px 0 16px;
   line-height: 1.5;
+  font-size: 13.5px;
+  color: var(--ck-coffee);
+  opacity: 0.85;
 }
 
 /* ---- Lists overview ---- */

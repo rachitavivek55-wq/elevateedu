@@ -56,10 +56,10 @@
 .wl-filters {
   display: flex;
   gap: 8px;
-  margin: 16px 0 6px;
+  margin: 16px -18px 6px;
   overflow-x: auto;
-  padding-bottom: 2px;
   scrollbar-width: none;
+  padding: 2px 18px 4px;
 }
 .wl-filters::-webkit-scrollbar {
   display: none;
@@ -252,7 +252,8 @@
   padding: 40px 24px;
   color: var(--wl-muted);
 }
-.wl-empty i {
+.wl-empty i,
+.wl-empty svg {
   width: 38px;
   height: 38px;
   color: var(--wl-beige);
