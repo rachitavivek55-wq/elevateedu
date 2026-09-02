@@ -433,7 +433,9 @@
         confirmDeletePeriod(period.id);
       });
       delRow.appendChild(delBtn);
-      ss.parentNode.insertBefore(delRow, ss.nextSibling);
+      // Destructive: park it at the very end of the section, below the class
+      // list and the primary actions, instead of mid-page under the summary.
+      ss.parentNode.appendChild(delRow);
     }
 
     var cl = $('gbClasses');

@@ -202,7 +202,11 @@
       '.gb-add-cat{width:100%;border:1px dashed rgba(111,78,55,.35);background:transparent;color:#6f4e37;border-radius:12px;padding:10px;font:600 12.5px/1 Poppins,sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;margin-top:2px;}',
       '.gb-add-cat:hover{background:rgba(111,78,55,.06);}',
       '.gb-add-cat .lucide{width:15px;height:15px;}',
-      '.gb-grades-empty{font:500 12px/1.5 Poppins,sans-serif;color:#8a7663;text-align:center;padding:2px 0 12px;}',
+      '.gb-grades-empty{display:flex;flex-direction:column;align-items:center;text-align:center;padding:24px 20px 20px;}',
+      '.gb-grades-empty-icon{display:flex;align-items:center;justify-content:center;width:50px;height:50px;border-radius:16px;background:rgba(111,78,55,.11);margin-bottom:11px;}',
+      '.gb-grades-empty-icon svg{width:22px;height:22px;stroke:#8a7663;}',
+      '.gb-grades-empty h4{margin:0 0 4px;font:700 14px/1.25 Poppins,sans-serif;color:#4b3832;}',
+      '.gb-grades-empty p{margin:0;font:500 12px/1.5 Poppins,sans-serif;color:#9a8570;max-width:236px;}',
       /* overlay (second-level, above the class sheet) */
       '.gbsc-backdrop{position:absolute;inset:0;background:rgba(75,56,50,.40);display:flex;align-items:flex-end;justify-content:center;z-index:80;}',
       '.gbsc-backdrop[hidden]{display:none !important;}',
@@ -580,7 +584,12 @@
 
     var cats = cls.categories || [];
     if (!cats.length) {
-      html += '<div class="gb-grades-empty">No categories yet.</div>';
+      html +=
+        '<div class="gb-grades-empty">' +
+        '<span class="gb-grades-empty-icon"><i data-lucide="folder-plus"></i></span>' +
+        '<h4>No categories yet</h4>' +
+        '<p>Add one like Tests or Homework, then log each score inside it.</p>' +
+        '</div>';
     }
     cats.forEach(function (cat) {
       var a = catAvg(cat);
@@ -773,17 +782,18 @@
       '.gbcp-top{display:flex;align-items:center;gap:6px;margin:2px 0 12px;}',
       '.gbcp-back{display:inline-flex;align-items:center;gap:5px;border:none;background:transparent;color:#6f4e37;font:600 13px/1 Poppins,sans-serif;cursor:pointer;padding:4px 2px;}',
       '.gbcp-back .lucide{width:17px;height:17px;}',
-      '.gbcp-titlerow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:14px;}',
+      '.gbcp-titlerow{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px;}',
       '.gbcp-title{font:700 23px/1.15 Poppins,sans-serif;color:#4b3832;margin:0;word-break:break-word;}',
       '.gbcp-grade{flex:0 0 auto;background:#efe2c8;color:#6f4e37;border-radius:999px;padding:7px 13px;font:700 13px/1 Poppins,sans-serif;white-space:nowrap;}',
       '.gbcp-teacher{color:#9a8570;font:500 13px/1.3 Poppins,sans-serif;margin:0 0 12px;}',
-      '.gbcp-edit{display:inline-flex;align-items:center;gap:7px;border:1px solid rgba(111,78,55,.25);background:#fffdf7;color:#6f4e37;border-radius:12px;padding:10px 15px;font:600 13px/1 Poppins,sans-serif;cursor:pointer;margin-bottom:16px;}',
+      '.gbcp-titleside{display:flex;align-items:center;gap:8px;flex:0 0 auto;}',
+      '.gbcp-edit{display:inline-flex;align-items:center;gap:6px;border:1px solid rgba(111,78,55,.25);background:#fffdf7;color:#6f4e37;border-radius:999px;padding:8px 13px;font:600 12.5px/1 Poppins,sans-serif;cursor:pointer;}',
       '.gbcp-edit .lucide{width:16px;height:16px;}',
       '.gbcp-instr{background:transparent;border:none;padding:0 2px;color:#9a8570;font:500 12.5px/1.5 Poppins,sans-serif;margin:0 0 18px;}',
       '#gbClassView #gbGradesPage{margin-top:0 !important;padding-top:0 !important;border-top:none !important;}',
       '#gbClassView .gb-grades-head{display:none;}',
       '#gbClassView .gb-grades-hint{display:none;}',
-      '.gbcp-calc{background:#efe2c8;border-radius:16px;padding:15px 16px;margin:2px 0 6px;}',
+      '.gbcp-calc{background:#efe2c8;border-radius:16px;padding:15px 16px;margin:2px 0 14px;}',
       '.gbcp-calc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}',
       '.gbcp-calc-lbl{color:#7a6553;font:600 12.5px/1 Poppins,sans-serif;}',
       '.gbcp-calc-val{color:#4b3832;font:700 17px/1 Poppins,sans-serif;text-align:right;}',
@@ -897,15 +907,17 @@
     var wrap = document.createElement('div');
     var head =
       '<div class="gbcp-top"><button class="gbcp-back" type="button"><i data-lucide="chevron-left"></i>All classes</button></div>' +
+      // Grade badge and Edit share the title row, so Edit no longer costs a
+      // whole empty line of its own.
       '<div class="gbcp-titlerow"><h2 class="gbcp-title">' +
       esc(cls.name || 'Class') +
-      '</h2>' +
+      '</h2><div class="gbcp-titleside">' +
       (badge ? '<span class="gbcp-grade">' + badge + '</span>' : '') +
-      '</div>' +
+      '<button class="gbcp-edit" type="button"><i data-lucide="pencil"></i>Edit</button>' +
+      '</div></div>' +
       (cls.teacher
         ? '<p class="gbcp-teacher">' + esc(cls.teacher) + '</p>'
         : '') +
-      '<button class="gbcp-edit" type="button"><i data-lucide="pencil"></i>Edit class</button>' +
       '<p class="gbcp-instr">Track this class here. Add categories like tests or homework, then log each score as a letter, a percentage, or points out of a total.</p>' +
       '<div class="gbcp-calc" id="gbcpCalc"><div class="gbcp-calc-row"><span class="gbcp-calc-lbl">Calculated total</span><span class="gbcp-calc-val" id="gbcpCalcVal"></span></div></div>';
     wrap.innerHTML = head;

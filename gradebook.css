@@ -61,19 +61,25 @@
   line-height: 1.2;
   margin-top: 2px;
 }
+/* stacked, because the grade and the section count were fighting for room
+   on one line in a half-width card */
 .gb-book-meta {
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 6px;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
 }
 .gb-book-avg {
-  font-size: 22px;
+  font-size: 21px;
   font-weight: 700;
+  line-height: 1.15;
 }
 .gb-book-sub {
-  font-size: 11px;
-  opacity: 0.85;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  opacity: 0.72;
 }
 
 .gb-add-book {
@@ -190,7 +196,7 @@
   color: #fbf4e6;
 }
 .gb-add-period {
-  border: none;
+  border: 1px dashed rgba(111, 78, 55, 0.3);
   background: transparent;
   color: var(--gb-muted);
   font-family: inherit;
@@ -199,46 +205,56 @@
   cursor: pointer;
   display: inline-flex;
   align-items: center;
-  gap: 4px;
-  margin: 8px 0 4px;
-  padding: 2px 0;
+  gap: 5px;
+  /* sits right under the section chips so the two read as one control */
+  margin: 6px 0 0;
+  padding: 6px 13px;
+  border-radius: 999px;
 }
 .gb-add-period i {
   width: 14px;
   height: 14px;
 }
 
-/* section summary */
+/* section summary — one strip with hairline dividers, so four numbers
+   read as a single row instead of four cramped little boxes */
 .gb-section-summary {
   display: flex;
-  gap: 7px;
-  margin: 6px 0 18px;
+  align-items: stretch;
+  background: var(--gb-tile);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  padding: 14px 4px;
+  margin: 12px 0 18px;
 }
 .gb-stat {
   flex: 1;
   min-width: 0;
-  background: var(--gb-tile);
-  border-radius: 14px;
-  padding: 11px 6px;
+  padding: 0 6px;
   text-align: center;
-  box-shadow: var(--shadow-soft);
+}
+.gb-stat + .gb-stat {
+  border-left: 1px solid rgba(111, 78, 55, 0.12);
 }
 .gb-stat-val {
   display: block;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--gb-ink);
-  line-height: 1.1;
+  line-height: 1.15;
 }
 .gb-stat-label {
   display: block;
-  font-size: 10.5px;
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
   color: var(--gb-muted);
-  margin-top: 3px;
+  margin-top: 5px;
 }
 
 .gb-classes-label {
-  margin: 4px 0 10px;
+  margin: 2px 0 10px;
 }
 .gb-classes {
   display: flex;
@@ -255,12 +271,14 @@
   align-items: center;
   gap: 12px;
   cursor: pointer;
+  /* it is a <button>, which centres its text by default */
+  text-align: left;
 }
 .gb-class-swatch {
-  width: 6px;
+  width: 5px;
   align-self: stretch;
-  border-radius: 6px;
-  min-height: 40px;
+  border-radius: 999px;
+  min-height: 34px;
   background: var(--gb-coffee);
 }
 .gb-class-main {
@@ -633,29 +651,33 @@
 }
 
 /* ---------- Delete section control ---------- */
+/* Destructive, so it lives at the very bottom of the section and stays
+   quiet instead of competing with the real actions mid-page */
 .gb-section-del {
   display: flex;
-  justify-content: flex-end;
-  margin: -8px 0 14px;
+  justify-content: center;
+  margin: 6px 0 4px;
 }
 .gb-section-del-btn {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  border: 1px solid var(--gb-line);
-  background: var(--gb-tile);
+  border: none;
+  background: transparent;
   color: var(--gb-bad);
   -webkit-text-fill-color: var(--gb-bad);
   font-family: inherit;
   font-size: 12.5px;
-  font-weight: 600;
-  padding: 7px 12px;
+  font-weight: 500;
+  opacity: 0.75;
+  padding: 8px 14px;
   border-radius: 999px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background 0.15s ease, opacity 0.15s ease;
 }
 .gb-section-del-btn:hover {
   background: #f3e2df;
+  opacity: 1;
 }
 .gb-section-del-btn svg {
   stroke: var(--gb-bad);
