@@ -21,9 +21,13 @@
   align-items: center;
   background: linear-gradient(140deg, #6f4e37 0%, #4b3832 100%);
   border-radius: 22px;
-  padding: 15px 16px;
+  padding: 16px 18px;
   color: var(--wl-cream);
   box-shadow: 0 12px 26px rgba(75, 56, 50, 0.24);
+}
+.wl-summary .wl-sum-block:last-child {
+  align-items: flex-end;
+  text-align: right;
 }
 .wl-sum-narrow {
   flex: 0 0 auto !important;
@@ -35,13 +39,13 @@
   gap: 3px;
 }
 .wl-sum-label {
-  font-size: 10.5px;
-  letter-spacing: 0.03em;
+  font-size: 10px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   color: rgba(245, 230, 202, 0.75);
 }
 .wl-sum-value {
-  font-size: 19px;
+  font-size: 20px;
   font-weight: 600;
   white-space: nowrap;
 }
@@ -49,7 +53,7 @@
   width: 1px;
   align-self: stretch;
   background: rgba(245, 230, 202, 0.2);
-  margin: 2px 12px;
+  margin: 2px 14px;
 }
 
 /* Filter chips */
@@ -249,7 +253,7 @@
 /* Empty */
 .wl-empty {
   text-align: center;
-  padding: 40px 24px;
+  padding: 36px 20px;
   color: var(--wl-muted);
 }
 .wl-empty i,

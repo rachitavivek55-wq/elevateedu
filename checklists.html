@@ -45,9 +45,13 @@
 
         <div id="ckListView">
           <div class="ck-lists" id="ckLists"></div>
-          <p class="ck-empty" id="ckEmpty" hidden>
-            No checklists yet. Tap the button below to make your first one.
-          </p>
+          <div class="ck-empty" id="ckEmpty" hidden>
+            <span class="ck-empty-icon"><i data-lucide="list-checks" aria-hidden="true"></i></span>
+            <h3 class="ck-empty-title">No checklists yet</h3>
+            <p class="ck-empty-sub">
+              Tap the button below to make your first one.
+            </p>
+          </div>
           <button class="ck-add-btn" id="ckAddBtn">
             <i data-lucide="plus"></i><span>New checklist</span>
           </button>

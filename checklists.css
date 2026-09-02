@@ -115,11 +115,40 @@
 
 .ck-empty {
   text-align: center;
+  padding: 36px 20px 8px;
+  margin: 0;
+}
+.ck-empty-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 20px;
+  background: var(--ck-white);
+  color: var(--ck-coffee);
+  opacity: 0.85;
+  margin-bottom: 14px;
+}
+.ck-empty-icon i,
+.ck-empty-icon svg {
+  width: 30px;
+  height: 30px;
+}
+.ck-empty-title {
+  font-size: 16px;
+  font-weight: 650;
+  color: var(--ck-espresso, var(--ck-coffee));
+  margin: 0 0 4px;
+}
+.ck-empty-sub {
   font-size: 13px;
+  line-height: 1.5;
   color: var(--ck-coffee);
   opacity: 0.8;
-  padding: 24px 12px;
   margin: 0;
+}
+.ck-empty[hidden] {
+  display: none !important;
 }
 
 /* ---- Detail view ---- */

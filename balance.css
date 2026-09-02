@@ -28,12 +28,17 @@
 .bl-card::after {
   content: '';
   position: absolute;
-  right: -40px;
-  top: -40px;
-  width: 150px;
-  height: 150px;
-  background: rgba(245, 230, 202, 0.08);
+  right: -70px;
+  top: -70px;
+  width: 220px;
+  height: 220px;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(245, 230, 202, 0.14) 0%,
+    rgba(245, 230, 202, 0) 68%
+  );
   border-radius: 50%;
+  pointer-events: none;
 }
 .bl-card-top {
   display: flex;
@@ -189,6 +194,13 @@
   width: 100%;
   height: 150px;
   display: block;
+}
+.bl-chart-wrap:has(.bl-chart-empty:not([hidden])) {
+  min-height: 104px;
+}
+.bl-chart-wrap:has(.bl-chart-empty:not([hidden])) .bl-chart {
+  height: 86px;
+  opacity: 0;
 }
 .bl-chart-empty {
   position: absolute;
