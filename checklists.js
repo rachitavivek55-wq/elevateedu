@@ -249,10 +249,12 @@
         '<h3 class="ck-list-name"></h3>' +
         '<span class="ck-badge"><i data-lucide="rotate-ccw"></i><span class="ck-badge-txt"></span></span>' +
         '</div>' +
+        '<div class="ck-list-foot">' +
         '<div class="ck-mini-progress"><span style="width:' +
         pct +
         '%"></span></div>' +
-        '<p class="ck-list-sub"></p>';
+        '<p class="ck-list-sub"></p>' +
+        '</div>';
       card.querySelector('.ck-list-name').textContent = list.name;
       card.querySelector('.ck-badge-txt').textContent = resetShort(list);
       card.querySelector('.ck-list-sub').textContent =
@@ -351,16 +353,24 @@
   }
 
   /* ---------- View switching ---------- */
+  /* The opening explanation belongs to the overview. Inside a checklist it
+     only pushes the list down, so it steps aside there. */
+  function showIntro(on) {
+    var p = document.querySelector('.ck-intro');
+    if (p) p.hidden = !on;
+  }
   function showLists() {
     currentId = null;
     el.ckDetailView.hidden = true;
     el.ckListView.hidden = false;
+    showIntro(true);
     renderLists();
   }
   function openDetail(id) {
     currentId = id;
     el.ckListView.hidden = true;
     el.ckDetailView.hidden = false;
+    showIntro(false);
     renderDetail();
   }
 

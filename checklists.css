@@ -9,12 +9,27 @@
   --ck-shadow-sm: 0 4px 14px rgba(75, 56, 50, 0.1);
 }
 
+/* The tool sits above the bottom bar, so the last row and the add field are
+   reachable instead of tucked underneath it. */
+.tool-screen {
+  padding-bottom: 96px;
+}
+
+/* The opening explanation reads as a note rather than loose body copy, and it
+   steps out of the way once a checklist is open. */
 .ck-intro {
-  margin: 2px 0 16px;
+  margin: 2px 0 14px;
   line-height: 1.5;
-  font-size: 13.5px;
+  font-size: 13px;
   color: var(--ck-coffee);
   opacity: 0.85;
+  padding: 10px 12px;
+  background: var(--ck-white);
+  border: 1px solid var(--ck-line);
+  border-radius: 12px;
+}
+.ck-intro[hidden] {
+  display: none;
 }
 
 /* ---- Lists overview ---- */
@@ -28,13 +43,13 @@
   background: var(--ck-white);
   border: 1px solid var(--ck-line);
   border-radius: 18px;
-  padding: 16px;
+  padding: 14px;
   box-shadow: var(--ck-shadow-sm);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.15s ease;
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 9px;
 }
 .ck-list-card:active {
   transform: scale(0.985);
@@ -66,8 +81,16 @@
   gap: 5px;
 }
 
+/* The bar and its count share a line, so a card is two rows rather than
+   three and a screen of checklists stays compact. */
+.ck-list-foot {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 .ck-mini-progress {
-  height: 8px;
+  flex: 1;
+  height: 7px;
   border-radius: 999px;
   background: var(--ck-cream);
   overflow: hidden;
@@ -80,22 +103,24 @@
   transition: width 0.3s ease;
 }
 .ck-list-sub {
-  font-size: 12px;
+  font-size: 11.5px;
+  font-weight: 600;
   color: var(--ck-coffee);
   opacity: 0.85;
   margin: 0;
+  white-space: nowrap;
 }
 
 .ck-add-btn {
-  margin-top: 16px;
+  margin-top: 14px;
   width: 100%;
   border: 1.5px dashed var(--ck-beige);
   background: transparent;
   color: var(--ck-coffee);
   border-radius: 16px;
-  padding: 14px;
+  padding: 12px;
   font-family: inherit;
-  font-size: 14px;
+  font-size: 13.5px;
   font-weight: 600;
   display: flex;
   align-items: center;
@@ -222,7 +247,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 16px 0 12px;
+  margin: 14px 0 12px;
 }
 .ck-progress-bar {
   flex: 1;
@@ -246,21 +271,34 @@
   white-space: nowrap;
 }
 
+/* The items are one card divided by hairlines. Six separate floating cards
+   made a short list feel like a long one. */
 .ck-tasks {
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: 0;
+  background: var(--ck-white);
+  border: 1px solid var(--ck-line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--ck-shadow-sm);
+}
+.ck-tasks:empty {
+  display: none;
 }
 .ck-task {
   display: flex;
   align-items: center;
   gap: 12px;
-  background: var(--ck-white);
-  border: 1px solid var(--ck-line);
-  border-radius: 14px;
-  padding: 13px 14px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 12px 14px;
   cursor: pointer;
   transition: background 0.15s ease;
+}
+.ck-task + .ck-task {
+  border-top: 1px solid var(--ck-line);
 }
 .ck-task:active {
   background: var(--ck-cream);
@@ -321,7 +359,7 @@
 .ck-add-task {
   display: flex;
   gap: 8px;
-  margin-top: 14px;
+  margin-top: 12px;
 }
 .ck-add-task input {
   flex: 1;
