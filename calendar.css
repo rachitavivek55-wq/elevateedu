@@ -197,14 +197,17 @@
   max-width: 100%;
   box-sizing: border-box;
   border-radius: 8px;
-  padding: 3px 5px;
+  border-left: 3px solid var(--ec, #6f4e37);
+  padding: 3px 6px;
   font-size: 10px;
+  font-weight: 600;
   line-height: 1.25;
-  color: #fff;
+  background: color-mix(in oklab, var(--ec, #6f4e37) 24%, #fff7ea);
+  color: color-mix(in oklab, var(--ec, #6f4e37) 40%, #2a1b12);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px rgba(75, 56, 50, 0.1);
   cursor: pointer;
 }
 
@@ -213,18 +216,24 @@
   position: absolute;
   left: 3px;
   right: 3px;
-  border-radius: 8px;
-  padding: 3px 6px;
+  border-radius: 9px;
+  border-left: 3px solid var(--ec, #6f4e37);
+  padding: 4px 7px;
   font-size: 10px;
   line-height: 1.25;
-  color: #fff;
+  background: color-mix(in oklab, var(--ec, #6f4e37) 22%, #fff7ea);
+  color: color-mix(in oklab, var(--ec, #6f4e37) 40%, #2a1b12);
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 1px 2px rgba(75, 56, 50, 0.1);
   z-index: 2;
   cursor: pointer;
 }
+.cal-event .ev-title {
+  font-weight: 600;
+}
 .cal-event .ev-time {
-  opacity: 0.85;
+  opacity: 0.8;
+  font-weight: 500;
   font-size: 9px;
   display: block;
 }
@@ -254,6 +263,7 @@
 }
 .cal-event.is-tiny {
   padding: 2px;
+  background: var(--ec, #6f4e37);
 }
 .cal-event.is-tiny .ev-time,
 .cal-event.is-tiny .ev-title {
@@ -276,8 +286,8 @@
 .cal-mcell {
   background: var(--cal-tile);
   border-radius: 10px;
-  min-height: 52px;
-  padding: 5px;
+  min-height: 56px;
+  padding: 6px 6px 5px;
   font-size: 12px;
   color: var(--cal-ink);
   display: flex;
@@ -295,13 +305,26 @@
   font-weight: 600;
   font-size: 11px;
 }
+.cal-mcell .m-dots {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-top: auto;
+}
+.cal-mcell .m-dots:empty {
+  display: none;
+}
 .cal-dot {
-  width: 100%;
-  height: 4px;
-  border-radius: 3px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
 }
 .cal-mcell .m-more {
   font-size: 9px;
+  font-weight: 600;
+  line-height: 1;
   color: var(--cal-muted);
 }
 
@@ -331,7 +354,7 @@
 .cal-ygrid {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
-  gap: 1px;
+  gap: 2px;
 }
 .cal-ygrid span {
   font-size: 8px;
@@ -340,11 +363,12 @@
   aspect-ratio: 1;
   display: grid;
   place-items: center;
-  border-radius: 3px;
+  border-radius: 4px;
 }
 .cal-ygrid span.has-ev {
-  background: var(--cal-ink);
-  color: #fff;
+  background: color-mix(in oklab, var(--cal-ink) 24%, #fcf3e2);
+  color: var(--cal-ink);
+  font-weight: 600;
 }
 .cal-ygrid span.y-today {
   outline: 1px solid var(--cal-ink);
@@ -540,17 +564,18 @@
 }
 .cal-quick {
   border: none;
-  background: transparent;
+  background: var(--cal-tile-2);
   font-family: inherit;
   font-size: 11px;
-  font-weight: 500;
+  font-weight: 600;
   color: var(--cal-muted);
   cursor: pointer;
-  padding: 0;
+  padding: 5px 11px;
+  border-radius: 999px;
 }
 .cal-quick:hover {
   color: var(--cal-ink);
-  text-decoration: underline;
+  background: var(--cal-line);
 }
 
 /* Color picker */

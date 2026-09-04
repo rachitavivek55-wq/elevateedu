@@ -229,7 +229,7 @@ let editingId = null;
             i +
             '" data-adidx="' +
             j +
-            '" style="background:' +
+            '" style="--ec:' +
             (e.color || '#6F4E37') +
             '" title="' +
             escapeHtml(e.title + (e.notes ? ' — ' + e.notes : '')) +
@@ -413,7 +413,7 @@ let editingId = null;
     }
     var chip = document.createElement('div');
     chip.className = 'cal-event';
-    chip.style.background = e.color || '#6F4E37';
+    chip.style.setProperty('--ec', e.color || '#6F4E37');
     chip.style.top = top + 'px';
     chip.style.height = height + 'px';
     // side-by-side layout for overlapping events (3px gutter each side kept)
@@ -469,6 +469,7 @@ let editingId = null;
         (sameDay(d, today) ? ' is-today' : '') +
         '">';
       html += '<span class="m-num">' + d.getDate() + '</span>';
+      html += '<span class="m-dots">';
       evs.forEach((e) => {
         html +=
           '<span class="cal-dot" style="background:' +
@@ -476,6 +477,7 @@ let editingId = null;
           '"></span>';
       });
       if (extra > 0) html += '<span class="m-more">+' + extra + '</span>';
+      html += '</span>';
       html += '</div>';
     }
     html += '</div>';
