@@ -17,7 +17,7 @@
 }
 
 .lb-intro {
-  margin: 2px 0 16px;
+  margin: 2px 2px 12px;
   font-size: 13.5px;
   line-height: 1.5;
   color: rgba(75, 56, 50, 0.72);
@@ -72,6 +72,25 @@
   flex-direction: column;
   gap: 12px;
 }
+/* One grouped panel with hairline dividers instead of loose cards */
+.lb-grid:has(> .lb-card) {
+  gap: 0;
+  background: var(--lb-white);
+  border: 1px solid var(--lb-line);
+  border-radius: 18px;
+  box-shadow: var(--lb-shadow);
+  overflow: hidden;
+}
+.lb-grid > .lb-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 12px 14px 13px;
+}
+.lb-grid > .lb-card + .lb-card {
+  border-top: 1px solid var(--lb-line);
+}
 .lb-card {
   text-align: left;
   width: 100%;
@@ -92,7 +111,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 10px;
+  margin-bottom: 7px;
 }
 .lb-card-tag {
   display: inline-flex;

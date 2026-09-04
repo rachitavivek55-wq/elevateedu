@@ -95,6 +95,25 @@
   flex-direction: column;
   gap: 10px;
 }
+/* One grouped panel with hairline dividers instead of loose cards */
+.mp-list:has(> .mp-card) {
+  gap: 0;
+  background: var(--mp-white);
+  border: 1px solid var(--mp-line);
+  border-radius: 16px;
+  box-shadow: var(--mp-shadow);
+  overflow: hidden;
+}
+.mp-list > .mp-card {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 11px 14px;
+}
+.mp-list > .mp-card + .mp-card {
+  border-top: 1px solid var(--mp-line);
+}
 .mp-card {
   background: var(--mp-white);
   border: 1px solid var(--mp-line);
