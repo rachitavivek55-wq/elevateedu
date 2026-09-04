@@ -734,21 +734,46 @@ var elevateAuth = (function () {
 
 // ===== 10) Wrap localStorage.setItem to sync =====
 (function () {
-  var originalSetItem = localStorage.setItem;
+  /* Patch Storage.prototype, never the localStorage object itself. Assigning
+     to localStorage.setItem asks some browsers to store an entry literally
+     called "setItem", which then loads back as a plain string on the next
+     visit, so the first save of the session throws and every save after it
+     quietly falls through to memory. Going through the prototype cannot do
+     that, and it keeps Object.keys(localStorage) to real keys only. */
+  var nativeSetItem = Storage.prototype.setItem;
+  var nativeGetItem = Storage.prototype.getItem;
+  var nativeRemoveItem = Storage.prototype.removeItem;
+  /* Undo the older approach on any device that already ran it, so a phone
+     that is stuck in that state repairs itself on the next visit. */
+  ['getItem', 'setItem', 'removeItem'].forEach(function (name) {
+    try {
+      if (Object.prototype.hasOwnProperty.call(localStorage, name)) delete localStorage[name];
+    } catch (e) {}
+    try {
+      if (nativeGetItem.call(localStorage, name) !== null) nativeRemoveItem.call(localStorage, name);
+    } catch (e) {}
+  });
   /* Anything that will not fit on this device is held here, so the app keeps
      working and the change still travels up to the account. */
   var eeOverlay = {};
-  var eeOriginalGetItem = localStorage.getItem;
   /* Tools ask this before they say something was saved, so a change that only
      fits in memory is never shown as if it had been written to the device. */
   window.eeOverlayHas = function (key) {
     return Object.prototype.hasOwnProperty.call(eeOverlay, key);
   };
-  localStorage.getItem = function (key) {
+  function eeIsLocal(store) {
+    try { return store === window.localStorage; } catch (e) { return false; }
+  }
+  Storage.prototype.getItem = function (key) {
     /* A change we could not fit on disk still reads back, so the screen and
        every tool keep showing it for the rest of the visit. */
-    if (Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
-    return eeOriginalGetItem.call(this, key);
+    if (eeIsLocal(this) && Object.prototype.hasOwnProperty.call(eeOverlay, key)) return eeOverlay[key];
+    return nativeGetItem.call(this, key);
+  };
+  Storage.prototype.removeItem = function (key) {
+    /* Deleting has to clear the memory copy too, or the value comes back. */
+    if (eeIsLocal(this) && Object.prototype.hasOwnProperty.call(eeOverlay, key)) delete eeOverlay[key];
+    return nativeRemoveItem.call(this, key);
   };
   function eeSignedIn() {
     try {
@@ -799,16 +824,28 @@ var elevateAuth = (function () {
       }
     } catch (e) {}
   }
-  localStorage.setItem = function (key, value) {
+  Storage.prototype.setItem = function (key, value) {
+    if (!eeIsLocal(this)) return nativeSetItem.call(this, key, value);
+    var str = String(value);
+    var kept = false;
     try {
-      originalSetItem.call(this, key, value);
+      nativeSetItem.call(this, key, str);
+      /* Read it straight back. A write that throws nothing but stores nothing
+         (private browsing, a full disk, a profile the browser has locked) must
+         never be reported to the tools as saved. */
+      kept = nativeGetItem.call(this, key) === str;
+    } catch (err) {
+      kept = false;
+      window.__eeSaveError = (err && err.name) || 'Error';
+    }
+    if (kept) {
       /* It fit this time, so stop shadowing it from memory. */
       if (Object.prototype.hasOwnProperty.call(eeOverlay, key)) delete eeOverlay[key];
-    } catch (err) {
+    } else {
       /* Out of room on this device. Hold the change in memory so the screen
          still shows it, and let the sync just below carry it to the account,
          instead of throwing it away. */
-      eeOverlay[key] = String(value);
+      eeOverlay[key] = str;
       try { window.eeStorageFull && window.eeStorageFull(key); } catch (e2) {}
       try { eeRoomNote(); } catch (e3) {}
     }
