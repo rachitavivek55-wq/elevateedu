@@ -11,7 +11,7 @@
   --as-bad: #b0645e;
 }
 .as-screen {
-  padding: 16px 18px 96px;
+  padding: 16px 18px 118px;
 }
 .as-tabs {
   display: flex;
@@ -19,8 +19,8 @@
   background: var(--as-tile);
   border: 1px solid var(--as-line);
   border-radius: 14px;
-  padding: 5px;
-  margin-bottom: 16px;
+  padding: 4px;
+  margin-bottom: 14px;
 }
 .as-tab {
   flex: 1;
@@ -28,9 +28,9 @@
   background: transparent;
   font-family: inherit;
   font-weight: 600;
-  font-size: 14px;
+  font-size: 13.5px;
   color: var(--as-muted);
-  padding: 9px 0;
+  padding: 8px 0;
   border-radius: 10px;
   cursor: pointer;
 }
@@ -39,38 +39,54 @@
   color: #fbf4e6;
   box-shadow: 0 4px 10px rgba(111, 78, 55, 0.22);
 }
+/* The step-by-step guidance reads as a note rather than stray body copy. */
 .as-hint {
   font-size: 12.5px;
   color: var(--as-muted);
   line-height: 1.5;
-  margin: 0 2px 14px;
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  background: var(--as-tile);
+  border: 1px solid var(--as-line);
+  border-radius: 12px;
 }
+/* One strip rather than three loose tiles, so the three numbers read as a
+   single summary of where the week stands. */
 .as-summary {
   display: flex;
-  gap: 8px;
+  gap: 0;
+  background: var(--as-tile);
+  border: 1px solid var(--as-line);
+  border-radius: 16px;
+  padding: 12px 4px;
   margin-bottom: 16px;
+  box-shadow: 0 2px 8px rgba(111, 78, 55, 0.05);
 }
 .as-stat {
   flex: 1;
   min-width: 0;
-  background: var(--as-tile);
-  border: 1px solid var(--as-line);
-  border-radius: 14px;
-  padding: 11px 8px;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 0 6px;
   text-align: center;
+}
+.as-stat + .as-stat {
+  border-left: 1px solid var(--as-line);
 }
 .as-stat-val {
   display: block;
-  font-size: 19px;
+  font-size: 18px;
   font-weight: 700;
   color: var(--as-ink);
 }
 .as-stat-label {
   display: block;
-  font-size: 10.5px;
+  font-size: 9.5px;
   color: var(--as-muted);
-  margin-top: 2px;
-  letter-spacing: 0.02em;
+  margin-top: 3px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
 .as-group-label {
   font-size: 11px;
@@ -86,12 +102,12 @@
 .as-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 11px;
   background: var(--as-tile);
   border: 1px solid var(--as-line);
   border-radius: 15px;
-  padding: 12px 14px;
-  margin-bottom: 9px;
+  padding: 11px 13px;
+  margin-bottom: 8px;
 }
 .as-item-dot {
   width: 10px;
@@ -160,6 +176,7 @@
 .as-when.today {
   color: var(--as-warn);
 }
+/* Deleting is rare, so it sits back and lets the work itself lead. */
 .as-item-del {
   border: none;
   background: transparent;
@@ -169,10 +186,12 @@
   border-radius: 9px;
   flex: 0 0 auto;
   display: flex;
+  opacity: 0.55;
 }
 .as-item-del:hover {
   background: #f0e4cf;
   color: var(--as-bad);
+  opacity: 1;
 }
 .as-item-del i {
   width: 17px;
@@ -198,17 +217,23 @@
 .as-classlist {
   display: flex;
   flex-direction: column;
-  gap: 9px;
+  gap: 10px;
   margin-bottom: 18px;
 }
+/* A cream card with a coloured spine, rather than a solid colour block. A
+   screen of classes that have not been given a colour yet used to be a wall
+   of identical dark bars; this keeps the colour coding but stays readable. */
 .as-class {
   display: flex;
   align-items: center;
   gap: 12px;
-  border-radius: 15px;
-  padding: 13px 14px;
-  color: #fbf4e6;
-  -webkit-text-fill-color: #fbf4e6;
+  border-radius: 16px;
+  padding: 12px 13px;
+  background: var(--as-tile);
+  border: 1px solid var(--as-line);
+  color: var(--as-ink);
+  -webkit-text-fill-color: var(--as-ink);
+  box-shadow: 0 2px 8px rgba(111, 78, 55, 0.05);
   position: relative;
   overflow: hidden;
 }
@@ -218,13 +243,13 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 6px;
-  background: rgba(0, 0, 0, 0.22);
+  width: 5px;
+  background: var(--as-cc, #6f4e37);
 }
 .as-class-main {
   flex: 1;
   min-width: 0;
-  padding-left: 6px;
+  padding-left: 7px;
 }
 .as-class-name {
   font-size: 15px;
@@ -235,8 +260,8 @@
 }
 .as-class-sub {
   font-size: 12px;
-  opacity: 0.9;
-  margin-top: 2px;
+  color: var(--as-muted);
+  margin-top: 3px;
 }
 .as-class-del {
   border: none;
@@ -252,16 +277,26 @@
   width: 16px;
   height: 16px;
 }
+/* The days are one grouped card split by hairlines, instead of five
+   separate cards floating one under the other. */
 .as-timetable {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
+  display: block;
 }
-.as-tt-day {
+.as-tt-card {
   background: var(--as-tile);
   border: 1px solid var(--as-line);
-  border-radius: 13px;
-  padding: 10px 13px;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(111, 78, 55, 0.05);
+}
+.as-tt-day {
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  padding: 10px 14px;
+}
+.as-tt-day + .as-tt-day {
+  border-top: 1px solid var(--as-line);
 }
 .as-tt-dayname {
   font-size: 11px;
@@ -269,7 +304,7 @@
   letter-spacing: 0.05em;
   text-transform: uppercase;
   color: var(--as-muted);
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 .as-tt-slot {
   font-size: 12.5px;
@@ -553,9 +588,9 @@
 .as-class-count {
   font-size: 11px;
   font-weight: 700;
-  background: rgba(0, 0, 0, 0.18);
-  color: #fbf4e6;
-  -webkit-text-fill-color: #fbf4e6;
+  background: rgba(111, 78, 55, 0.09);
+  color: var(--as-coffee);
+  -webkit-text-fill-color: var(--as-coffee);
   padding: 3px 9px;
   border-radius: 20px;
   flex: 0 0 auto;
@@ -567,7 +602,7 @@
   flex: 0 0 auto;
 }
 .as-class-arrow * {
-  stroke: #fbf4e6;
+  stroke: var(--as-muted);
 }
 
 /* timetable head */
@@ -603,9 +638,12 @@
   align-items: center;
   gap: 12px;
   border-radius: 16px;
-  padding: 16px;
-  color: #fbf4e6;
-  -webkit-text-fill-color: #fbf4e6;
+  padding: 14px;
+  background: var(--as-tile);
+  border: 1px solid var(--as-line);
+  color: var(--as-ink);
+  -webkit-text-fill-color: var(--as-ink);
+  box-shadow: 0 2px 8px rgba(111, 78, 55, 0.05);
   position: relative;
   overflow: hidden;
   margin-bottom: 12px;
@@ -616,13 +654,13 @@
   left: 0;
   top: 0;
   bottom: 0;
-  width: 6px;
-  background: rgba(0, 0, 0, 0.22);
+  width: 5px;
+  background: var(--as-cc, #6f4e37);
 }
 .as-detail-main {
   flex: 1;
   min-width: 0;
-  padding-left: 6px;
+  padding-left: 7px;
 }
 .as-detail-name {
   font-size: 18px;
@@ -630,16 +668,16 @@
 }
 .as-detail-meta {
   font-size: 12.5px;
-  opacity: 0.92;
+  color: var(--as-muted);
   margin-top: 3px;
 }
 .as-detail-edit {
   border: none;
-  background: rgba(0, 0, 0, 0.18);
-  color: #fbf4e6;
-  -webkit-text-fill-color: #fbf4e6;
+  background: rgba(111, 78, 55, 0.09);
+  color: var(--as-coffee);
+  -webkit-text-fill-color: var(--as-coffee);
   cursor: pointer;
-  padding: 9px;
+  padding: 8px;
   border-radius: 10px;
   display: flex;
   flex: 0 0 auto;
@@ -659,11 +697,11 @@
   color: var(--as-coffee);
   font-family: inherit;
   font-weight: 600;
-  font-size: 14px;
-  padding: 13px;
+  font-size: 13.5px;
+  padding: 11px;
   border-radius: 14px;
   cursor: pointer;
-  margin-bottom: 16px;
+  margin-bottom: 14px;
 }
 .as-detail-addwork i {
   width: 18px;

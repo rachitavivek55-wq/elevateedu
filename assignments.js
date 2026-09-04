@@ -143,11 +143,14 @@
       });
   }
 
+  /* Inside a class the name is already at the top of the screen, so it is
+     left out of every row rather than repeated on each one. */
+  var subShowsClass = true;
   function workItemHtml(i) {
     var w = whenLabel(i.date);
     var cls = i.classId ? classById(i.classId) : null;
     var subParts = [];
-    if (cls) subParts.push(esc(cls.name));
+    if (cls && subShowsClass) subParts.push(esc(cls.name));
     if (i.time) subParts.push(prettyTime(i.time));
     if (i.type === 'exam' && i.location) subParts.push(esc(i.location));
     var badge =
@@ -298,7 +301,7 @@
         return (
           '<div class="as-class" data-open-class="' +
           c.id +
-          '" style="background:' +
+          '" style="--as-cc:' +
           esc(c.color || '#6f4e37') +
           '">' +
           '<div class="as-class-main"><div class="as-class-name">' +
@@ -348,8 +351,11 @@
           .join('') +
         '</div>';
     }
+    /* The heading sits outside the card so the days group cleanly inside it. */
     $('asTimetable').innerHTML = tt
-      ? '<div class="as-tt-head">Your week</div>' + tt
+      ? '<div class="as-tt-head">Your week</div><div class="as-tt-card">' +
+        tt +
+        '</div>'
       : '';
     icons();
   }
@@ -379,7 +385,7 @@
               (c.end ? '&ndash;' + prettyTime(c.end) : '')
             : '')
       );
-    $('asDetailCard').style.background = c.color || '#6f4e37';
+    $('asDetailCard').style.setProperty('--as-cc', c.color || '#6f4e37');
     $('asDetailCard').innerHTML =
       '<div class="as-detail-main"><div class="as-detail-name">' +
       esc(c.name) +
@@ -396,7 +402,9 @@
       $('asDetailWork').innerHTML =
         '<div class="as-empty"><i data-lucide="clipboard-list"></i><p>No work for this class yet.<br>Tap &ldquo;Add work&rdquo; below.</p></div>';
     } else {
+      subShowsClass = false;
       $('asDetailWork').innerHTML = groupedWorkHtml(items);
+      subShowsClass = true;
     }
     icons();
   }
