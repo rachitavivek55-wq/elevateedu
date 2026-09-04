@@ -93,10 +93,10 @@ body {
 /* Greeting card — distinct warm gradient */
 .greeting-card {
   background: linear-gradient(135deg, var(--greet-1) 0%, var(--greet-2) 100%);
-  border-radius: 26px;
-  padding: 26px 24px;
+  border-radius: 24px;
+  padding: 22px;
   box-shadow: var(--shadow-soft);
-  margin-bottom: 24px;
+  margin-bottom: 20px;
 }
 
 .greeting-eyebrow {
@@ -110,7 +110,7 @@ body {
 }
 
 .greeting-title {
-  font-size: 26px;
+  font-size: 24px;
   font-weight: 600;
   color: var(--espresso);
   margin-bottom: 6px;
@@ -128,7 +128,7 @@ body {
   font-size: 15px;
   font-weight: 500;
   color: var(--espresso);
-  margin: 4px 4px 16px;
+  margin: 2px 4px 12px;
 }
 
 /* Uniform vertical stack of banner cards */
@@ -155,11 +155,34 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Grouped list card: stack tiles into one panel with hairline dividers */
+.grid:has(> .tile) {
+  gap: 0;
+  background: var(--tile);
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+.grid > .tile {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 13px 16px;
+}
+.grid > .tile + .tile {
+  border-top: 1px solid rgba(111, 78, 55, 0.1);
+}
+.grid > .tile:hover {
+  transform: none;
+  box-shadow: none;
+  background: rgba(111, 78, 55, 0.04);
+}
+
 .tile-icon {
-  width: 46px;
-  height: 46px;
+  width: 42px;
+  height: 42px;
   flex-shrink: 0;
-  border-radius: 14px;
+  border-radius: 13px;
   background: var(--tile-accent);
   display: inline-flex;
   align-items: center;
@@ -236,8 +259,8 @@ body {
   stroke-width: 2;
 }
 .tile-icon svg {
-  width: 24px;
-  height: 24px;
+  width: 22px;
+  height: 22px;
   stroke: var(--coffee);
   stroke-width: 1.8;
 }
@@ -315,19 +338,43 @@ body {
   box-shadow: var(--shadow);
 }
 
+/* Grouped list card: stack mini-app rows into one panel */
+.grid:has(> .app-card) {
+  gap: 0;
+  background: var(--tile);
+  border-radius: 20px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+.grid > .app-card {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 14px 16px;
+  gap: 14px;
+}
+.grid > .app-card + .app-card {
+  border-top: 1px solid rgba(111, 78, 55, 0.1);
+}
+.grid > .app-card:hover {
+  transform: none;
+  box-shadow: none;
+  background: rgba(111, 78, 55, 0.04);
+}
+
 .app-icon {
-  width: 50px;
-  height: 50px;
+  width: 44px;
+  height: 44px;
   flex-shrink: 0;
-  border-radius: 15px;
+  border-radius: 13px;
   background: var(--tile-accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
 .app-icon svg {
-  width: 25px;
-  height: 25px;
+  width: 22px;
+  height: 22px;
   stroke: var(--coffee);
   stroke-width: 1.8;
 }
