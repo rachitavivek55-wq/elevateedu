@@ -704,3 +704,22 @@ input, select, textarea, button {
     display: none !important;
   }
 }
+
+/* Sheet close button. This markup exists on Progress, Meal Planner and
+   Workout too, but those pages never load balance.css, so it was rendering
+   as a bare grey browser button with an outset border. */
+.bl-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(111, 78, 55, 0.1);
+  color: #6f4e37;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.bl-icon-btn i {
+  width: 18px;
+  height: 18px;
+}

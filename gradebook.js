@@ -1003,7 +1003,7 @@
     var track = $('gbTrackSelect').value || '__overall__';
     var data = seriesFor(b, track);
     var svg = $('gbChart');
-    var W = 320,
+    var W = Math.max(280, Math.round(svg.getBoundingClientRect().width)) || 320,
       H = 200,
       padL = 34,
       padR = 12,
@@ -1011,6 +1011,7 @@
       padB = 10;
     var plotW = W - padL - padR,
       plotH = H - padT - padB;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     var minY = 50,
       maxY = 100; // fixed academic band for readability
     function x(i) {

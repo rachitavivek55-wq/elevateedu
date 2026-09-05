@@ -78,7 +78,6 @@ const pages = {
   fitness: 'wellness.html',
   wellness: 'wellness.html',
   mindset: 'mindset.html',
-  guides: 'guides.html',
 };
 
 // 3b) Tool cards inside a system page: navigate via data-href

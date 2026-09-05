@@ -261,9 +261,28 @@
   flex-direction: column;
   gap: 10px;
 }
+/* once there are real classes, group them into one panel with hairline
+   dividers so a long list reads as one list, not a stack of floating tiles */
+.gb-classes:has(> .gb-class) {
+  gap: 0;
+  background: var(--gb-tile);
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft);
+  overflow: hidden;
+}
+.gb-classes:has(> .gb-class) .gb-class {
+  background: transparent;
+  border-radius: 0;
+  box-shadow: none;
+  padding: 12px 14px;
+}
+.gb-classes:has(> .gb-class) .gb-class + .gb-class {
+  border-top: 1px solid rgba(111, 78, 55, 0.1);
+}
 
 .gb-class {
   background: var(--gb-tile);
+  border: none;
   border-radius: 16px;
   padding: 13px 14px;
   box-shadow: var(--shadow-soft);
@@ -359,7 +378,11 @@
 }
 .gb-progress-hint {
   font-size: 13px;
-  margin-bottom: 12px;
+  line-height: 1.5;
+  margin: 0 0 14px;
+  background: var(--gb-tile);
+  border-radius: 12px;
+  padding: 11px 13px;
 }
 .gb-chart-toolbar {
   margin-bottom: 10px;

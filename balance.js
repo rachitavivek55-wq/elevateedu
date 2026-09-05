@@ -172,11 +172,12 @@
     }
     empty.hidden = true;
 
-    var W = 320,
+    var W = Math.max(280, Math.round(svg.getBoundingClientRect().width)) || 320,
       H = 150,
       padX = 14,
       padTop = 14,
       padBottom = 24;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
     var vals = data.map(function (d) {
       return d.amount;
     });
@@ -428,7 +429,6 @@
           wallet: 'wallet.html',
           fitness: 'wellness.html',
           mindset: 'mindset.html',
-          guides: 'guides.html',
         };
         if (map[tab]) window.location.href = map[tab];
       });

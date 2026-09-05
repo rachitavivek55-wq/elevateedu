@@ -674,7 +674,6 @@
           wallet: 'wallet.html',
           fitness: 'wellness.html',
           mindset: 'mindset.html',
-          guides: 'guides.html',
         };
         if (map[t]) location.href = map[t];
       });

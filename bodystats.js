@@ -467,9 +467,10 @@
     if (vals.length >= 2) {
       chartEmpty.hidden = true;
       svg.style.display = 'block';
-      var w = 320,
+      var w = Math.max(260, Math.round(svg.getBoundingClientRect().width)) || 320,
         h = 160,
         pad = 16;
+      svg.setAttribute('viewBox', '0 0 ' + w + ' ' + h);
       var c2 = buildChartPath(vals, w, h, pad);
       var dots = c2.pts
         .map(function (p) {
@@ -687,7 +688,6 @@
             wallet: 'wallet.html',
             fitness: 'wellness.html',
             mindset: 'mindset.html',
-            guides: 'guides.html',
           };
           if (map[tab]) window.location.href = map[tab];
         });
