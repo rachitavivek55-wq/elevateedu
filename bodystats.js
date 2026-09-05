@@ -427,8 +427,9 @@
   // ---- detail sheet ----
   function openDetail(catId) {
     detailCatId = catId;
-    renderDetail();
+    // unhide first, otherwise the chart measures 0 wide and stays stretched
     el('bsDetailBackdrop').hidden = false;
+    renderDetail();
   }
   function closeDetail() {
     el('bsDetailBackdrop').hidden = true;

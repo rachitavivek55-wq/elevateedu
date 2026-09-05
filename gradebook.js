@@ -963,8 +963,9 @@
       $('gbProgressHint').textContent =
         'Grades across your sections, in order. Pick what to track.';
     }
-    drawChart();
+    // the view must be on screen before we draw, or the chart measures 0 wide
     show('progressView');
+    drawChart();
   }
 
   function seriesFor(book, track) {
