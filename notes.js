@@ -227,7 +227,7 @@
     var s = sectionById(n.sectionId);
     $('ntEditorBackLabel').textContent = s ? s.name : 'Back';
     $('ntNoteTitle').value = n.title || '';
-    $('ntEditor').innerHTML = n.body || '';
+    $('ntEditor').innerHTML = cleanBody(n.body || '');
     showView('editor');
     updateToolbarStates();
     icons();
@@ -274,6 +274,71 @@
   function scheduleSave() {
     clearTimeout(saveTimer);
     saveTimer = setTimeout(persistCurrentNote, 400);
+  }
+
+  // ---- images ----
+  // blob: URLs from an earlier paste never survive a reload, so drop them.
+  function cleanBody(html) {
+    if (!html || html.indexOf('blob:') === -1) return html;
+    var tmp = document.createElement('div');
+    tmp.innerHTML = html;
+    var bad = tmp.querySelectorAll('img[src^="blob:"]');
+    for (var i = 0; i < bad.length; i++) bad[i].parentNode.removeChild(bad[i]);
+    return tmp.innerHTML;
+  }
+
+  var IMG_MAX = 1280;
+  function shrinkImage(file, cb) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var raw = String(reader.result);
+      var img = new Image();
+      img.onload = function () {
+        var w = img.naturalWidth || 0;
+        var h = img.naturalHeight || 0;
+        if (!w || !h) return cb(raw);
+        var k = Math.min(1, IMG_MAX / Math.max(w, h));
+        var cv = document.createElement('canvas');
+        cv.width = Math.max(1, Math.round(w * k));
+        cv.height = Math.max(1, Math.round(h * k));
+        cv.getContext('2d').drawImage(img, 0, 0, cv.width, cv.height);
+        var out = '';
+        try {
+          out = cv.toDataURL('image/jpeg', 0.82);
+        } catch (err) {
+          out = '';
+        }
+        cb(out && out.length < raw.length ? out : raw);
+      };
+      img.onerror = function () {
+        cb(raw);
+      };
+      img.src = raw;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function insertImage(file) {
+    if (!file || !file.type || file.type.indexOf('image/') !== 0) return;
+    shrinkImage(file, function (src) {
+      var ed = $('ntEditor');
+      ed.focus();
+      document.execCommand('insertHTML', false, '<img src="' + src + '" alt="" />');
+      persistCurrentNote();
+    });
+  }
+
+  // ---- full-screen photo viewer ----
+  function openPhoto(src) {
+    $('ntPhotoImg').setAttribute('src', src);
+    $('ntPhoto').hidden = false;
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closePhoto() {
+    $('ntPhoto').hidden = true;
+    $('ntPhotoImg').removeAttribute('src');
+    document.body.style.overflow = '';
   }
 
   // ---- formatting ----
@@ -551,7 +616,7 @@
 
     // toolbar
     $('ntToolbar').addEventListener('mousedown', function (e) {
-      var t = e.target.closest('.nt-tool');
+      var t = e.target.closest('.nt-tool[data-cmd]');
       if (!t) return;
       e.preventDefault(); // keep selection
       exec(t.getAttribute('data-cmd'), t.getAttribute('data-val'));
@@ -566,6 +631,40 @@
       if (!$('ntEditorView').hidden) updateToolbarStates();
     });
     $('ntNoteTitle').addEventListener('input', scheduleSave);
+
+    // images: add from the toolbar, paste, and tap to view full screen
+    $('ntImgBtn').addEventListener('click', function () {
+      $('ntImgInput').click();
+    });
+    $('ntImgInput').addEventListener('change', function () {
+      if (this.files && this.files[0]) insertImage(this.files[0]);
+      this.value = '';
+    });
+    ed.addEventListener('paste', function (e) {
+      var items = (e.clipboardData && e.clipboardData.items) || [];
+      for (var i = 0; i < items.length; i++) {
+        if (items[i].type && items[i].type.indexOf('image/') === 0) {
+          e.preventDefault();
+          insertImage(items[i].getAsFile());
+          return;
+        }
+      }
+    });
+    ed.addEventListener('click', function (e) {
+      var im = e.target && e.target.closest ? e.target.closest('img') : null;
+      if (im && im.getAttribute('src')) {
+        e.preventDefault();
+        openPhoto(im.getAttribute('src'));
+      }
+    });
+    $('ntPhoto').addEventListener('click', function (e) {
+      if (e.target === $('ntPhoto') || (e.target.closest && e.target.closest('.nt-photo-close'))) {
+        closePhoto();
+      }
+    });
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && !$('ntPhoto').hidden) closePhoto();
+    });
 
     // long-press / delete note: add a delete via editor back area? Provide delete on title double-context.
     // We add a delete affordance: pressing the edit pencil area is only sections.

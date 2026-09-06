@@ -141,7 +141,17 @@
             >
               <i data-lucide="eraser"></i>
             </button>
+            <span class="nt-tool-sep"></span>
+            <button class="nt-tool" id="ntImgBtn" title="Add image">
+              <i data-lucide="image"></i>
+            </button>
           </div>
+          <input
+            type="file"
+            id="ntImgInput"
+            accept="image/*"
+            hidden
+          />
           <div
             class="nt-editor"
             id="ntEditor"
@@ -178,6 +188,14 @@
             <button class="nt-btn-danger" id="ntConfirmYes">Delete</button>
           </div>
         </div>
+      </div>
+
+      <!-- ····· Full-screen photo viewer ····· -->
+      <div class="nt-photo" id="ntPhoto" hidden>
+        <button class="nt-photo-close" id="ntPhotoClose" aria-label="Close">
+          <i data-lucide="x"></i>
+        </button>
+        <img id="ntPhotoImg" alt="" />
       </div>
 
       <nav class="bottom-nav">
