@@ -328,35 +328,142 @@
     });
   }
 
-  // ---- full-screen photo viewer ----
-  function fitPhoto() {
-    var box = $('ntPhoto');
+  // ---- full-screen photo viewer with pinch / wheel / double-tap zoom ----
+  var pz = {
+    scale: 1,
+    x: 0,
+    y: 0,
+    pts: {},
+    pinch: null,
+    drag: null,
+    moved: false,
+    lastTap: 0,
+  };
+
+  function pzApply() {
     var img = $('ntPhotoImg');
-    var w = img.naturalWidth || 0;
-    var h = img.naturalHeight || 0;
-    if (!w || !h) {
-      box.style.removeProperty('--nt-photo-w');
-      box.style.removeProperty('--nt-photo-h');
+    img.style.transform =
+      'translate3d(' + pz.x + 'px, ' + pz.y + 'px, 0) scale(' + pz.scale + ')';
+    img.style.cursor = pz.scale > 1 ? 'grab' : 'zoom-in';
+  }
+
+  function pzClamp() {
+    var img = $('ntPhotoImg');
+    var box = $('ntPhoto').getBoundingClientRect();
+    var maxX = Math.max(0, (img.offsetWidth * pz.scale - box.width) / 2);
+    var maxY = Math.max(0, (img.offsetHeight * pz.scale - box.height) / 2);
+    pz.x = Math.min(maxX, Math.max(-maxX, pz.x));
+    pz.y = Math.min(maxY, Math.max(-maxY, pz.y));
+  }
+
+  function pzReset() {
+    pz.scale = 1;
+    pz.x = 0;
+    pz.y = 0;
+    pz.pts = {};
+    pz.pinch = null;
+    pz.drag = null;
+    pz.moved = false;
+    pzApply();
+  }
+
+  // Zoom to a scale while keeping the point (qx, qy) under the finger.
+  function pzZoomTo(s, qx, qy) {
+    var img = $('ntPhotoImg');
+    var r = img.getBoundingClientRect();
+    var cx = r.left + r.width / 2 - pz.x;
+    var cy = r.top + r.height / 2 - pz.y;
+    var next = Math.min(5, Math.max(1, s));
+    var k = next / pz.scale;
+    pz.x = (qx - cx) * (1 - k) + k * pz.x;
+    pz.y = (qy - cy) * (1 - k) + k * pz.y;
+    pz.scale = next;
+    if (next === 1) {
+      pz.x = 0;
+      pz.y = 0;
+    }
+    pzClamp();
+    pzApply();
+  }
+
+  function pzMid(ids) {
+    var a = pz.pts[ids[0]];
+    var b = pz.pts[ids[1]];
+    return {
+      x: (a.x + b.x) / 2,
+      y: (a.y + b.y) / 2,
+      d: Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)),
+    };
+  }
+
+  function pzDown(e) {
+    pz.pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(pz.pts);
+    if (ids.length === 1) {
+      pz.moved = false;
+      pz.drag = { x: e.clientX, y: e.clientY, tx: pz.x, ty: pz.y };
+    } else if (ids.length === 2) {
+      pz.pinch = { d: pzMid(ids).d, s: pz.scale };
+      pz.drag = null;
+    }
+  }
+
+  function pzMove(e) {
+    if (!(e.pointerId in pz.pts)) return;
+    pz.pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+    var ids = Object.keys(pz.pts);
+    if (ids.length >= 2 && pz.pinch && pz.pinch.d > 0) {
+      var m = pzMid(ids);
+      pz.moved = true;
+      pzZoomTo((pz.pinch.s * m.d) / pz.pinch.d, m.x, m.y);
+      e.preventDefault();
       return;
     }
-    var dpr = Math.min(window.devicePixelRatio || 1, 2);
-    box.style.setProperty('--nt-photo-w', Math.max(220, Math.round(w / dpr)) + 'px');
-    box.style.setProperty('--nt-photo-h', Math.max(220, Math.round(h / dpr)) + 'px');
+    if (pz.drag && pz.scale > 1) {
+      var dx = e.clientX - pz.drag.x;
+      var dy = e.clientY - pz.drag.y;
+      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) pz.moved = true;
+      pz.x = pz.drag.tx + dx;
+      pz.y = pz.drag.ty + dy;
+      pzClamp();
+      pzApply();
+      e.preventDefault();
+    }
+  }
+
+  function pzUp(e) {
+    var onImage = e.target === $('ntPhotoImg');
+    delete pz.pts[e.pointerId];
+    var left = Object.keys(pz.pts).length;
+    if (left < 2) pz.pinch = null;
+    if (!left) pz.drag = null;
+    if (left || pz.moved || !onImage) return;
+    var now = Date.now();
+    if (now - pz.lastTap < 320) {
+      pz.lastTap = 0;
+      pzZoomTo(pz.scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
+    } else {
+      pz.lastTap = now;
+    }
+  }
+
+  function pzWheel(e) {
+    e.preventDefault();
+    pzZoomTo(pz.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY);
   }
 
   function openPhoto(src) {
-    var img = $('ntPhotoImg');
-    img.onload = fitPhoto;
-    img.setAttribute('src', src);
+    $('ntPhotoImg').setAttribute('src', src);
     $('ntPhoto').hidden = false;
     document.body.style.overflow = 'hidden';
-    fitPhoto();
+    pzReset();
   }
 
   function closePhoto() {
     $('ntPhoto').hidden = true;
     $('ntPhotoImg').removeAttribute('src');
     document.body.style.overflow = '';
+    pzReset();
   }
 
   // ---- formatting ----
@@ -675,16 +782,28 @@
         openPhoto(im.getAttribute('src'));
       }
     });
-    $('ntPhoto').addEventListener('click', function (e) {
-      if (e.target === $('ntPhoto') || (e.target.closest && e.target.closest('.nt-photo-close'))) {
+    var pvw = $('ntPhoto');
+    pvw.addEventListener('click', function (e) {
+      if (pz.moved) return;
+      if (e.target === pvw || (e.target.closest && e.target.closest('.nt-photo-close'))) {
         closePhoto();
       }
+    });
+    pvw.addEventListener('pointerdown', pzDown);
+    pvw.addEventListener('pointermove', pzMove);
+    pvw.addEventListener('pointerup', pzUp);
+    pvw.addEventListener('pointercancel', pzUp);
+    pvw.addEventListener('wheel', pzWheel, { passive: false });
+    pvw.addEventListener('dblclick', function (e) {
+      e.preventDefault();
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !$('ntPhoto').hidden) closePhoto();
     });
     window.addEventListener('resize', function () {
-      if (!$('ntPhoto').hidden) fitPhoto();
+      if ($('ntPhoto').hidden) return;
+      pzClamp();
+      pzApply();
     });
 
     // long-press / delete note: add a delete via editor back area? Provide delete on title double-context.
