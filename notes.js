@@ -329,10 +329,28 @@
   }
 
   // ---- full-screen photo viewer ----
+  function fitPhoto() {
+    var box = $('ntPhoto');
+    var img = $('ntPhotoImg');
+    var w = img.naturalWidth || 0;
+    var h = img.naturalHeight || 0;
+    if (!w || !h) {
+      box.style.removeProperty('--nt-photo-w');
+      box.style.removeProperty('--nt-photo-h');
+      return;
+    }
+    var dpr = Math.min(window.devicePixelRatio || 1, 2);
+    box.style.setProperty('--nt-photo-w', Math.max(220, Math.round(w / dpr)) + 'px');
+    box.style.setProperty('--nt-photo-h', Math.max(220, Math.round(h / dpr)) + 'px');
+  }
+
   function openPhoto(src) {
-    $('ntPhotoImg').setAttribute('src', src);
+    var img = $('ntPhotoImg');
+    img.onload = fitPhoto;
+    img.setAttribute('src', src);
     $('ntPhoto').hidden = false;
     document.body.style.overflow = 'hidden';
+    fitPhoto();
   }
 
   function closePhoto() {
@@ -664,6 +682,9 @@
     });
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !$('ntPhoto').hidden) closePhoto();
+    });
+    window.addEventListener('resize', function () {
+      if (!$('ntPhoto').hidden) fitPhoto();
     });
 
     // long-press / delete note: add a delete via editor back area? Provide delete on title double-context.
