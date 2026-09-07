@@ -323,7 +323,7 @@ var elevateAuth = (function () {
     var nt = document.getElementById('elevateAuthNote');
     if (nt) nt.style.display = 'none';
     form.parentNode.insertBefore(wrap, form);
-    installCard(wrap);
+    /* Install steps moved to installGuide(), shown after sign-in. */
   }
   function maybeGoogleBtn() {
     var cached = '';
@@ -394,6 +394,88 @@ var elevateAuth = (function () {
 
   function hideAuthScreen() {
     if (authScreen) authScreen.style.display = 'none';
+    try { installGuide(); } catch (e) {}
+  }
+  /* The install steps belong here, just after signing in. Before that a
+     first-time visitor has no reason to trust the app enough to install it,
+     and the sign-in screen stays clean. Shown once, and never inside an app
+     that is already installed. */
+  function installGuide() {
+    var pn = location.pathname || '';
+    if (!/index\.html$/i.test(pn) && !/\/$/.test(pn)) return;
+    if (isStandalone()) return;
+    if (document.getElementById('eeInstallGuide')) return;
+    var seen = '';
+    try { seen = localStorage.getItem('ee_install_guide') || ''; } catch (e) {}
+    if (seen === '1') return;
+    var ua = navigator.userAgent || '';
+    var android = /android/i.test(ua);
+    var ios =
+      /iphone|ipad|ipod/i.test(ua) ||
+      (/macintosh/i.test(ua) && (navigator.maxTouchPoints || 0) > 1);
+    var share =
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" ' +
+      'stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">' +
+      '<path d="M12 15V3"/><path d="M8 7l4-4 4 4"/>' +
+      '<path d="M20 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5"/></svg>';
+    var dots =
+      '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">' +
+      '<circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/>' +
+      '<circle cx="12" cy="19" r="1.9"/></svg>';
+    var steps;
+    if (android) {
+      steps = [
+        ['Tap the menu button', 'The three dots ' + dots + ' at the top right of Chrome.'],
+        ['Scroll down a little', 'Find <b>Install app</b> or <b>Add to Home screen</b>.'],
+        ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
+      ];
+    } else if (ios) {
+      steps = [
+        ['Tap the Share button', 'The square with an arrow coming out of it ' + share + ' at the bottom of Safari.'],
+        ['Scroll down a little', 'Find <b>Add to Home Screen</b> &mdash; some iPhones call it <b>Add as Web App</b>.'],
+        ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
+      ];
+    } else {
+      steps = [
+        ['Look in the address bar', 'There is a small install icon at the right hand end.'],
+        ['Or open the browser menu', 'Choose <b>Install ElevateEdu</b>.'],
+        ['That is it', 'ElevateEdu opens in its own window, just like an app.'],
+      ];
+    }
+    var back = document.createElement('div');
+    back.id = 'eeInstallGuide';
+    back.className = 'ee-ig-back';
+    var html =
+      '<div class="ee-ig-card" role="dialog" aria-label="Add ElevateEdu to your home screen">' +
+      '<h3>You are in &mdash; one last thing</h3>' +
+      '<p class="ee-ig-sub">Add ElevateEdu to your home screen so it opens like a real app, ' +
+      'full screen and without the browser bars.</p>';
+    for (var i = 0; i < steps.length; i++) {
+      html +=
+        '<div class="ee-ig-step"><div class="ee-ig-num">' +
+        (i + 1) +
+        '</div><div class="ee-ig-txt"><div class="ee-ig-h">' +
+        steps[i][0] +
+        '</div><div class="ee-ig-p">' +
+        steps[i][1] +
+        '</div></div></div>';
+    }
+    html +=
+      '<button type="button" class="ee-ig-ok" id="eeIgOk">Got it</button>' +
+      '<button type="button" class="ee-ig-skip" id="eeIgSkip">Remind me later</button>' +
+      '</div>';
+    back.innerHTML = html;
+    document.body.appendChild(back);
+    function shut(remember) {
+      if (remember) {
+        try { localStorage.setItem('ee_install_guide', '1'); } catch (e) {}
+      }
+      if (back.parentNode) back.parentNode.removeChild(back);
+    }
+    var ok = document.getElementById('eeIgOk');
+    var skip = document.getElementById('eeIgSkip');
+    if (ok) ok.addEventListener('click', function () { shut(true); });
+    if (skip) skip.addEventListener('click', function () { shut(false); });
   }
 
   function setMsg(text, color) {
