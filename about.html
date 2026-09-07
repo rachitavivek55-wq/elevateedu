@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta
+      name="description"
+      content="What every system and tool inside ElevateEdu is for, and how to get in touch."
+    />
+    <title>What everything does — ElevateEdu</title>
+    <link rel="icon" type="image/png" href="./icon-192.png" />
+    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
+    <meta name="theme-color" content="#4b3832" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      * { margin: 0; padding: 0; box-sizing: border-box; }
+      body {
+        font-family: Poppins, system-ui, sans-serif;
+        background: #f3e7d0;
+        color: #4b3832;
+        line-height: 1.65;
+        padding: 22px 18px calc(60px + env(safe-area-inset-bottom));
+        max-width: 640px;
+        margin: 0 auto;
+        -webkit-text-size-adjust: 100%;
+      }
+      a.back {
+        display: inline-block;
+        margin-bottom: 18px;
+        color: #6f4e37;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+      }
+      .top { display: flex; align-items: center; gap: 12px; }
+      .top img { width: 52px; height: 52px; border-radius: 15px; }
+      h1 { font-size: 22px; font-weight: 600; line-height: 1.3; }
+      .lede { font-size: 14.5px; opacity: 0.8; margin: 12px 0 24px; }
+      .card {
+        background: #fffdf7;
+        border: 1px solid #e7d6bb;
+        border-radius: 16px;
+        padding: 16px 16px 8px;
+        margin-bottom: 14px;
+      }
+      .card h2 { font-size: 17px; font-weight: 600; }
+      .card .what { font-size: 13px; opacity: 0.7; margin-bottom: 12px; }
+      .tool { border-top: 1px solid #f0e4cf; padding: 11px 0; }
+      .tool:first-of-type { border-top: none; }
+      .tool b { display: block; font-size: 14.5px; font-weight: 600; }
+      .tool span { display: block; font-size: 13.5px; opacity: 0.78; }
+      .note {
+        background: #fffdf7;
+        border: 1px solid #e7d6bb;
+        border-radius: 16px;
+        padding: 16px;
+        font-size: 13.5px;
+        margin-bottom: 14px;
+      }
+      .note b { font-weight: 600; }
+      .contact {
+        background: #6f4e37;
+        color: #fffdf7;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 18px;
+      }
+      .contact h2 { font-size: 17px; font-weight: 600; margin-bottom: 6px; }
+      .contact p { font-size: 13.5px; opacity: 0.92; margin-bottom: 14px; }
+      .contact a {
+        display: block;
+        text-align: center;
+        background: #fffdf7;
+        color: #4b3832;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 14px;
+        padding: 12px;
+        border-radius: 12px;
+      }
+      footer { text-align: center; font-size: 12px; opacity: 0.55; }
+      footer a { color: inherit; }
+    </style>
+  </head>
+  <body>
+    <a class="back" href="index.html">&larr; Back to app</a>
+    <div class="top">
+      <img src="./icon-192.png" alt="ElevateEdu" width="52" height="52" />
+      <h1>What everything does</h1>
+    </div>
+    <p class="lede">
+      ElevateEdu is split into four systems. You do not have to use all of them
+      — open the one you need and ignore the rest. Everything you put in is
+      yours, saved to your own account.
+    </p>
+
+    <section class="card">
+      <h2>Planner</h2>
+      <p class="what">The school side of things.</p>
+        <div class="tool"><b>Calendar</b><span>Add commitments, assignments, exams and tasks, and see your whole month at a glance.</span></div>
+        <div class="tool"><b>Checklists</b><span>Break big jobs into small checklists and tick them off as you go. Good for anything you repeat.</span></div>
+        <div class="tool"><b>Assignments</b><span>Every assignment with its due date, so nothing gets forgotten.</span></div>
+        <div class="tool"><b>Gradebook</b><span>Record your scores and watch your average for each class. One book per school year, then terms, then classes with weighted categories inside. Marks can be letters, a percentage, points out of a total, or a report-card scale — 1 to 4 standards, 1 to 3 proficiency, IB 1 to 7, GPA points, or pass/fail.</span></div>
+        <div class="tool"><b>Notes</b><span>Keep your class notes tidy in sections you choose, with photos attached where they help.</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Wallet</h2>
+      <p class="what">Where your money actually goes.</p>
+        <div class="tool"><b>Balance</b><span>Log what comes in and what goes out so you always know where you stand.</span></div>
+        <div class="tool"><b>Wishlist</b><span>List what you are saving for and see how close you are to each thing.</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Wellness</h2>
+      <p class="what">Looking after the body carrying you around.</p>
+        <div class="tool"><b>Workout Planner</b><span>Build workout routines and schedule them onto your calendar.</span></div>
+        <div class="tool"><b>Meal Planner</b><span>Build a library of meals and plan them into your week.</span></div>
+        <div class="tool"><b>Body Stats</b><span>Track measurements over time so you can see the direction of travel.</span></div>
+        <div class="tool"><b>Progress Photos</b><span>Keep progress photos side by side to see how far you have come.</span></div>
+    </section>
+
+    <section class="card">
+      <h2>Mindset</h2>
+      <p class="what">For when your head is full.</p>
+        <div class="tool"><b>Mind Dump</b><span>Get everything that is on your mind out of your head and onto the page.</span></div>
+        <div class="tool"><b>Meditation Timer</b><span>A simple breathing and meditation timer for when you need to reset.</span></div>
+        <div class="tool"><b>Vision Board</b><span>Build a board of what you are actually working towards.</span></div>
+    </section>
+
+    <div class="note">
+      <b>How saving works.</b> Everything is tied to the account you signed in
+      with, so it follows you from your phone to a laptop and back. It also
+      keeps working with no signal — anything you change offline is sent up the
+      next time you are connected.
+    </div>
+
+    <div class="contact">
+      <h2>Questions, bugs or ideas?</h2>
+      <p>
+        If something is broken, confusing, or missing, say so — that is genuinely
+        useful. Tell me what you were doing when it went wrong and what phone or
+        laptop you were on.
+      </p>
+      <a href="mailto:rachitavivek55@gmail.com?subject=ElevateEdu%20feedback">
+        Email the developer
+      </a>
+    </div>
+
+    <footer>
+      <a href="privacy.html">Privacy</a> &middot; <a href="terms.html">Terms</a>
+    </footer>
+  </body>
+</html>
