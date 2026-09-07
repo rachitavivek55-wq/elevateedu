@@ -885,3 +885,21 @@ input, select, textarea, button {
   opacity: 0.6;
   cursor: pointer;
 }
+
+/* Quiet doorway to the page that explains every tool. Kept deliberately
+   plain so it never competes with the four system tiles above it. */
+.home-help {
+  text-align: center;
+  margin: 2px 0 10px;
+}
+.home-help a {
+  font-size: 12.5px;
+  color: var(--coffee, #4b3832);
+  opacity: 0.65;
+  text-decoration: none;
+  border-bottom: 1px solid rgba(75, 56, 50, 0.22);
+  padding-bottom: 1px;
+}
+.home-help a:active {
+  opacity: 0.9;
+}
