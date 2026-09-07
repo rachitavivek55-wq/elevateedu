@@ -340,16 +340,32 @@
     lastTap: 0,
   };
 
+  var pzMAX = 6;
+
+  function pzImg() {
+    return $('ntPhotoImg');
+  }
+
+  function pzBox() {
+    return $('ntPhoto').getBoundingClientRect();
+  }
+
   function pzApply() {
-    var img = $('ntPhotoImg');
+    var img = pzImg();
     img.style.transform =
       'translate3d(' + pz.x + 'px, ' + pz.y + 'px, 0) scale(' + pz.scale + ')';
     img.style.cursor = pz.scale > 1 ? 'grab' : 'zoom-in';
+    var lvl = $('ntPhotoLevel');
+    if (lvl) lvl.textContent = Math.round(pz.scale * 100) + '%';
+    var out = $('ntPhotoOut');
+    if (out) out.disabled = pz.scale <= 1.01;
+    var zin = $('ntPhotoIn');
+    if (zin) zin.disabled = pz.scale >= pzMAX - 0.01;
   }
 
   function pzClamp() {
-    var img = $('ntPhotoImg');
-    var box = $('ntPhoto').getBoundingClientRect();
+    var img = pzImg();
+    var box = pzBox();
     var maxX = Math.max(0, (img.offsetWidth * pz.scale - box.width) / 2);
     var maxY = Math.max(0, (img.offsetHeight * pz.scale - box.height) / 2);
     pz.x = Math.min(maxX, Math.max(-maxX, pz.x));
@@ -367,23 +383,36 @@
     pzApply();
   }
 
-  // Zoom to a scale while keeping the point (qx, qy) under the finger.
+  /* Keeps the point (qx, qy) pinned under the finger while scaling. */
   function pzZoomTo(s, qx, qy) {
-    var img = $('ntPhotoImg');
+    var img = pzImg();
     var r = img.getBoundingClientRect();
     var cx = r.left + r.width / 2 - pz.x;
     var cy = r.top + r.height / 2 - pz.y;
-    var next = Math.min(5, Math.max(1, s));
+    var next = Math.min(pzMAX, Math.max(1, s));
     var k = next / pz.scale;
+    if (typeof qx !== 'number') {
+      qx = cx + pz.x;
+      qy = cy + pz.y;
+    }
     pz.x = (qx - cx) * (1 - k) + k * pz.x;
     pz.y = (qy - cy) * (1 - k) + k * pz.y;
     pz.scale = next;
-    if (next === 1) {
+    if (pz.scale <= 1.001) {
       pz.x = 0;
       pz.y = 0;
     }
     pzClamp();
     pzApply();
+  }
+
+  function pzStep(dir) {
+    var box = pzBox();
+    pzZoomTo(
+      dir > 0 ? pz.scale * 1.5 : pz.scale / 1.5,
+      box.left + box.width / 2,
+      box.top + box.height / 2
+    );
   }
 
   function pzMid(ids) {
@@ -392,64 +421,132 @@
     return {
       x: (a.x + b.x) / 2,
       y: (a.y + b.y) / 2,
-      d: Math.sqrt((a.x - b.x) * (a.x - b.x) + (a.y - b.y) * (a.y - b.y)),
+      d: Math.sqrt(Math.pow(b.x - a.x, 2) + Math.pow(b.y - a.y, 2)),
     };
   }
 
-  function pzDown(e) {
-    pz.pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+  /* ---- shared gesture engine (fed by both touch and mouse events) ---- */
+
+  function pzStart(id, x, y) {
+    pz.pts[id] = { x: x, y: y };
     var ids = Object.keys(pz.pts);
     if (ids.length === 1) {
       pz.moved = false;
-      pz.drag = { x: e.clientX, y: e.clientY, tx: pz.x, ty: pz.y };
-    } else if (ids.length === 2) {
+      pz.drag = { x: x, y: y, tx: pz.x, ty: pz.y };
+    } else if (ids.length >= 2) {
       pz.pinch = { d: pzMid(ids).d, s: pz.scale };
       pz.drag = null;
     }
   }
 
-  function pzMove(e) {
-    if (!(e.pointerId in pz.pts)) return;
-    pz.pts[e.pointerId] = { x: e.clientX, y: e.clientY };
+  function pzUpdate(id, x, y) {
+    if (!(id in pz.pts)) return false;
+    pz.pts[id] = { x: x, y: y };
     var ids = Object.keys(pz.pts);
     if (ids.length >= 2 && pz.pinch && pz.pinch.d > 0) {
       var m = pzMid(ids);
       pz.moved = true;
       pzZoomTo((pz.pinch.s * m.d) / pz.pinch.d, m.x, m.y);
-      e.preventDefault();
-      return;
+      return true;
     }
     if (pz.drag && pz.scale > 1) {
-      var dx = e.clientX - pz.drag.x;
-      var dy = e.clientY - pz.drag.y;
-      if (Math.abs(dx) > 4 || Math.abs(dy) > 4) pz.moved = true;
+      var dx = x - pz.drag.x;
+      var dy = y - pz.drag.y;
+      if (Math.abs(dx) > 3 || Math.abs(dy) > 3) pz.moved = true;
       pz.x = pz.drag.tx + dx;
       pz.y = pz.drag.ty + dy;
       pzClamp();
       pzApply();
-      e.preventDefault();
+      return true;
     }
+    return false;
+  }
+
+  function pzFinish(id, x, y, onImage) {
+    delete pz.pts[id];
+    var left = Object.keys(pz.pts);
+    if (left.length < 2) pz.pinch = null;
+    if (left.length === 1) {
+      var only = pz.pts[left[0]];
+      pz.drag = { x: only.x, y: only.y, tx: pz.x, ty: pz.y };
+      return false;
+    }
+    if (left.length > 1) return false;
+    pz.drag = null;
+    if (pz.moved || !onImage) return false;
+    var now = Date.now();
+    if (now - pz.lastTap < 340) {
+      pz.lastTap = 0;
+      if (pz.scale > 1.01) pzZoomTo(1);
+      else pzZoomTo(2.5, x, y);
+      return true;
+    }
+    pz.lastTap = now;
+    return false;
+  }
+
+  function pzOnControls(t) {
+    return !!(t && t.closest && t.closest('.nt-photo-zoom, .nt-photo-close'));
+  }
+
+  /* ---- touch events: the path real phones actually use ---- */
+
+  function pzTouchStart(e) {
+    if (pzOnControls(e.target)) return;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      pzStart(t.identifier, t.clientX, t.clientY);
+    }
+    if (e.touches.length > 1 || pz.scale > 1) e.preventDefault();
+  }
+
+  function pzTouchMove(e) {
+    if (pzOnControls(e.target)) return;
+    var acted = false;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      if (pzUpdate(t.identifier, t.clientX, t.clientY)) acted = true;
+    }
+    if (acted || e.touches.length > 1) e.preventDefault();
+  }
+
+  function pzTouchEnd(e) {
+    var img = $('ntPhotoImg');
+    var consumed = false;
+    for (var i = 0; i < e.changedTouches.length; i++) {
+      var t = e.changedTouches[i];
+      var onImage = e.target === img || document.elementFromPoint(t.clientX, t.clientY) === img;
+      if (pzFinish(t.identifier, t.clientX, t.clientY, onImage)) consumed = true;
+    }
+    if (consumed) e.preventDefault();
+  }
+
+  /* ---- mouse / trackpad ---- */
+
+  function pzDown(e) {
+    if (e.pointerType === 'touch') return;
+    pzStart(e.pointerId, e.clientX, e.clientY);
+  }
+
+  function pzMove(e) {
+    if (e.pointerType === 'touch') return;
+    if (pzUpdate(e.pointerId, e.clientX, e.clientY)) e.preventDefault();
   }
 
   function pzUp(e) {
-    var onImage = e.target === $('ntPhotoImg');
-    delete pz.pts[e.pointerId];
-    var left = Object.keys(pz.pts).length;
-    if (left < 2) pz.pinch = null;
-    if (!left) pz.drag = null;
-    if (left || pz.moved || !onImage) return;
-    var now = Date.now();
-    if (now - pz.lastTap < 320) {
-      pz.lastTap = 0;
-      pzZoomTo(pz.scale > 1 ? 1 : 2.5, e.clientX, e.clientY);
-    } else {
-      pz.lastTap = now;
-    }
+    if (e.pointerType === 'touch') return;
+    pzFinish(e.pointerId, e.clientX, e.clientY, e.target === $('ntPhotoImg'));
   }
 
   function pzWheel(e) {
     e.preventDefault();
-    pzZoomTo(pz.scale * (e.deltaY < 0 ? 1.15 : 1 / 1.15), e.clientX, e.clientY);
+    pzZoomTo(e.deltaY < 0 ? pz.scale * 1.15 : pz.scale / 1.15, e.clientX, e.clientY);
+  }
+
+  /* Safari fires its own pinch gesture events; swallow them so the page
+     itself does not zoom while the viewer is open. */
+  function pzGesture(e) {
+    e.preventDefault();
   }
 
   function openPhoto(src) {
@@ -789,11 +886,26 @@
         closePhoto();
       }
     });
+    pvw.addEventListener('touchstart', pzTouchStart, { passive: false });
+    pvw.addEventListener('touchmove', pzTouchMove, { passive: false });
+    pvw.addEventListener('touchend', pzTouchEnd, { passive: false });
+    pvw.addEventListener('touchcancel', pzTouchEnd, { passive: false });
     pvw.addEventListener('pointerdown', pzDown);
     pvw.addEventListener('pointermove', pzMove);
     pvw.addEventListener('pointerup', pzUp);
     pvw.addEventListener('pointercancel', pzUp);
     pvw.addEventListener('wheel', pzWheel, { passive: false });
+    pvw.addEventListener('gesturestart', pzGesture);
+    pvw.addEventListener('gesturechange', pzGesture);
+    pvw.addEventListener('gestureend', pzGesture);
+    $('ntPhotoIn').addEventListener('click', function (e) {
+      e.stopPropagation();
+      pzStep(1);
+    });
+    $('ntPhotoOut').addEventListener('click', function (e) {
+      e.stopPropagation();
+      pzStep(-1);
+    });
     pvw.addEventListener('dblclick', function (e) {
       e.preventDefault();
     });

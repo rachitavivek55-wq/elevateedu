@@ -1,5 +1,5 @@
 // ElevateEdu Service Worker — network-first so updates appear instantly
-const CACHE = 'elevateedu-v24';
+const CACHE = 'elevateedu-v25';
 // Full app shell, so every tool works offline from the moment it is installed.
 const CORE = [
   './',
