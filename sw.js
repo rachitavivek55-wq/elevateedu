@@ -1,5 +1,5 @@
 // ElevateEdu Service Worker — network-first so updates appear instantly
-const CACHE = 'elevateedu-v35';
+const CACHE = 'elevateedu-v36';
 // Full app shell, so every tool works offline from the moment it is installed.
 const CORE = [
   './',
@@ -9,8 +9,10 @@ const CORE = [
   './bodystats.html',
   './calendar.html',
   './checklists.html',
+  './focus.html',
   './gradebook.html',
   './index.html',
+  './lookbest.html',
   './mealplanner.html',
   './meditation.html',
   './minddump.html',
@@ -19,6 +21,7 @@ const CORE = [
   './planner.html',
   './privacy.html',
   './progress.html',
+  './social.html',
   './terms.html',
   './visionboard.html',
   './wallet.html',
