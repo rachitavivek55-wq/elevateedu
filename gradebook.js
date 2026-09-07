@@ -109,7 +109,87 @@
     'D-': 61,
     F: 50,
   };
-  function letterToPct(l) {
+  /* Not every school hands out letters. Plenty of report cards use a small
+   number instead - 1 to 4 for standards, 1 to 7 on an IB card, straight GPA
+   points, or just pass/fail. A 3 out of 4 is not 75 per cent, it is 'meets
+   the standard', so each mark carries its own honest percentage instead of
+   being divided out. That keeps a report-card mark from dragging an average
+   down for no reason. */
+var SCALES = {
+  std4: {
+    name: 'Standards 1-4',
+    pts: [
+      { v: '4', t: '4 - Exceeds the standard', p: 96 },
+      { v: '3', t: '3 - Meets the standard', p: 88 },
+      { v: '2', t: '2 - Approaching the standard', p: 76 },
+      { v: '1', t: '1 - Beginning', p: 63 },
+      { v: '0', t: '0 - No evidence yet', p: 50 },
+    ],
+  },
+  std3: {
+    name: 'Proficiency 1-3',
+    pts: [
+      { v: '3', t: '3 - Exceeds', p: 95 },
+      { v: '2', t: '2 - Meets', p: 85 },
+      { v: '1', t: '1 - Not yet', p: 65 },
+    ],
+  },
+  ib7: {
+    name: 'IB 1-7',
+    pts: [
+      { v: '7', t: '7 - Excellent', p: 97 },
+      { v: '6', t: '6 - Very good', p: 93 },
+      { v: '5', t: '5 - Good', p: 87 },
+      { v: '4', t: '4 - Satisfactory', p: 80 },
+      { v: '3', t: '3 - Mediocre', p: 70 },
+      { v: '2', t: '2 - Poor', p: 60 },
+      { v: '1', t: '1 - Very poor', p: 45 },
+    ],
+  },
+  gpa4: {
+    name: 'GPA points 0-4',
+    pts: [
+      { v: '4', t: '4.0', p: 95 },
+      { v: '3.7', t: '3.7', p: 91 },
+      { v: '3.3', t: '3.3', p: 88 },
+      { v: '3', t: '3.0', p: 85 },
+      { v: '2.7', t: '2.7', p: 81 },
+      { v: '2.3', t: '2.3', p: 78 },
+      { v: '2', t: '2.0', p: 75 },
+      { v: '1.7', t: '1.7', p: 71 },
+      { v: '1.3', t: '1.3', p: 68 },
+      { v: '1', t: '1.0', p: 65 },
+      { v: '0.7', t: '0.7', p: 61 },
+      { v: '0', t: '0.0', p: 50 },
+    ],
+  },
+  pf: {
+    name: 'Pass / Fail',
+    pts: [
+      { v: 'P', t: 'Pass', p: 100 },
+      { v: 'F', t: 'Fail', p: 50 },
+    ],
+  },
+};
+function scalePts(key) {
+  return (SCALES[key] && SCALES[key].pts) || [];
+}
+function scalePoint(key, v) {
+  var pts = scalePts(key);
+  for (var i = 0; i < pts.length; i++) {
+    if (pts[i].v === String(v)) return pts[i];
+  }
+  return null;
+}
+function scalePct(key, v) {
+  var p = scalePoint(key, v);
+  return p ? p.p : null;
+}
+function scaleTop(key) {
+  var pts = scalePts(key);
+  return pts.length ? pts[0].v : '';
+}
+function letterToPct(l) {
     l = (l || '').toUpperCase().trim();
     return LETTER_PCT.hasOwnProperty(l) ? LETTER_PCT[l] : null;
   }
@@ -139,6 +219,7 @@
   function scoreItemPct(s) {
     if (!s) return null;
     if (s.type === 'letter') return letterToPct(s.value);
+  if (s.type === 'scale') return scalePct(s.scale, s.value);
     if (s.type === 'percent') {
       var p = parseFloat(s.value);
       return isNaN(p) ? null : p;
@@ -225,7 +306,10 @@
       var v = parseFloat(cls.gradeValue);
       return isNaN(v) ? null : v;
     }
-    if (cls.gradeType === 'number') {
+    if (cls.gradeType === 'scale') {
+    return scalePct(cls.gradeScale, cls.gradeValue);
+  }
+  if (cls.gradeType === 'number') {
       var v2 = parseFloat(cls.gradeValue),
         mx = parseFloat(cls.gradeMax);
       if (isNaN(v2)) return null;
@@ -247,7 +331,11 @@
       var v = parseFloat(cls.gradeValue);
       return isNaN(v) ? '—' : Math.round(v * 10) / 10 + '%';
     }
-    if (cls.gradeType === 'number') {
+    if (cls.gradeType === 'scale') {
+    var sp = scalePoint(cls.gradeScale, cls.gradeValue);
+    return sp ? sp.v : '—';
+  }
+  if (cls.gradeType === 'number') {
       var a = cls.gradeValue,
         b = cls.gradeMax;
       if (a == null || a === '') return '—';
@@ -799,10 +887,11 @@
     // grade type toggle
     var gtWrap = el('div', 'gb-gradetype');
     var types = [
-      ['letter', 'Letter'],
-      ['percent', 'Percent'],
-      ['number', 'Points'],
-    ];
+    ['letter', 'Letter'],
+    ['percent', 'Percent'],
+    ['number', 'Points'],
+    ['scale', 'Scale'],
+  ];
     var curType = existing ? existing.gradeType : 'letter';
     var gvField = el('div'); // dynamic grade value area
     function renderGV() {
@@ -850,6 +939,55 @@
           return { gradeType: 'percent', gradeValue: pi.value };
         };
         gvField.appendChild(field('Percentage (0–100)', pi));
+      } else if (curType === 'scale') {
+        var scSel = el('select', 'gb-select');
+        Object.keys(SCALES).forEach(function (k) {
+          var o = el('option', null, SCALES[k].name);
+          o.value = k;
+          scSel.appendChild(o);
+        });
+        scSel.value =
+          existing && existing.gradeScale && SCALES[existing.gradeScale]
+            ? existing.gradeScale
+            : 'std4';
+        var ptSel = el('select', 'gb-select');
+        var scNote = el('div');
+        scNote.style.cssText =
+          'font-size:11px;line-height:1.5;opacity:.62;margin:-2px 0 2px;';
+        function scShowNote() {
+          var p = scalePoint(scSel.value, ptSel.value);
+          scNote.textContent = p
+            ? p.t + ' counts as about ' + p.p + '% in your average.'
+            : 'Pick a mark to see what it counts as in your average.';
+        }
+        function scFillPts() {
+          ptSel.innerHTML = '';
+          var blank = el('option', null, '— select —');
+          blank.value = '';
+          ptSel.appendChild(blank);
+          scalePts(scSel.value).forEach(function (p) {
+            var o = el('option', null, p.t);
+            o.value = p.v;
+            ptSel.appendChild(o);
+          });
+          if (existing && existing.gradeType === 'scale') {
+            ptSel.value = existing.gradeValue || '';
+          }
+          scShowNote();
+        }
+        scSel.addEventListener('change', scFillPts);
+        ptSel.addEventListener('change', scShowNote);
+        scFillPts();
+        gvField._get = function () {
+          return {
+            gradeType: 'scale',
+            gradeScale: scSel.value,
+            gradeValue: ptSel.value,
+          };
+        };
+        gvField.appendChild(field('Grading scale', scSel));
+        gvField.appendChild(field('Mark on the report card', ptSel));
+        gvField.appendChild(scNote);
       } else {
         var got = input(
           'number',
@@ -925,6 +1063,7 @@
           existing.teacher = teacher.value.trim();
           existing.gradeType = gv.gradeType;
           existing.gradeValue = gv.gradeValue;
+      existing.gradeScale = gv.gradeScale || existing.gradeScale;
           existing.gradeMax =
             gv.gradeMax != null ? gv.gradeMax : existing.gradeMax;
           existing.color = sw._value;
@@ -936,6 +1075,7 @@
             teacher: teacher.value.trim(),
             gradeType: gv.gradeType,
             gradeValue: gv.gradeValue,
+        gradeScale: gv.gradeScale,
             gradeMax: gv.gradeMax,
             color: sw._value,
             notes: notes.value.trim(),
