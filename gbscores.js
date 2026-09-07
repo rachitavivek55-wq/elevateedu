@@ -73,8 +73,82 @@
     return book.periods[idx] || book.periods[0] || null;
   }
 
+  /* Report-card scales. A mark like 3 out of 4 means 'meets the standard',
+     not 75 per cent, so each mark carries its own honest percentage rather
+     than being divided out. Kept in step with the same table in gradebook.js. */
+  var SCALES = {
+    std4: {
+      name: 'Standards 1-4',
+      pts: [
+        { v: '4', t: '4 - Exceeds the standard', p: 96 },
+        { v: '3', t: '3 - Meets the standard', p: 88 },
+        { v: '2', t: '2 - Approaching the standard', p: 76 },
+        { v: '1', t: '1 - Beginning', p: 63 },
+        { v: '0', t: '0 - No evidence yet', p: 50 },
+      ],
+    },
+    std3: {
+      name: 'Proficiency 1-3',
+      pts: [
+        { v: '3', t: '3 - Exceeds', p: 95 },
+        { v: '2', t: '2 - Meets', p: 85 },
+        { v: '1', t: '1 - Not yet', p: 65 },
+      ],
+    },
+    ib7: {
+      name: 'IB 1-7',
+      pts: [
+        { v: '7', t: '7 - Excellent', p: 97 },
+        { v: '6', t: '6 - Very good', p: 93 },
+        { v: '5', t: '5 - Good', p: 87 },
+        { v: '4', t: '4 - Satisfactory', p: 80 },
+        { v: '3', t: '3 - Mediocre', p: 70 },
+        { v: '2', t: '2 - Poor', p: 60 },
+        { v: '1', t: '1 - Very poor', p: 45 },
+      ],
+    },
+    gpa4: {
+      name: 'GPA points 0-4',
+      pts: [
+        { v: '4', t: '4.0', p: 95 },
+        { v: '3.7', t: '3.7', p: 91 },
+        { v: '3.3', t: '3.3', p: 88 },
+        { v: '3', t: '3.0', p: 85 },
+        { v: '2.7', t: '2.7', p: 81 },
+        { v: '2.3', t: '2.3', p: 78 },
+        { v: '2', t: '2.0', p: 75 },
+        { v: '1.7', t: '1.7', p: 71 },
+        { v: '1.3', t: '1.3', p: 68 },
+        { v: '1', t: '1.0', p: 65 },
+        { v: '0.7', t: '0.7', p: 61 },
+        { v: '0', t: '0.0', p: 50 },
+      ],
+    },
+    pf: {
+      name: 'Pass / Fail',
+      pts: [
+        { v: 'P', t: 'Pass', p: 100 },
+        { v: 'F', t: 'Fail', p: 50 },
+      ],
+    },
+  };
+  function scalePts(key) {
+    return (SCALES[key] && SCALES[key].pts) || [];
+  }
+  function scalePoint(key, v) {
+    var pts = scalePts(key);
+    for (var i = 0; i < pts.length; i++) {
+      if (pts[i].v === String(v)) return pts[i];
+    }
+    return null;
+  }
+  function scalePct(key, v) {
+    var p = scalePoint(key, v);
+    return p ? p.p : null;
+  }
   function scorePct(s) {
     if (!s) return null;
+    if (s.type === 'scale') return scalePct(s.scale, s.value);
     if (s.type === 'letter') {
       return s.value in LETTER_PCT ? LETTER_PCT[s.value] : null;
     }
@@ -179,6 +253,7 @@
   }
   function scoreLabel(s) {
     if (s.type === 'letter') return s.value || '—';
+    if (s.type === 'scale') return s.value || '—';
     if (s.type === 'percent')
       return s.value === '' || s.value == null ? '—' : s.value + '%';
     if (s.type === 'points') {
@@ -477,6 +552,9 @@
       '<button type="button" data-t="points"' +
       (type === 'points' ? ' class="active"' : '') +
       '>Points</button>' +
+      '<button type="button" data-t="scale"' +
+      (type === 'scale' ? ' class="active"' : '') +
+      '>Scale</button>' +
       '</div></div>' +
       '<div class="gbsc-field" id="gbscValWrap"></div>' +
       '<div class="gbsc-actions">' +
@@ -498,6 +576,57 @@
           '<label class="gbsc-label">Percentage</label><input class="gbsc-input" id="gbscVal" type="number" min="0" step="0.01" placeholder="e.g. 92" value="' +
           esc(existing && existing.type === 'percent' ? existing.value : '') +
           '">';
+      } else if (t === 'scale') {
+        var scKey =
+          existing && existing.scale && SCALES[existing.scale]
+            ? existing.scale
+            : 'std4';
+        var scOpts = Object.keys(SCALES)
+          .map(function (k) {
+            return (
+              '<option value="' +
+              k +
+              '"' +
+              (k === scKey ? ' selected' : '') +
+              '>' +
+              SCALES[k].name +
+              '</option>'
+            );
+          })
+          .join('');
+        valWrap.innerHTML =
+          '<label class="gbsc-label">Grading scale</label>' +
+          '<select class="gbsc-select" id="gbscScale">' +
+          scOpts +
+          '</select>' +
+          '<label class="gbsc-label" style="margin-top:10px">Mark</label>' +
+          '<select class="gbsc-select" id="gbscVal"></select>' +
+          '<div id="gbscScNote" style="font-size:11px;line-height:1.5;opacity:.62;margin-top:8px"></div>';
+        var scSel = valWrap.querySelector('#gbscScale');
+        var vSel = valWrap.querySelector('#gbscVal');
+        var scNote = valWrap.querySelector('#gbscScNote');
+        var scNoteShow = function () {
+          var sp = scalePoint(scSel.value, vSel.value);
+          scNote.textContent = sp
+            ? sp.t + ' counts as about ' + sp.p + '% in this category.'
+            : 'Pick a mark to see what it counts as.';
+        };
+        var scFill = function () {
+          vSel.innerHTML = '<option value="">— select —</option>';
+          scalePts(scSel.value).forEach(function (sp) {
+            var o = document.createElement('option');
+            o.value = sp.v;
+            o.textContent = sp.t;
+            vSel.appendChild(o);
+          });
+          if (existing && existing.type === 'scale') {
+            vSel.value = existing.value || '';
+          }
+          scNoteShow();
+        };
+        scSel.addEventListener('change', scFill);
+        vSel.addEventListener('change', scNoteShow);
+        scFill();
       } else {
         valWrap.innerHTML =
           '<label class="gbsc-label">Points earned / total</label><div class="gbsc-points">' +
@@ -534,10 +663,14 @@
         name: name,
         type: curType,
         value: '',
+        scale: '',
         got: '',
         out: '',
       };
-      if (curType === 'letter' || curType === 'percent') {
+      if (curType === 'scale') {
+        rec.scale = wrap.querySelector('#gbscScale').value;
+        rec.value = wrap.querySelector('#gbscVal').value;
+      } else if (curType === 'letter' || curType === 'percent') {
         rec.value = wrap.querySelector('#gbscVal').value;
       } else {
         rec.got = wrap.querySelector('#gbscGot').value;
