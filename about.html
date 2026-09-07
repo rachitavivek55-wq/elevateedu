@@ -122,6 +122,7 @@
         cursor: pointer;
       }
       #fbSend:disabled { opacity: 0.6; }
+      .fbhide { display: none; }
       .fbnote {
         font-size: 12px;
         opacity: 0.75;
@@ -194,18 +195,30 @@
         useful. Tell me what you were doing when it went wrong and what phone or
         laptop you were on.
       </p>
-      <form id="fbForm" novalidate>
+      <form
+        id="fbForm"
+        name="feedback"
+        method="POST"
+        data-netlify="true"
+        netlify-honeypot="bot-field"
+        novalidate
+      >
+        <input type="hidden" name="form-name" value="feedback" />
+        <input type="hidden" name="subject" value="ElevateEdu message" />
+        <p class="fbhide">
+          <label>Leave this empty <input name="bot-field" /></label>
+        </p>
         <label class="fbl" for="fbKind">What is this about?</label>
-        <select id="fbKind">
+        <select id="fbKind" name="kind">
           <option value="question">A question</option>
           <option value="bug">Something is broken</option>
           <option value="idea">An idea or request</option>
           <option value="other">Something else</option>
         </select>
         <label class="fbl" for="fbMsg">Your message</label>
-        <textarea id="fbMsg" rows="5" placeholder="What happened, or what would you like to see?"></textarea>
+        <textarea id="fbMsg" name="message" rows="5" placeholder="What happened, or what would you like to see?"></textarea>
         <label class="fbl" for="fbReply">Your email <span>(only if you want a reply)</span></label>
-        <input id="fbReply" type="email" autocomplete="email" placeholder="you@example.com" />
+        <input id="fbReply" name="email" type="email" autocomplete="email" placeholder="you@example.com" />
         <button type="submit" id="fbSend">Send to the developer</button>
         <p class="fbnote" id="fbNote">Goes privately to the developer. Nobody else sees it.</p>
       </form>
@@ -216,8 +229,6 @@
     </footer>
     <script>
       (function () {
-        var SB = 'https://vkpmasigkotdmfkmjqoy.supabase.co';
-        var KEY = 'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi';
         var form = document.getElementById('fbForm');
         var btn = document.getElementById('fbSend');
         var note = document.getElementById('fbNote');
@@ -226,16 +237,15 @@
           note.textContent = text;
           note.className = bad ? 'fbnote bad' : 'fbnote';
         }
-        function token() {
-          try {
-            for (var i = 0; i < localStorage.length; i++) {
-              var k = localStorage.key(i);
-              if (!k || k.indexOf('sb-') !== 0) continue;
-              var v = JSON.parse(localStorage.getItem(k) || 'null');
-              if (v && v.access_token) return v.access_token;
-            }
-          } catch (e) {}
-          return KEY;
+        function send(path, body) {
+          return fetch(path, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: body
+          }).then(function (r) {
+            if (!r.ok) throw new Error('http ' + r.status);
+            return r;
+          });
         }
         form.addEventListener('submit', function (e) {
           e.preventDefault();
@@ -248,22 +258,18 @@
           btn.disabled = true;
           btn.textContent = 'Sending...';
           say('One moment.');
-          fetch(SB + '/rest/v1/feedback', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              apikey: KEY,
-              Authorization: 'Bearer ' + token(),
-              Prefer: 'return=minimal'
-            },
-            body: JSON.stringify({
-              kind: document.getElementById('fbKind').value,
-              message: msg,
-              reply_to: document.getElementById('fbReply').value.trim() || null
+          var d = new URLSearchParams();
+          d.append('form-name', 'feedback');
+          d.append('subject', 'ElevateEdu message');
+          d.append('kind', document.getElementById('fbKind').value);
+          d.append('message', msg);
+          d.append('email', document.getElementById('fbReply').value.trim());
+          var body = d.toString();
+          send(location.pathname, body)
+            .catch(function () {
+              return send('/', body);
             })
-          })
-            .then(function (r) {
-              if (!r.ok) throw new Error('http ' + r.status);
+            .then(function () {
               form.innerHTML =
                 '<p class="fbdone"><b>Sent \u2014 thank you.</b><br>It went straight to the developer. If you left an email, you will hear back there.</p>';
             })
