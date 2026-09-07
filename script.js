@@ -328,7 +328,7 @@ var elevateAuth = (function () {
   function maybeGoogleBtn() {
     var cached = '';
     try { cached = localStorage.getItem('ee_google_on') || ''; } catch (e) {}
-    if (cached === '1') addGoogleBtn();
+    if (cached !== '0') addGoogleBtn();
     if (googleChecked) return;
     googleChecked = true;
     try {
@@ -382,7 +382,7 @@ var elevateAuth = (function () {
       if (waiting) pendingEmail = waiting;
       var gOn = '';
       try { gOn = localStorage.getItem('ee_google_on') || ''; } catch (e) {}
-      if (!waiting && gOn === '1') return;
+      if (!waiting && gOn !== '0') return;
       codeBox();
       if (waiting) {
         setMsg('Paste the sign-in code you copied in Safari, or the link we emailed to ' + waiting + '.');
@@ -799,8 +799,22 @@ var elevateAuth = (function () {
 
 // ===== 9) Init auth on page load =====
 (function () {
+  /* Google hands the browser back with a one-time code in the address bar.
+     If that address is the one saved to the home screen, every later launch
+     re-tries a code that is already spent, and the app opens on the
+     paste-a-code screen instead of the home page. The address is wiped as
+     soon as the sign-in has been read, so the saved shortcut stays clean. */
+  window.eeCleanAuthUrl = function () {
+    try {
+      var tail = (window.location.search || '') + (window.location.hash || '');
+      if (!tail) return;
+      if (!/code|token|error|state/i.test(tail)) return;
+      window.history.replaceState(null, '', window.location.pathname);
+    } catch (e) {}
+  };
   elevateAuth.init();
   elevateAuth.checkSession().then(function (hasSession) {
+    if (window.eeCleanAuthUrl) window.eeCleanAuthUrl();
     if (hasSession) {
       elevateAuth.cloudMerge().then(function (changed) {
         elevateAuth.hideAuthScreen();
@@ -1552,6 +1566,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     try {
       elevateAuth.init();
       elevateAuth.checkSession().then(function (hasSession) {
+    if (window.eeCleanAuthUrl) window.eeCleanAuthUrl();
         if (hasSession)
               elevateAuth
                 .cloudMerge()
