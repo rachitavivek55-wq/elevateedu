@@ -1,240 +1,668 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
-    <meta name="description" content="Keep your class notes tidy in sections you choose." />
-    <link rel="manifest" href="./manifest.json" />
-    <meta name="theme-color" content="#4b3832" />
-    <link rel="icon" type="image/png" href="./icon-192.png" />
-    <link rel="apple-touch-icon" href="./apple-touch-icon.png" />
-    <meta name="mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-capable" content="yes" />
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
-    <meta name="apple-mobile-web-app-title" content="ElevateEdu" />
-    <title>Notes — ElevateEdu</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="styles.css" />
-    <link rel="stylesheet" href="notes.css" />
-  </head>
-  <body>
-    <div class="phone">
-      <header class="titlebar">
-        <div class="brand">
-          <a class="back-btn" href="planner.html"
-             aria-label="Back"><i data-lucide="arrow-left"></i
-          ></a>
-          <span class="brand-name">Notes</span>
-        </div>
-        <div class="date-chip">
-          <span class="date-day" id="dateDay">--</span>
-          <span class="date-month" id="dateMonth">---</span>
-        </div>
-      </header>
+/* ===== Notes tool ===== */
+:root {
+  --nt-ink: #4b3832;
+  --nt-muted: #8a7355;
+  --nt-line: #e4d6bc;
+  --nt-tile: #fbf4e6;
+  --nt-coffee: #6f4e37;
+  --nt-cream: #f5e6ca;
+  --nt-beige: #dcc7aa;
+  --nt-highlight: #f7e7a6;
+  --nt-danger: #b0645e;
+}
 
-      <main class="screen nt-screen">
-        <!-- ===== Sections list view ===== -->
-        <section id="ntListView">
-          <p class="nt-hint" id="ntHint">
-            Make a section for anything &mdash; teachers, random thoughts, class
-            notes. Open one to start writing.
-          </p>
-          <div id="ntSectionList"></div>
-          <div class="nt-empty" id="ntEmpty" hidden>
-            <i data-lucide="notebook-pen"></i>
-            <p class="nt-empty-title">No sections yet.</p>
-            <p class="nt-empty-sub">
-              Tap the + button to make your first section, like
-              &ldquo;Teachers&rdquo; or &ldquo;Random thoughts&rdquo;.
-            </p>
-          </div>
-        </section>
+.nt-screen {
+  padding: 16px 18px 96px;
+  position: relative;
+}
 
-        <!-- ===== Notes-in-section view ===== -->
-        <section id="ntSectionView" hidden>
-          <button class="nt-back-link" id="ntSectionBack">
-            <i data-lucide="chevron-left"></i> All sections
-          </button>
-          <div class="nt-section-head">
-            <h2 class="nt-section-title" id="ntSectionName">Section</h2>
-            <button
-              class="nt-icon-btn"
-              id="ntSectionEdit"
-              title="Rename or delete"
-            >
-              <i data-lucide="pencil"></i>
-            </button>
-          </div>
-          <div id="ntNoteList"></div>
-          <div class="nt-empty" id="ntNoteEmpty" hidden>
-            <i data-lucide="file-pen-line"></i>
-            <p class="nt-empty-title">No notes here yet.</p>
-            <p class="nt-empty-sub">Tap the + button to add a note.</p>
-          </div>
-        </section>
+/* hint */
+.nt-hint {
+  font-size: 13.5px;
+  line-height: 1.5;
+  color: var(--nt-muted);
+  margin: 2px 0 16px;
+}
 
-        <!-- ===== Editor view ===== -->
-        <section id="ntEditorView" hidden>
-          <button class="nt-back-link" id="ntEditorBack">
-            <i data-lucide="chevron-left"></i>
-            <span id="ntEditorBackLabel">Back</span>
-          </button>
-          <input
-            class="nt-title-input"
-            id="ntNoteTitle"
-            placeholder="Note title"
-          />
-          <div class="nt-toolbar" id="ntToolbar">
-            <button class="nt-tool" data-cmd="bold" title="Bold">
-              <i data-lucide="bold"></i>
-            </button>
-            <button class="nt-tool" data-cmd="italic" title="Italic">
-              <i data-lucide="italic"></i>
-            </button>
-            <button class="nt-tool" data-cmd="underline" title="Underline">
-              <i data-lucide="underline"></i>
-            </button>
-            <button
-              class="nt-tool"
-              data-cmd="strikeThrough"
-              title="Strikethrough"
-            >
-              <i data-lucide="strikethrough"></i>
-            </button>
-            <span class="nt-tool-sep"></span>
-            <button class="nt-tool" data-cmd="hiliteColor" title="Highlight">
-              <i data-lucide="highlighter"></i>
-            </button>
-            <span class="nt-tool-sep"></span>
-            <button
-              class="nt-tool"
-              data-cmd="insertUnorderedList"
-              title="Bullet list"
-            >
-              <i data-lucide="list"></i>
-            </button>
-            <button
-              class="nt-tool"
-              data-cmd="insertOrderedList"
-              title="Numbered list"
-            >
-              <i data-lucide="list-ordered"></i>
-            </button>
-            <span class="nt-tool-sep"></span>
-            <button
-              class="nt-tool"
-              data-cmd="formatBlock"
-              data-val="h3"
-              title="Heading"
-            >
-              <i data-lucide="heading"></i>
-            </button>
-            <button
-              class="nt-tool"
-              data-cmd="removeFormat"
-              title="Clear formatting"
-            >
-              <i data-lucide="eraser"></i>
-            </button>
-          </div>
-          <input
-            type="file"
-            id="ntImgInput"
-            accept="image/*"
-            hidden
-          />
-          <div
-            class="nt-editor"
-            id="ntEditor"
-            contenteditable="true"
-            spellcheck="true"
-            data-placeholder="Write or paste anything here&hellip;"
-          ></div>
-          <button class="nt-photo-add" id="ntImgBtn">
-            <i data-lucide="image"></i><span>Add photo</span>
-          </button>
-          <p class="nt-saved" id="ntSavedNote">Saved automatically</p>
-        </section>
-      </main>
+/* section cards */
+.nt-section-card {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  text-align: left;
+  background: var(--nt-tile);
+  border: 1px solid var(--nt-line);
+  border-radius: 16px;
+  padding: 14px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
+}
+.nt-section-card:active {
+  transform: scale(0.99);
+}
+.nt-section-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: var(--nt-cream);
+  color: var(--nt-coffee);
+  flex: none;
+}
+.nt-section-icon i {
+  width: 20px;
+  height: 20px;
+}
+.nt-section-meta {
+  flex: 1;
+  min-width: 0;
+}
+.nt-section-name {
+  display: block;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nt-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nt-section-count {
+  display: block;
+  font-size: 12px;
+  color: var(--nt-muted);
+  margin-top: 2px;
+}
+.nt-section-arrow {
+  color: var(--nt-beige);
+  flex: none;
+}
+.nt-section-arrow i {
+  width: 20px;
+  height: 20px;
+}
 
-      <button class="nt-fab" id="ntFab" title="Add">
-        <i data-lucide="plus"></i>
-      </button>
+/* note cards inside a section */
+.nt-note-card {
+  width: 100%;
+  text-align: left;
+  background: var(--nt-tile);
+  border: 1px solid var(--nt-line);
+  border-radius: 14px;
+  padding: 13px 14px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.nt-note-card:active {
+  transform: scale(0.99);
+}
+.nt-note-title {
+  font-size: 14.5px;
+  font-weight: 600;
+  color: var(--nt-ink);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nt-note-preview {
+  font-size: 12.5px;
+  color: var(--nt-muted);
+  margin-top: 3px;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nt-note-date {
+  font-size: 11px;
+  color: var(--nt-beige);
+  margin-top: 6px;
+  font-weight: 500;
+}
 
-      <!-- ===== Bottom sheet (name section / rename) ===== -->
-      <div class="nt-backdrop" id="ntBackdrop" hidden></div>
-      <div class="nt-sheet" id="ntSheet" hidden>
-        <div class="nt-sheet-head">
-          <h3 id="ntSheetTitle">New section</h3>
-          <button class="nt-icon-btn" id="ntSheetClose" aria-label="Close">
-            <i data-lucide="x"></i>
-          </button>
-        </div>
-        <div class="nt-sheet-body" id="ntSheetBody"></div>
-      </div>
+/* back link */
+.nt-back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  background: none;
+  border: none;
+  color: var(--nt-coffee);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 2px 0;
+  margin-bottom: 10px;
+}
+.nt-back-link i {
+  width: 18px;
+  height: 18px;
+}
 
-      <!-- ===== Custom confirm ===== -->
-      <div class="nt-confirm-wrap" id="ntConfirmWrap" hidden>
-        <div class="nt-confirm">
-          <p id="ntConfirmMsg">Are you sure?</p>
-          <div class="nt-confirm-row">
-            <button class="nt-btn-ghost" id="ntConfirmNo">Cancel</button>
-            <button class="nt-btn-danger" id="ntConfirmYes">Delete</button>
-          </div>
-        </div>
-      </div>
+/* section header */
+.nt-section-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.nt-section-title {
+  flex: 1;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--nt-ink);
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.nt-icon-btn {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  border: 1px solid var(--nt-line);
+  background: var(--nt-tile);
+  color: var(--nt-coffee);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  flex: none;
+}
+.nt-icon-btn i {
+  width: 17px;
+  height: 17px;
+}
 
-      <!-- ····· Full-screen photo viewer ····· -->
-      <div class="nt-photo" id="ntPhoto" hidden>
-        <button class="nt-photo-close" id="ntPhotoClose" aria-label="Close">
-          <i data-lucide="x"></i>
-        </button>
-        <img id="ntPhotoImg" alt="" />
-        <div class="nt-photo-zoom" id="ntPhotoZoom">
-          <button type="button" class="nt-photo-zbtn" id="ntPhotoOut" aria-label="Zoom out">
-            <i data-lucide="minus"></i>
-          </button>
-          <span class="nt-photo-level" id="ntPhotoLevel">100%</span>
-          <button type="button" class="nt-photo-zbtn" id="ntPhotoIn" aria-label="Zoom in">
-            <i data-lucide="plus"></i>
-          </button>
-          <button type="button" class="nt-photo-zbtn" id="ntPhotoFit" aria-label="Fit to screen">
-            <i data-lucide="scan"></i>
-          </button>
-        </div>
-      </div>
+/* empty states */
+.nt-empty {
+  text-align: center;
+  padding: 36px 20px;
+  color: var(--nt-muted);
+}
+.nt-empty i,
+.nt-empty svg {
+  width: 34px;
+  height: 34px;
+  color: var(--nt-beige);
+}
+.nt-empty-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--nt-ink);
+  margin: 14px 0 6px;
+}
+.nt-empty-sub {
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 0 auto;
+  max-width: 240px;
+}
 
-      <nav class="bottom-nav">
-        <button class="nav-item" data-tab="home">
-          <span class="nav-icon"><i data-lucide="house"></i></span
-          ><span class="nav-label">Home</span>
-        </button>
-        <button class="nav-item active" data-tab="planner">
-          <span class="nav-icon"><i data-lucide="calendar-check"></i></span
-          ><span class="nav-label">Planner</span>
-        </button>
-        <button class="nav-item" data-tab="wallet">
-          <span class="nav-icon"><i data-lucide="wallet"></i></span
-          ><span class="nav-label">Wallet</span>
-        </button>
-        <button class="nav-item" data-tab="fitness">
-          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span
-          ><span class="nav-label">Wellness</span>
-        </button>
-        <button class="nav-item" data-tab="mindset">
-          <span class="nav-icon"><i data-lucide="brain"></i></span
-          ><span class="nav-label">Mindset</span>
-        </button>
-      </nav>
-    </div>
+/* editor */
+.nt-title-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  font-family: inherit;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--nt-ink);
+  -webkit-text-fill-color: var(--nt-ink);
+  padding: 4px 2px 10px;
+  outline: none;
+}
+.nt-title-input::placeholder {
+  color: var(--nt-beige);
+}
 
-    <script src="https://unpkg.com/lucide@latest"></script>
-    <script src="script.js"></script>
-    <script src="notes.js"></script>
-  </body>
-</html>
+.nt-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  background: var(--nt-tile);
+  border: 1px solid var(--nt-line);
+  border-radius: 14px;
+  padding: 6px 8px;
+  margin-bottom: 12px;
+  position: sticky;
+  top: 0;
+  z-index: 3;
+}
+.nt-tool {
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  border: none;
+  background: transparent;
+  color: var(--nt-coffee);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  transition: background 0.12s ease;
+}
+.nt-tool:hover {
+  background: var(--nt-cream);
+}
+.nt-tool.active {
+  background: var(--nt-coffee);
+  color: #fff;
+}
+.nt-tool i {
+  width: 17px;
+  height: 17px;
+}
+.nt-tool-sep {
+  width: 1px;
+  height: 20px;
+  background: var(--nt-line);
+  margin: 0 2px;
+}
+
+.nt-editor {
+  min-height: 300px;
+  background: var(--nt-tile);
+  border: 1px solid var(--nt-line);
+  border-radius: 16px;
+  padding: 14px 16px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--nt-ink);
+  outline: none;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+.nt-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--nt-beige);
+  pointer-events: none;
+}
+.nt-editor:focus {
+  border-color: var(--nt-beige);
+}
+.nt-editor h3 {
+  font-size: 16px;
+  font-weight: 700;
+  margin: 10px 0 6px;
+  color: var(--nt-ink);
+}
+.nt-editor ul,
+.nt-editor ol {
+  padding-left: 22px;
+  margin: 6px 0;
+}
+.nt-editor li {
+  margin: 3px 0;
+}
+.nt-editor a {
+  color: var(--nt-coffee);
+}
+/* Photos sit in a note as small square chips; tapping one opens it full screen. */
+.nt-editor img,
+.nt-note-preview img {
+  display: inline-block;
+  width: 96px;
+  height: 96px;
+  object-fit: cover;
+  border-radius: 14px;
+  border: 1px solid var(--nt-line);
+  margin: 6px 6px 2px 0;
+  vertical-align: middle;
+  cursor: zoom-in;
+}
+.nt-photo {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  /* dvh tracks the real visible height when mobile browser chrome slides away */
+  height: 100dvh;
+  z-index: 90;
+  background: rgba(41, 28, 20, 0.94);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  overflow: hidden;
+  overscroll-behavior: contain;
+  touch-action: none;
+  -webkit-tap-highlight-color: transparent;
+}
+.nt-photo[hidden] {
+  display: none;
+}
+/* Opens filling the screen with the whole photo in view, then pinch, scroll
+   or double tap to zoom in and drag to pan around. */
+.nt-photo img {
+  width: auto;
+  height: auto;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  transform-origin: center center;
+  will-change: transform;
+  cursor: zoom-in;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+.nt-photo-close {
+  position: absolute;
+  top: calc(env(safe-area-inset-top, 0px) + 14px);
+  right: 14px;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+.nt-photo-close i,
+.nt-photo-close svg {
+  width: 20px;
+  height: 20px;
+}
+/* Insert-photo action lives under the editor so the format toolbar stays one row. */
+.nt-photo-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  width: 100%;
+  margin: 10px 0 0;
+  padding: 10px 14px;
+  background: var(--nt-tile);
+  border: 1px dashed var(--nt-line);
+  border-radius: 14px;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--nt-coffee);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.nt-photo-add i,
+.nt-photo-add svg {
+  width: 16px;
+  height: 16px;
+}
+.nt-photo-add:active {
+  transform: scale(0.99);
+}
+/* Zoom controls for the photo viewer - pinch is never the only way in. */
+.nt-photo-zoom {
+  position: absolute;
+  left: 50%;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 5px;
+  border-radius: 999px;
+  background: rgba(28, 19, 13, 0.74);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 8px 20px -10px rgba(0, 0, 0, 0.7);
+  z-index: 2;
+  touch-action: manipulation;
+}
+.nt-photo-zbtn {
+  width: 42px;
+  height: 42px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: #f7f1ea;
+  cursor: pointer;
+  transition: background 0.15s ease, opacity 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+}
+.nt-photo-zbtn:active {
+  background: rgba(255, 255, 255, 0.18);
+}
+.nt-photo-zbtn:disabled {
+  opacity: 0.32;
+  cursor: default;
+}
+.nt-photo-zbtn i {
+  width: 20px;
+  height: 20px;
+}
+.nt-photo-zlevel {
+  min-width: 50px;
+  text-align: center;
+  color: #f7f1ea;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  font-variant-numeric: tabular-nums;
+}
+
+
+.nt-saved {
+  text-align: center;
+  font-size: 11.5px;
+  color: var(--nt-beige);
+  margin: 12px 0 0;
+  font-weight: 500;
+}
+
+/* FAB */
+.nt-fab {
+  position: absolute;
+  right: 18px;
+  bottom: 84px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  border: none;
+  background: var(--nt-coffee);
+  color: #fff;
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+  box-shadow: 0 6px 18px rgba(75, 56, 50, 0.32);
+  z-index: 5;
+}
+.nt-fab i {
+  width: 24px;
+  height: 24px;
+}
+
+/* backdrop + sheet */
+.nt-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(75, 56, 50, 0.34);
+  /* 40+ keeps the sheet clear of the fixed menu bar (z-index 35). */
+  z-index: 40;
+}
+.nt-sheet {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: var(--nt-cream);
+  border-radius: 24px 24px 0 0;
+  padding: 18px 18px 24px;
+  z-index: 41;
+  box-shadow: 0 -8px 24px rgba(75, 56, 50, 0.2);
+}
+.nt-sheet-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+}
+.nt-sheet-head h3 {
+  margin: 0;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--nt-ink);
+}
+.nt-field-label {
+  display: block;
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--nt-muted);
+  margin: 0 0 6px 2px;
+}
+.nt-input {
+  width: 100%;
+  border: 1px solid var(--nt-line);
+  background: var(--nt-tile);
+  border-radius: 12px;
+  padding: 12px 14px;
+  font-family: inherit;
+  font-size: 14.5px;
+  color: var(--nt-ink);
+  -webkit-text-fill-color: var(--nt-ink);
+  outline: none;
+  box-sizing: border-box;
+}
+.nt-input:focus {
+  border-color: var(--nt-beige);
+}
+
+.nt-icon-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+.nt-icon-opt {
+  width: 42px;
+  height: 42px;
+  border-radius: 12px;
+  border: 1px solid var(--nt-line);
+  background: var(--nt-tile);
+  color: var(--nt-coffee);
+  display: grid;
+  place-items: center;
+  cursor: pointer;
+}
+.nt-icon-opt.active {
+  border-color: var(--nt-coffee);
+  background: var(--nt-cream);
+}
+.nt-icon-opt i {
+  width: 20px;
+  height: 20px;
+}
+
+.nt-sheet-row {
+  display: flex;
+  gap: 10px;
+  margin-top: 18px;
+}
+.nt-btn-primary {
+  flex: 1;
+  border: none;
+  background: var(--nt-coffee);
+  color: #fff;
+  border-radius: 12px;
+  padding: 13px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nt-btn-ghost {
+  border: 1px solid var(--nt-line);
+  background: transparent;
+  color: var(--nt-muted);
+  border-radius: 12px;
+  padding: 13px 18px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nt-btn-danger {
+  border: none;
+  background: var(--nt-danger);
+  color: #fff;
+  border-radius: 12px;
+  padding: 13px 18px;
+  font-family: inherit;
+  font-size: 14.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.nt-delete-row {
+  margin-top: 12px;
+  text-align: center;
+}
+.nt-delete-link {
+  background: none;
+  border: none;
+  color: var(--nt-danger);
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+/* custom confirm */
+.nt-confirm-wrap {
+  position: absolute;
+  inset: 0;
+  background: rgba(75, 56, 50, 0.34);
+  /* Above the sheet it is asked from. */
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+.nt-confirm {
+  background: var(--nt-cream);
+  border-radius: 18px;
+  padding: 20px;
+  width: 100%;
+  max-width: 280px;
+  box-shadow: 0 10px 30px rgba(75, 56, 50, 0.3);
+}
+.nt-confirm p {
+  margin: 0 0 16px;
+  font-size: 14.5px;
+  line-height: 1.5;
+  color: var(--nt-ink);
+  text-align: center;
+}
+.nt-confirm-row {
+  display: flex;
+  gap: 10px;
+}
+.nt-confirm-row button {
+  flex: 1;
+}
+
+/* hidden overrides */
+.nt-fab[hidden],
+.nt-confirm-wrap[hidden],
+.nt-backdrop[hidden],
+.nt-sheet[hidden],
+.nt-empty[hidden],
+#ntListView[hidden],
+#ntSectionView[hidden],
+#ntEditorView[hidden] {
+  display: none !important;
+}
+
+/* v2 */
