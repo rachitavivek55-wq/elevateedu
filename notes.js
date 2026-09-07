@@ -536,8 +536,15 @@
     if (e.cancelable) e.preventDefault();
   }
 
+  function pzViewport() {
+    var vv = window.visualViewport;
+    var h = vv && vv.height ? vv.height : window.innerHeight;
+    document.documentElement.style.setProperty('--nt-vh', Math.round(h) + 'px');
+  }
+
   function openPhoto(src) {
     pzReset();
+    pzViewport();
     $('ntPhotoImg').setAttribute('src', src);
     $('ntPhoto').hidden = false;
     document.body.style.overflow = 'hidden';
@@ -903,11 +910,18 @@
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && !$('ntPhoto').hidden) closePhoto();
     });
-    window.addEventListener('resize', function () {
+    var onViewport = function () {
       if ($('ntPhoto').hidden) return;
+      pzViewport();
       pzClamp();
       pzApply();
-    });
+    };
+    window.addEventListener('resize', onViewport);
+    window.addEventListener('orientationchange', onViewport);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', onViewport);
+      window.visualViewport.addEventListener('scroll', onViewport);
+    }
 
     // long-press / delete note: add a delete via editor back area? Provide delete on title double-context.
     // We add a delete affordance: pressing the edit pencil area is only sections.
