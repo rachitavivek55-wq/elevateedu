@@ -32,7 +32,7 @@
         <h2 class="auth-title">ElevateEdu</h2>
         <p class="ee-land-tag">Your school week, your grades, your money, your body and your head &mdash; all in one calm little app.</p>
         <p class="auth-subtitle">Sign in or create an account</p>
-        <form id="elevateAuthForm" class="auth-form">
+        <form id="elevateAuthForm" class="auth-form" style="display: none">
           <input
             type="email"
             id="elevateAuthEmail"
@@ -81,7 +81,8 @@
           id="elevateAuthNote"
           class="auth-note"
           style="
-            font-size: 11px;
+                display: none;
+          font-size: 11px;
             color: var(--coffee);
             opacity: 0.5;
             margin-top: 16px;
