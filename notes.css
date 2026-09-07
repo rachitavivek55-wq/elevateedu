@@ -331,10 +331,7 @@
   align-items: center;
   justify-content: center;
   /* reserves room so the close button and the zoom bar never sit on the photo */
-  padding-top: calc(env(safe-area-inset-top, 0px) + 62px);
-  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 74px);
-  padding-left: 10px;
-  padding-right: 10px;
+  padding: 0;
   overflow: hidden;
   overscroll-behavior: contain;
   touch-action: none;

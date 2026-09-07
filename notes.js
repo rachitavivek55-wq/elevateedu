@@ -536,10 +536,29 @@
     if (e.cancelable) e.preventDefault();
   }
 
+  /* Measured in real pixels from visualViewport, the only size that matches
+     what a phone actually shows. CSS viewport units include the strip behind
+     the address bar, which is what pushed the close button off screen. */
   function pzViewport() {
     var vv = window.visualViewport;
-    var h = vv && vv.height ? vv.height : window.innerHeight;
-    document.documentElement.style.setProperty('--nt-vh', Math.round(h) + 'px');
+    var w = Math.round(vv && vv.width ? vv.width : window.innerWidth);
+    var h = Math.round(vv && vv.height ? vv.height : window.innerHeight);
+    var ox = Math.round(vv && vv.offsetLeft ? vv.offsetLeft : 0);
+    var oy = Math.round(vv && vv.offsetTop ? vv.offsetTop : 0);
+    document.documentElement.style.setProperty('--nt-vh', h + 'px');
+    var pv = $('ntPhoto');
+    if (!pv) return;
+    pv.style.left = ox + 'px';
+    pv.style.top = oy + 'px';
+    pv.style.width = w + 'px';
+    pv.style.height = h + 'px';
+    var img = $('ntPhotoImg');
+    if (!img) return;
+    /* An equal gap top and bottom keeps the photo centred and clear of both
+       the close button and the zoom bar, whatever the screen height is. */
+    var gap = Math.min(110, Math.max(76, Math.round(h * 0.1)));
+    img.style.maxWidth = Math.max(64, w - 24) + 'px';
+    img.style.maxHeight = Math.max(64, h - gap * 2) + 'px';
   }
 
   function openPhoto(src) {
@@ -875,6 +894,8 @@
       }
     });
     var pvw = $('ntPhoto');
+    /* Sits on body so no clipping or transformed ancestor can crop it. */
+    if (pvw.parentNode !== document.body) document.body.appendChild(pvw);
     pvw.addEventListener('click', function (e) {
       if (pz.moved) return;
       if (e.target === pvw || (e.target.closest && e.target.closest('.nt-photo-close'))) {
