@@ -154,21 +154,47 @@
   // Average of every score logged for a class, honouring category weights.
   // Categories with no scores yet sit the round out, so a 10% homework
   // category still moves the total straight away.
+  function catStatsG(c) {
+    var items = (c && c.items) || [];
+    var got = 0,
+      out = 0,
+      n = 0;
+    items.forEach(function (s) {
+      var p = scoreItemPct(s);
+      if (p === null) return;
+      n += 1;
+      if (s.type === 'points') {
+        got += parseFloat(s.got);
+        out += parseFloat(s.out);
+      } else {
+        got += p;
+        out += 100;
+      }
+    });
+    return n && out > 0 ? { got: got, out: out } : null;
+  }
   function scoresAvg(cls) {
     if (!cls || !cls.categories || !cls.categories.length) return null;
+    if (cls.gradeMode === 'points') {
+      var tg = 0,
+        to = 0;
+      cls.categories.forEach(function (c) {
+        var st = catStatsG(c);
+        if (!st) return;
+        tg += st.got;
+        to += st.out;
+      });
+      return to > 0 ? (tg / to) * 100 : null;
+    }
     var parts = [];
     cls.categories.forEach(function (c) {
-      var items = (c && c.items) || [];
-      var vals = items.map(scoreItemPct).filter(function (x) {
-        return x !== null;
-      });
-      if (!vals.length) return;
-      var a =
-        vals.reduce(function (x, y) {
-          return x + y;
-        }, 0) / vals.length;
+      var st = catStatsG(c);
+      if (!st) return;
       var w = parseFloat(c.weight);
-      parts.push({ a: a, w: isNaN(w) || w <= 0 ? null : w });
+      parts.push({
+        a: (st.got / st.out) * 100,
+        w: isNaN(w) || w <= 0 ? null : w,
+      });
     });
     if (!parts.length) return null;
     var anyW = parts.some(function (p) {

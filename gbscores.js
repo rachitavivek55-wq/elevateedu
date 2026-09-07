@@ -90,20 +90,50 @@
     }
     return null;
   }
-  function catAvg(cat) {
-    if (!cat || !cat.items || !cat.items.length) return null;
-    var vals = cat.items.map(scorePct).filter(function (x) {
-      return x !== null;
+  // Aeries-style: pool the points inside a category so a 100-point test counts
+  // more than a 5-point warm-up. Percent/letter scores carry no point value,
+  // so they are treated as out of 100.
+  function catStats(cat) {
+    var items = (cat && cat.items) || [];
+    var got = 0,
+      out = 0,
+      n = 0;
+    items.forEach(function (s) {
+      var p = scorePct(s);
+      if (p === null) return;
+      n += 1;
+      if (s.type === 'points') {
+        got += parseFloat(s.got);
+        out += parseFloat(s.out);
+      } else {
+        got += p;
+        out += 100;
+      }
     });
-    if (!vals.length) return null;
-    return (
-      vals.reduce(function (a, b) {
-        return a + b;
-      }, 0) / vals.length
-    );
+    return n && out > 0 ? { got: got, out: out } : null;
+  }
+  function catAvg(cat) {
+    var st = catStats(cat);
+    return st ? (st.got / st.out) * 100 : null;
+  }
+  function isPointsMode(cls) {
+    return !!(cls && cls.gradeMode === 'points');
+  }
+  // Total-points mode: every score in the class goes into one pile, weights ignored.
+  function totalPointsAvg(cls) {
+    var got = 0,
+      out = 0;
+    (cls.categories || []).forEach(function (c) {
+      var st = catStats(c);
+      if (!st) return;
+      got += st.got;
+      out += st.out;
+    });
+    return out > 0 ? (got / out) * 100 : null;
   }
   function classAvg(cls) {
-    if (!cls.categories || !cls.categories.length) return null;
+    if (!cls || !cls.categories || !cls.categories.length) return null;
+    if (isPointsMode(cls)) return totalPointsAvg(cls);
     var parts = [];
     cls.categories.forEach(function (c) {
       var a = catAvg(c);
@@ -217,6 +247,10 @@
       '.gbsc-close .lucide{width:17px;height:17px;}',
       '.gbsc-label{display:block;font:600 12.5px/1 Poppins,sans-serif;color:#6f4e37;margin:0 0 6px;}',
       '.gbsc-hint{font-weight:400;color:#8a7663;font-size:11px;}',
+      '.gb-gr-mode{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin:0 0 10px;}',
+      '.gb-gr-mbtn{border:1px solid #e2d5c3;background:#fffaf3;color:#8a7663;font:600 11px/1 Poppins,sans-serif;padding:7px 11px;border-radius:999px;cursor:pointer;}',
+      '.gb-gr-mbtn.on{background:#6f4e37;border-color:#6f4e37;color:#fff;}',
+      '.gb-gr-mhint{flex:1 1 100%;color:#a08d78;font-size:10.5px;line-height:1.4;}',
       '.gbsc-field{margin-bottom:14px;}',
       '.gbsc-input,.gbsc-select{width:100%;box-sizing:border-box;border:1px solid rgba(111,78,55,.20);background:#fffdf7;border-radius:12px;padding:11px 12px;font:500 14px/1.2 Poppins,sans-serif;color:#4b3832;}',
       '.gbsc-input:focus,.gbsc-select:focus{outline:none;border-color:#6f4e37;}',
@@ -581,6 +615,20 @@
         : '') +
       '</div>' +
       '<p class="gb-grades-hint">Optional — add categories (tests, homework…) and log individual scores to track this class.</p>';
+    html +=
+      '<div class="gb-gr-mode">' +
+      '<button type="button" class="gb-gr-mbtn' +
+      (isPointsMode(cls) ? '' : ' on') +
+      '" data-mode="weighted">Weighted</button>' +
+      '<button type="button" class="gb-gr-mbtn' +
+      (isPointsMode(cls) ? ' on' : '') +
+      '" data-mode="points">Total points</button>' +
+      '<span class="gb-gr-mhint">' +
+      (isPointsMode(cls)
+        ? 'All points pooled together, category weights ignored.'
+        : 'Each category counts for its weight %.') +
+      '</span>' +
+      '</div>';
 
     var cats = cls.categories || [];
     if (!cats.length) {
@@ -639,6 +687,16 @@
     html +=
       '<button class="gb-add-cat" data-addcat="1"><i data-lucide="folder-plus"></i> Add category</button>';
     sec.innerHTML = html;
+    sec.querySelectorAll('[data-mode]').forEach(function (b) {
+      b.addEventListener('click', function (e) {
+        e.preventDefault();
+        var m = b.getAttribute('data-mode');
+        withClass(function (db, cls2) {
+          cls2.gradeMode = m === 'points' ? 'points' : 'weighted';
+        });
+        renderGrades();
+      });
+    });
 
     sec.querySelectorAll('[data-addcat]').forEach(function (b) {
       b.addEventListener('click', function (e) {
