@@ -157,17 +157,27 @@
             </button>
           </div>
         </div>
-        <label class="ck-field ck-custom-field" id="ckCustomField" hidden>
-          <span>Reset every</span>
+        <div class="ck-field ck-week-field" id="ckWeekField" hidden>
+          <span>Starts over on</span>
+          <div class="ck-days" id="ckDays"></div>
+          <p class="ck-hint">Pick the days it starts fresh. With none picked it uses every Monday.</p>
+        </div>
+        <div class="ck-field ck-custom-field" id="ckCustomField" hidden>
+          <span>Starts over every</span>
           <div class="ck-custom-row">
-            <input type="number" id="ckCustomNum" min="1" max="365" value="3" />
+            <input type="number" id="ckCustomNum" min="1" max="365" value="2" />
             <select id="ckCustomUnit">
               <option value="days">days</option>
               <option value="weeks">weeks</option>
               <option value="months">months</option>
             </select>
           </div>
-        </label>
+          <label class="ck-sub-field">
+            <span>Starting from</span>
+            <input type="date" id="ckCustomStart" />
+          </label>
+        </div>
+        <p class="ck-next-note" id="ckNextNote" hidden></p>
         <div class="ck-sheet-actions">
           <button
             type="button"
