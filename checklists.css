@@ -566,6 +566,157 @@
   gap: 10px;
 }
 
+
+/* ---- Weekday chips, start dates and the plain-English preview ---- */
+/* The sheet can hold a few more rows now, so it scrolls instead of running
+   off the bottom of a short screen. */
+.ck-sheet {
+  max-height: 88vh;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ck-week-field,
+.ck-custom-field {
+  background: var(--ck-white);
+  border: 1px solid var(--ck-line);
+  border-radius: 16px;
+  padding: 12px 12px 13px;
+  gap: 10px;
+}
+.ck-days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.ck-day {
+  border: 1px solid var(--ck-line);
+  background: var(--ck-cream);
+  color: var(--ck-coffee);
+  border-radius: 11px;
+  padding: 10px 0;
+  font-family: inherit;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+}
+.ck-day:active {
+  transform: scale(0.92);
+}
+.ck-day.is-on {
+  background: var(--ck-coffee);
+  color: var(--ck-white);
+  border-color: var(--ck-coffee);
+}
+.ck-hint {
+  margin: 0;
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--ck-coffee);
+  opacity: 0.75;
+}
+.ck-sub-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.ck-sub-field > span {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ck-coffee);
+}
+.ck-sub-field input[type='date'] {
+  border: 1px solid var(--ck-line);
+  background: var(--ck-cream);
+  border-radius: 10px;
+  padding: 9px 12px;
+  font-family: inherit;
+  font-size: 13.5px;
+  color: var(--ck-espresso);
+  min-width: 0;
+}
+.ck-sub-field input[type='date']:focus {
+  outline: none;
+  border-color: var(--ck-coffee);
+}
+/* The line that spells out when the list will next start fresh. */
+.ck-next-note {
+  margin: -4px 0 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--ck-coffee);
+  background: var(--ck-white);
+  border: 1px solid var(--ck-line);
+  border-radius: 999px;
+  padding: 7px 12px;
+  align-self: flex-start;
+}
+
+/* ---- A calmer, tidier tool ---- */
+.ck-list-card {
+  padding: 15px 16px;
+  border-radius: 20px;
+}
+.ck-list-name {
+  letter-spacing: -0.01em;
+}
+.ck-badge i,
+.ck-badge svg {
+  width: 12px;
+  height: 12px;
+}
+.ck-mini-progress {
+  height: 6px;
+}
+/* An untouched list has nothing to show on a bar, so it shows none. */
+.ck-list-card.is-empty .ck-mini-progress {
+  display: none;
+}
+.ck-tasks {
+  border-radius: 18px;
+}
+.ck-task {
+  padding: 13px 14px;
+}
+.ck-check {
+  width: 23px;
+  height: 23px;
+  border-radius: 8px;
+}
+/* The count sits in its own quiet card so the numbers stop floating. */
+.ck-progress-wrap {
+  background: var(--ck-white);
+  border: 1px solid var(--ck-line);
+  border-radius: 14px;
+  padding: 10px 12px;
+  margin: 14px 0 12px;
+}
+.ck-progress-bar {
+  height: 8px;
+}
+.ck-detail-meta {
+  display: inline-block;
+  margin-top: 6px;
+  padding: 4px 10px;
+  border: 1px solid var(--ck-line);
+  border-radius: 999px;
+  background: var(--ck-white);
+  font-size: 11.5px;
+  font-weight: 600;
+  opacity: 1;
+}
+.ck-add-btn {
+  border-radius: 18px;
+  padding: 13px;
+}
+.ck-add-task input {
+  padding: 13px 14px;
+}
+.ck-history-row {
+  border-radius: 12px;
+}
+
 [hidden] {
   display: none !important;
 }
