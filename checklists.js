@@ -63,7 +63,7 @@ function weeklyLabel(list, fallback) {
 }
 function weeklyShort(list) {
   var names = listDayNames(list, true);
-  if (!names.length) return weeklyShort(list);
+  if (!names.length) return 'Weekly';
   if (names.length === 7) return 'Daily';
   return names.join(' ');
 }
@@ -401,7 +401,7 @@ function updateNextNote() {
       case 'daily':
         return 'Daily';
       case 'weekly':
-        return 'Weekly';
+        return weeklyShort(list);
       case 'monthly':
         return 'Monthly';
       case 'never':
