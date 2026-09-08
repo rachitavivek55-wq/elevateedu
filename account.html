@@ -151,8 +151,31 @@
           el.textContent = text;
           el.className = bad ? 'note bad' : 'note';
         }
-        function headers() {
-          return { apikey: KEY, Authorization: 'Bearer ' + (ses ? ses.access_token : KEY) };
+        var freshToken = null;
+        async function accessToken() {
+          if (freshToken) return freshToken;
+          if (!ses) return null;
+          var tok = ses.access_token;
+          var exp = (ses.expires_at || 0) * 1000;
+          if (exp && exp < Date.now() + 60000 && ses.refresh_token) {
+            try {
+              var r = await fetch(SB + '/auth/v1/token?grant_type=refresh_token', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', apikey: KEY },
+                body: JSON.stringify({ refresh_token: ses.refresh_token })
+              });
+              if (r.ok) {
+                var j = await r.json();
+                if (j && j.access_token) tok = j.access_token;
+              }
+            } catch (e) {}
+          }
+          freshToken = tok;
+          return tok;
+        }
+        async function headers() {
+          var t = await accessToken();
+          return { apikey: KEY, Authorization: 'Bearer ' + (t || KEY) };
         }
         function localData() {
           var out = {};
@@ -186,7 +209,7 @@
           if (ses) {
             try {
               var r = await fetch(SB + '/rest/v1/user_data?select=data_key,data,updated_at', {
-                headers: headers()
+                headers: await headers()
               });
               if (r.ok) bundle.saved = await r.json();
             } catch (e) {}
@@ -229,7 +252,7 @@
             try {
               var r = await fetch(SB + '/rest/v1/user_data?data_key=not.is.null', {
                 method: 'DELETE',
-                headers: Object.assign({ Prefer: 'return=minimal' }, headers())
+                headers: Object.assign({ Prefer: 'return=minimal' }, await headers())
               });
               cloudGone = r.ok;
             } catch (e) {}
