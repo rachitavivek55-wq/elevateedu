@@ -26,17 +26,142 @@
   }
   var DAY_MS = 86400000;
 
+/* ---------- Weekday + cycle helpers ---------- */
+/* Weekly lists can start over on days the student picks, and custom cycles
+   count from a chosen date, so 'every 2 weeks from the 3rd' behaves. */
+var DAY_FULL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+var DAY_SHORT = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+var DAY_MINI = ['S','M','T','W','T','F','S'];
+function normDays(list) {
+  if (!list || !Array.isArray(list.days)) return [];
+  return list.days.filter(function (d) {
+    return typeof d === 'number' && d >= 0 && d <= 6;
+  });
+}
+function isoDay(ts) {
+  var d = new Date(ts);
+  var m = d.getMonth() + 1;
+  var dd = d.getDate();
+  return d.getFullYear() + '-' + (m < 10 ? '0' : '') + m + '-' + (dd < 10 ? '0' : '') + dd;
+}
+function fmtShort(ts) {
+  var d = new Date(ts);
+  var mm = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return mm[d.getMonth()] + ' ' + d.getDate();
+}
+function listDayNames(list, mini) {
+  return normDays(list)
+    .slice()
+    .sort(function (a, b) { return ((a + 6) % 7) - ((b + 6) % 7); })
+    .map(function (d) { return mini ? DAY_MINI[d] : DAY_SHORT[d]; });
+}
+function weeklyLabel(list, fallback) {
+  var names = listDayNames(list, false);
+  if (!names.length) return fallback;
+  if (names.length === 7) return 'Starts over every day';
+  return 'Starts over every ' + names.join(', ');
+}
+function weeklyShort(list) {
+  var names = listDayNames(list, true);
+  if (!names.length) return weeklyShort(list);
+  if (names.length === 7) return 'Daily';
+  return names.join(' ');
+}
+function anchorSuffix(list) {
+  return list.anchor ? ' from ' + fmtShort(list.anchor) : '';
+}
+// When the next fresh start lands, so a list can say so out loud.
+function nextReset(list, ts) {
+  if (!list || list.reset === 'never') return null;
+  var cur = cycleStart(list, ts);
+  if (list.reset === 'daily') return startOfDay(ts) + DAY_MS;
+  if (list.reset === 'weekly') {
+    var days = normDays(list);
+    if (!days.length) return startOfWeek(ts) + 7 * DAY_MS;
+    var t = startOfDay(ts);
+    for (var i = 1; i <= 7; i++) {
+      var c = t + i * DAY_MS;
+      if (days.indexOf(new Date(c).getDay()) >= 0) return c;
+    }
+    return startOfWeek(ts) + 7 * DAY_MS;
+  }
+  if (list.reset === 'monthly') {
+    var m = new Date(cur);
+    return new Date(m.getFullYear(), m.getMonth() + 1, 1).getTime();
+  }
+  if (list.reset === 'custom') {
+    var n = Math.max(1, list.customNum || 1);
+    var u = list.customUnit || 'days';
+    if (list.anchor && startOfDay(ts) < startOfDay(list.anchor))
+      return startOfDay(list.anchor);
+    if (u === 'days') return cur + n * DAY_MS;
+    if (u === 'weeks') return cur + n * 7 * DAY_MS;
+    var mo = new Date(cur);
+    return new Date(mo.getFullYear(), mo.getMonth() + n, 1).getTime();
+  }
+  return null;
+}
+function metaText(list) {
+  var nr = nextReset(list, now());
+  if (!nr) return resetLabel(list);
+  return resetLabel(list) + ' \u00b7 next ' + fmtShort(nr);
+}
+// Paints the chips and the plain-English line under the reset choices.
+function renderDays() {
+  if (!el.ckDays) return;
+  Array.prototype.forEach.call(el.ckDays.children, function (b) {
+    var d = parseInt(b.getAttribute('data-day'), 10);
+    b.classList.toggle('is-on', sheetDays.indexOf(d) >= 0);
+  });
+}
+function updateNextNote() {
+  if (!el.ckNextNote) return;
+  var preview = {
+    reset: sheetReset,
+    days: sheetDays.slice(),
+    customNum: Math.max(1, Math.min(365, parseInt(el.ckCustomNum.value, 10) || 1)),
+    customUnit: el.ckCustomUnit.value,
+    anchor: el.ckCustomStart.value
+      ? startOfDay(new Date(el.ckCustomStart.value + 'T00:00:00').getTime())
+      : startOfDay(now()),
+    created: now(),
+  };
+  var nr = nextReset(preview, now());
+  if (!nr) {
+    el.ckNextNote.hidden = true;
+    el.ckNextNote.textContent = '';
+    return;
+  }
+  var gap = Math.round((startOfDay(nr) - startOfDay(now())) / DAY_MS);
+  var when = gap <= 0 ? 'today' : gap === 1 ? 'tomorrow' : fmtShort(nr);
+  el.ckNextNote.hidden = false;
+  el.ckNextNote.textContent =
+    'Starts fresh ' + when + (gap > 1 ? ' \u00b7 in ' + gap + ' days' : '');
+}
+
+
   // Returns the timestamp of the current cycle's start for a given list.
   function cycleStart(list, ts) {
     var reset = list.reset;
     if (reset === 'never') return list.created || 0;
     if (reset === 'daily') return startOfDay(ts);
-    if (reset === 'weekly') return startOfWeek(ts);
+    if (reset === 'weekly') {
+    var wdays = normDays(list);
+    if (!wdays.length) return startOfWeek(ts);
+    var wt = startOfDay(ts);
+    for (var wi = 0; wi < 7; wi++) {
+      var wc = wt - wi * DAY_MS;
+      if (wdays.indexOf(new Date(wc).getDay()) >= 0) return wc;
+    }
+    return startOfWeek(ts);
+  }
     if (reset === 'monthly') return startOfMonth(ts);
     if (reset === 'custom') {
       var num = Math.max(1, list.customNum || 1);
       var unit = list.customUnit || 'days';
       var anchor = list.anchor || startOfDay(list.created || ts);
+      /* A start date in the future means the routine has not begun yet. */
+      if (startOfDay(ts) < startOfDay(anchor)) return startOfDay(anchor);
       if (unit === 'days') {
         var periods = Math.floor(
           (startOfDay(ts) - startOfDay(anchor)) / (DAY_MS * num)
@@ -66,7 +191,7 @@
       case 'daily':
         return 'Resets daily';
       case 'weekly':
-        return 'Resets weekly';
+        return weeklyLabel(list, 'Resets weekly');
       case 'monthly':
         return 'Resets monthly';
       case 'never':
@@ -75,7 +200,7 @@
         var n = list.customNum || 1;
         var u = list.customUnit || 'days';
         var uu = n === 1 ? u.replace(/s$/, '') : u;
-        return 'Resets every ' + n + ' ' + uu;
+        return 'Resets every ' + n + ' ' + uu + anchorSuffix(list);
       default:
         return '';
     }
@@ -206,6 +331,10 @@
     'ckCustomField',
     'ckCustomNum',
     'ckCustomUnit',
+  'ckCustomStart',
+  'ckWeekField',
+  'ckDays',
+  'ckNextNote',
     'ckDeleteBtn',
     'ckCancelBtn',
     'ckSaveBtn',
@@ -242,7 +371,7 @@
       var c = counts(list);
       var pct = c.total ? Math.round((c.done / c.total) * 100) : 0;
       var card = document.createElement('div');
-      card.className = 'ck-list-card';
+      card.className = 'ck-list-card' + (c.total === 0 ? ' is-empty' : '');
       card.setAttribute('data-id', list.id);
       card.innerHTML =
         '<div class="ck-list-card-top">' +
@@ -294,7 +423,7 @@
     }
     el.ckDetailTitle.textContent = list.name;
     el.ckDetailMeta.textContent =
-      resetLabel(list) + ' · ' + cycleLabel(list, now());
+      metaText(list);
     var c = counts(list);
     var pct = c.total ? Math.round((c.done / c.total) * 100) : 0;
     el.ckProgressFill.style.width = pct + '%';
@@ -377,6 +506,7 @@
   /* ---------- Sheet (create / edit) ---------- */
   var sheetMode = 'create';
   var sheetReset = 'daily';
+var sheetDays = [];
 
   function setSheetReset(val) {
     sheetReset = val;
@@ -384,6 +514,9 @@
       b.classList.toggle('is-active', b.getAttribute('data-reset') === val);
     });
     el.ckCustomField.hidden = val !== 'custom';
+  el.ckWeekField.hidden = val !== 'weekly';
+  renderDays();
+  updateNextNote();
   }
 
   function openSheet(mode) {
@@ -393,8 +526,10 @@
     if (mode === 'create') {
       el.ckSheetTitle.textContent = 'New checklist';
       el.ckNameInput.value = '';
-      el.ckCustomNum.value = '3';
-      el.ckCustomUnit.value = 'days';
+      el.ckCustomNum.value = '2';
+    sheetDays = [];
+    el.ckCustomStart.value = isoDay(now());
+      el.ckCustomUnit.value = 'weeks';
       setSheetReset('daily');
       el.ckDeleteBtn.hidden = true;
     } else {
@@ -405,8 +540,10 @@
       }
       el.ckSheetTitle.textContent = 'Edit checklist';
       el.ckNameInput.value = list.name;
-      el.ckCustomNum.value = list.customNum || 3;
-      el.ckCustomUnit.value = list.customUnit || 'days';
+      el.ckCustomNum.value = list.customNum || 2;
+    sheetDays = normDays(list).slice();
+    el.ckCustomStart.value = isoDay(list.anchor || list.created || now());
+      el.ckCustomUnit.value = list.customUnit || 'weeks';
       setSheetReset(list.reset);
       el.ckDeleteBtn.hidden = false;
     }
@@ -431,6 +568,13 @@
       Math.min(365, parseInt(el.ckCustomNum.value, 10) || 1)
     );
     var customUnit = el.ckCustomUnit.value;
+  var startVal = el.ckCustomStart.value;
+  var anchorTs = startVal
+    ? startOfDay(new Date(startVal + 'T00:00:00').getTime())
+    : startOfDay(now());
+  var pickedDays = sheetDays.slice().sort(function (a, b) {
+    return ((a + 6) % 7) - ((b + 6) % 7);
+  });
     if (sheetMode === 'create') {
       var list = {
         id: uid(),
@@ -439,7 +583,8 @@
         customNum: customNum,
         customUnit: customUnit,
         created: now(),
-        anchor: startOfDay(now()),
+        anchor: anchorTs,
+      days: pickedDays,
         lastReset: null,
         tasks: [],
         history: [],
@@ -456,7 +601,9 @@
         l.reset = sheetReset;
         l.customNum = customNum;
         l.customUnit = customUnit;
-        if (sheetReset === 'custom' && !l.anchor) l.anchor = startOfDay(now());
+      l.days = pickedDays;
+      l.anchor = anchorTs;
+        
         l.lastReset = cycleStart(l, now());
         save();
       }
@@ -490,6 +637,31 @@
   el.ckCancelBtn.addEventListener('click', closeSheet);
   el.ckSheetBackdrop.addEventListener('click', closeSheet);
   el.ckSaveBtn.addEventListener('click', saveSheet);
+
+/* The weekday chips are built once, Monday first, and toggle on tap. */
+(function buildDayChips() {
+  var order = [1, 2, 3, 4, 5, 6, 0];
+  order.forEach(function (d) {
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'ck-day';
+    b.setAttribute('data-day', d);
+    b.setAttribute('aria-label', DAY_FULL[d]);
+    b.title = DAY_FULL[d];
+    b.textContent = DAY_MINI[d];
+    b.addEventListener('click', function () {
+      var i = sheetDays.indexOf(d);
+      if (i >= 0) sheetDays.splice(i, 1);
+      else sheetDays.push(d);
+      renderDays();
+      updateNextNote();
+    });
+    el.ckDays.appendChild(b);
+  });
+})();
+el.ckCustomNum.addEventListener('input', updateNextNote);
+el.ckCustomUnit.addEventListener('change', updateNextNote);
+el.ckCustomStart.addEventListener('change', updateNextNote);
 
   Array.prototype.forEach.call(el.ckResetOpts.children, function (b) {
     b.addEventListener('click', function () {
