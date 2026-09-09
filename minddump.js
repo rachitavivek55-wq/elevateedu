@@ -286,8 +286,15 @@
       clear();
       return;
     }
+    var h = Math.round(vv.height);
+    // A backgrounded tab can report no size at all. Leave the panel alone
+    // rather than collapsing it to nothing.
+    if (!h || h < 160) {
+      clear();
+      return;
+    }
     panel.style.top = Math.max(0, Math.round(vv.offsetTop)) + 'px';
-    panel.style.height = Math.round(vv.height) + 'px';
+    panel.style.height = h + 'px';
     panel.style.bottom = 'auto';
   }
 
@@ -303,6 +310,9 @@
   }
   window.addEventListener('orientationchange', function () {
     setTimeout(fit, 250);
+  });
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) setTimeout(fit, 60);
   });
   fit();
 })();
