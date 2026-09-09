@@ -69,7 +69,15 @@
             <span class="mt-quick-name" id="mtDefaultName">Meditation</span>
             <span class="mt-quick-tag">Default</span>
           </div>
-          <div class="mt-quick-time" id="mtDefaultTime">10:00</div>
+          <input
+            class="mt-quick-time"
+            id="mtDefaultTime"
+            type="text"
+            inputmode="numeric"
+            maxlength="6"
+            value="10:00"
+            aria-label="Default length in minutes and seconds"
+          />
           <div class="mt-quick-steps">
             <div class="mt-step-group">
               <button
@@ -236,7 +244,15 @@
               >
                 <i data-lucide="chevron-up"></i>
               </button>
-              <div class="mt-len-num"><span id="mtLenMin">10</span></div>
+              <input
+                class="mt-len-num"
+                id="mtLenMin"
+                type="text"
+                inputmode="numeric"
+                maxlength="3"
+                value="10"
+                aria-label="Minutes"
+              />
               <button
                 class="mt-step"
                 id="mtLenMinDown"
@@ -257,7 +273,15 @@
               >
                 <i data-lucide="chevron-up"></i>
               </button>
-              <div class="mt-len-num"><span id="mtLenSec">00</span></div>
+              <input
+                class="mt-len-num"
+                id="mtLenSec"
+                type="text"
+                inputmode="numeric"
+                maxlength="2"
+                value="00"
+                aria-label="Seconds"
+              />
               <button
                 class="mt-step"
                 id="mtLenSecDown"
@@ -269,6 +293,7 @@
               <span class="mt-len-cap">sec</span>
             </div>
           </div>
+          <p class="mt-len-hint">Tap a number to type it in.</p>
           <div class="mt-chip-row" id="mtChipRow">
             <button class="mt-chip" type="button" data-sec="300">5:00</button>
             <button class="mt-chip" type="button" data-sec="600">10:00</button>
