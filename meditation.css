@@ -772,11 +772,13 @@ input.mt-quick-time {
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 input.mt-len-num {
+  font-size: 34px !important;
   width: 74px;
   min-width: 0;
   color: var(--mt-espresso);
 }
 input.mt-quick-time {
+  font-size: 46px !important;
   display: block;
   width: 100%;
 }
