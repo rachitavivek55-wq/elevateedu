@@ -265,3 +265,44 @@
     icons();
   });
 })();
+
+/* The on-screen keyboard shrinks the visible area on phones, which used to
+   push the title row and the Save button off the top or bottom of the
+   writing screen. Match the panel to whatever is actually visible. */
+(function () {
+  var panel = document.getElementById('mdWrite');
+  if (!panel) return;
+  var vv = window.visualViewport;
+  var full = window.matchMedia('(max-width: 480px), (display-mode: standalone)');
+
+  function clear() {
+    panel.style.top = '';
+    panel.style.height = '';
+    panel.style.bottom = '';
+  }
+
+  function fit() {
+    if (!vv || panel.hidden || !full.matches) {
+      clear();
+      return;
+    }
+    panel.style.top = Math.max(0, Math.round(vv.offsetTop)) + 'px';
+    panel.style.height = Math.round(vv.height) + 'px';
+    panel.style.bottom = 'auto';
+  }
+
+  if (vv) {
+    vv.addEventListener('resize', fit);
+    vv.addEventListener('scroll', fit);
+  }
+  if (window.MutationObserver) {
+    new MutationObserver(fit).observe(panel, {
+      attributes: true,
+      attributeFilter: ['hidden'],
+    });
+  }
+  window.addEventListener('orientationchange', function () {
+    setTimeout(fit, 250);
+  });
+  fit();
+})();
