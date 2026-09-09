@@ -262,12 +262,14 @@
     timer.running = true;
     timer.endAt = Date.now() + timer.left * 1000;
     unlockAudio();
+    keepAwake();
     setToggleIcon();
     timer.intervalId = setInterval(tick, 250);
   }
   function pauseTimer() {
     timer.running = false;
     timer.endAt = 0;
+    letSleep();
     if (timer.intervalId) {
       clearInterval(timer.intervalId);
       timer.intervalId = null;
@@ -505,6 +507,34 @@
     }
   }
 
+  var wakeLock = null;
+  
+  // Hold the screen awake while a session is running, so the phone does not
+  // lock itself and silence the chime.
+  function keepAwake() {
+    if (wakeLock || document.hidden) return;
+    if (!navigator.wakeLock || !navigator.wakeLock.request) return;
+    try {
+      navigator.wakeLock
+        .request('screen')
+        .then(function (lock) {
+          wakeLock = lock;
+          lock.addEventListener('release', function () {
+            wakeLock = null;
+          });
+        })
+        .catch(function () {});
+    } catch (e) {}
+  }
+  
+  function letSleep() {
+    if (!wakeLock) return;
+    try {
+      wakeLock.release();
+    } catch (e) {}
+    wakeLock = null;
+  }
+  
   var confirmCb = null;
   function confirmAsk(msg, cb) {
     confirmCb = cb;
@@ -579,6 +609,7 @@
       if (document.hidden) return;
       if (timer.running) {
         ensureCtx();
+        keepAwake();
         tick();
       }
     });
