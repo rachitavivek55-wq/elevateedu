@@ -586,10 +586,10 @@
       bumpSheetMin(1);
     });
     $('mtLenSecDown').addEventListener('click', function () {
-      bumpSheetSec(-5);
+      bumpSheetSec(-1);
     });
     $('mtLenSecUp').addEventListener('click', function () {
-      bumpSheetSec(5);
+      bumpSheetSec(1);
     });
     document.querySelectorAll('#mtChipRow .mt-chip').forEach(function (c) {
       c.addEventListener('click', function () {
