@@ -76,7 +76,7 @@
   }
 
   function renderDefault() {
-    $('mtDefaultTime').textContent = fmt(state.defaultSec);
+    $('mtDefaultTime').value = fmt(state.defaultSec);
   }
   function bumpDefault(deltaSec) {
     state.defaultSec = clampSec(state.defaultSec + deltaSec);
@@ -125,8 +125,8 @@
   function syncSheetLen() {
     var mm = Math.floor(sheetSec / 60);
     var ss = sheetSec % 60;
-    $('mtLenMin').textContent = mm;
-    $('mtLenSec').textContent = ss < 10 ? '0' + ss : ss;
+    $('mtLenMin').value = String(mm);
+    $('mtLenSec').value = ss < 10 ? '0' + ss : String(ss);
     var chips = document.querySelectorAll('#mtChipRow .mt-chip');
     chips.forEach(function (c) {
       c.classList.toggle(
@@ -144,6 +144,67 @@
     if (v < 5) v = 5;
     sheetSec = clampSec(v);
     syncSheetLen();
+  }
+  // Typed entry: hold the boxes to digits while typing, then read them
+  // back when the field loses focus or the user presses enter.
+  function digitsOnly(el, max) {
+    var v = (el.value || '').replace(/[^0-9]/g, '');
+    if (v.length > max) v = v.slice(0, max);
+    if (el.value !== v) el.value = v;
+  }
+  function commitSheetLen() {
+    var mm = parseInt($('mtLenMin').value, 10);
+    var ss = parseInt($('mtLenSec').value, 10);
+    if (isNaN(mm) || mm < 0) mm = 0;
+    if (isNaN(ss) || ss < 0) ss = 0;
+    sheetSec = clampSec(mm * 60 + ss);
+    syncSheetLen();
+  }
+  // '7' means seven minutes, '7:30' means seven and a half.
+  function parseClock(text) {
+    var s = String(text == null ? '' : text).trim();
+    if (!s) return null;
+    var parts = s.split(':');
+    if (parts.length > 1) {
+      var m = parseInt(parts[0].replace(/[^0-9]/g, ''), 10);
+      var sec = parseInt(parts[1].replace(/[^0-9]/g, ''), 10);
+      if (isNaN(m)) m = 0;
+      if (isNaN(sec)) sec = 0;
+      return m * 60 + sec;
+    }
+    var n = parseInt(s.replace(/[^0-9]/g, ''), 10);
+    if (isNaN(n)) return null;
+    return n * 60;
+  }
+  function commitDefaultTime() {
+    var v = parseClock($('mtDefaultTime').value);
+    if (v !== null) {
+      state.defaultSec = clampSec(v);
+      save();
+    }
+    renderDefault();
+  }
+  function typeable(el, onCommit, max) {
+    if (!el) return;
+    el.addEventListener('focus', function () {
+      setTimeout(function () {
+        try {
+          el.select();
+        } catch (e) {}
+      }, 0);
+    });
+    if (max) {
+      el.addEventListener('input', function () {
+        digitsOnly(el, max);
+      });
+    }
+    el.addEventListener('blur', onCommit);
+    el.addEventListener('keydown', function (e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        el.blur();
+      }
+    });
   }
   function openNew() {
     sheetMode = 'new';
@@ -591,6 +652,9 @@
     $('mtLenSecUp').addEventListener('click', function () {
       bumpSheetSec(1);
     });
+    typeable($('mtLenMin'), commitSheetLen, 3);
+    typeable($('mtLenSec'), commitSheetLen, 2);
+    typeable($('mtDefaultTime'), commitDefaultTime, 0);
     document.querySelectorAll('#mtChipRow .mt-chip').forEach(function (c) {
       c.addEventListener('click', function () {
         sheetSec = clampSec(parseInt(c.getAttribute('data-sec'), 10));
