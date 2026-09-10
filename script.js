@@ -1181,14 +1181,14 @@ window.eeDeleteAccount = async function(){
     var IOSNOTE = 'iPhone keeps a home screen app and Safari separate, so sign in once inside the new icon: type your email, then press and hold the link in the email, copy it, and paste it into the app. That sign-in sticks, and everything you saved is already waiting.';
     if (ios && !safari) {
       return OL
-        + '<li>Home screen apps can only be added from <b>Safari</b> on iPhone and iPad.</li>'
-        + '<li>Tap the <b>share</b> or <b>&#8943;</b> icon in this browser and choose <b>Open in Safari</b>.</li>'
-        + '<li>In Safari, tap <b>Share</b> (the square with an arrow going up), scroll down, tap <b>Add to Home Screen</b>, then <b>Add</b>.</li>'
+        + '<li>Look for the <b>Share</b> button in your browser - the square with an arrow pointing up.</li>'
+        + '<li>Tap it, scroll down the list, and tap <b>Add to Home Screen</b> - some phones call it <b>Add as Web App</b>.</li>'
+        + '<li>Tap <b>Add</b> to confirm, then open the new <b>ElevateEdu</b> icon on your home screen.</li>'
         + '</ol>' + tip(IOSNOTE);
     }
     if (ios) {
       return OL
-        + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
+        + '<li>Tap the <b>Share</b> button in your browser, usually at the bottom - the square with an arrow pointing up.</li>'
         + '<li>Scroll down the grey list and tap <b>Add to Home Screen</b>.</li>'
         + '<li>Tap <b>Add</b> in the top right corner.</li>'
         + '<li>Open the new <b>ElevateEdu</b> icon, then tap <b>Paste from clipboard</b> to finish signing in.</li>'
@@ -1349,9 +1349,9 @@ window.showInstallFirstGuide = function (email) {
     }
     if (isIOS) {
       return OL
-        + '<li>Tap the <b>Share</b> button at the bottom of Safari - the square with an arrow pointing up.</li>'
+        + '<li>Tap the <b>Share</b> button in your browser, usually at the bottom - the square with an arrow pointing up.</li>'
         + '<li>Scroll down, tap <b>Add to Home Screen</b>, then tap <b>Add</b>.</li>'
-        + '<li>Close Safari and open the new <b>ElevateEdu</b> icon on your home screen.</li>'
+        + '<li>Close your browser and open the new <b>ElevateEdu</b> icon on your home screen.</li>'
         + '<li>In the app, type your email and tap send. Then open your email, <b>press and hold</b> the sign-in link, choose <b>Copy Link</b>, and paste it into the box in the app.</li>'
         + '</ol>'
         + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so the sign-in has to happen <b>inside the app</b> to stick. Tapping the link opens Safari, which is why you copy it and paste it in instead. You only ever do this once.</div>';
@@ -1400,7 +1400,7 @@ window.showInstallFirstGuide = function (email) {
       window.__eeDeferredInstall.prompt();
       window.__eeDeferredInstall.userChoice.then(function () { window.__eeDeferredInstall = null; });
     } else if (isIOS) {
-      alert("On iPhone/iPad:\n\n1. Tap the Share button at the bottom of Safari.\n2. Scroll down and tap Add to Home Screen.\n3. Tap Add, then open ElevateEdu from your home screen and tap your email sign-in link there.");
+      alert("On iPhone/iPad:\n\n1. Tap the Share button in your browser, usually at the bottom.\n2. Scroll down and tap Add to Home Screen.\n3. Tap Add, then open ElevateEdu from your home screen and tap your email sign-in link there.");
     } else {
       alert("Use your browser menu and choose Install app / Add to Home Screen, then open ElevateEdu and tap your email sign-in link inside the app.");
     }
