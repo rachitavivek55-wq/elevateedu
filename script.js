@@ -248,15 +248,13 @@ var elevateAuth = (function () {
     if (ios || ipadDesktopMode) {
       /* The icon is drawn inline because people find the button on their own
          toolbar much faster from the picture than from a description. */
-      return ['Make sure this page is open in Safari',
-              'Tap the Share button at the bottom of the screen: <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin:0 1px;"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M20 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5"/></svg>',
-              'Scroll down the list to find "Add to Home Screen" - some iPhones call it "Add as Web App" - and tap it',
+      return ['Look for the Share button in your browser, usually at the bottom of the screen: <svg viewBox="0 0 24 24" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin:0 1px;"><path d="M12 15V3"/><path d="M8 7l4-4 4 4"/><path d="M20 14v5a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2v-5"/></svg>',
+              'Scroll down the list to find "Add to Home Screen" - some phones call it "Add as Web App" - and tap it',
               'Tap "Add" in the top corner to confirm',
               'Open ElevateEdu from your home screen'];
     }
     if (/android/i.test(ua)) {
-      return ['Make sure this page is open in Chrome',
-              'Tap the three dots at the top right: <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-2px;margin:0 1px;"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg>',
+      return ['Look for the menu button in your browser, usually three dots at the top right: <svg viewBox="0 0 24 24" width="13" height="13" fill="currentColor" style="vertical-align:-2px;margin:0 1px;"><circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/><circle cx="12" cy="19" r="1.9"/></svg>',
               'Tap "Install app" or "Add to Home screen"',
               'Open ElevateEdu from your home screen'];
     }
@@ -271,10 +269,12 @@ var elevateAuth = (function () {
     var steps = installSteps();
     var box = document.createElement('div');
     box.id = 'eeInstallCard';
-    box.style.cssText = 'background:rgba(255,255,255,.55);border:1px solid rgba(111,78,55,.18);'
+    box.style.cssText = 'background:rgba(255,255,255,.72);border:1.5px solid rgba(163,59,31,.32);'
       + 'border-radius:18px;padding:13px 15px;margin-bottom:16px;text-align:left;';
     var html = '<div style="font-size:12.5px;font-weight:700;color:#4b3832;margin-bottom:7px;">'
-      + 'First, add ElevateEdu to your home screen</div>'
+      + 'Important &mdash; add ElevateEdu to your home screen first</div>'
+      + '<div style="font-size:11px;line-height:1.5;color:#a33b1f;font-weight:700;margin-bottom:8px;">'
+      + 'Please do not skip this step. Do it before you sign in.</div>'
       + '<ol style="margin:0;padding-left:17px;font-size:11.5px;line-height:1.65;color:#6f4e37;">';
     for (var i = 0; i < steps.length; i++) html += '<li>' + steps[i] + '</li>';
     html += '</ol><div style="font-size:10.5px;line-height:1.5;color:#6f4e37;opacity:.75;'
@@ -425,14 +425,14 @@ var elevateAuth = (function () {
     var steps;
     if (android) {
       steps = [
-        ['Tap the menu button', 'The three dots ' + dots + ' at the top right of Chrome.'],
+        ['Tap the menu button', 'The three dots ' + dots + ' at the top right of your browser.'],
         ['Scroll down a little', 'Find <b>Install app</b> or <b>Add to Home screen</b>.'],
         ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
       ];
     } else if (ios) {
       steps = [
-        ['Tap the Share button', 'The square with an arrow coming out of it ' + share + ' at the bottom of Safari.'],
-        ['Scroll down a little', 'Find <b>Add to Home Screen</b> &mdash; some iPhones call it <b>Add as Web App</b>.'],
+        ['Tap the Share button', 'The square with an arrow coming out of it ' + share + ' in your browser, usually at the bottom of the screen.'],
+        ['Scroll down a little', 'Find <b>Add to Home Screen</b> &mdash; some phones call it <b>Add as Web App</b>.'],
         ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
       ];
     } else {
@@ -447,9 +447,9 @@ var elevateAuth = (function () {
     back.className = 'ee-ig-back';
     var html =
       '<div class="ee-ig-card" role="dialog" aria-label="Add ElevateEdu to your home screen">' +
-      '<h3>You are in &mdash; one last thing</h3>' +
-      '<p class="ee-ig-sub">Add ElevateEdu to your home screen so it opens like a real app, ' +
-      'full screen and without the browser bars.</p>';
+      '<h3>One last thing &mdash; please do not skip it</h3>' +
+      '<p class="ee-ig-sub"><b>This step is important.</b> Add ElevateEdu to your home ' +
+      'screen so it opens like a real app, full screen and without the browser bars.</p>';
     for (var i = 0; i < steps.length; i++) {
       html +=
         '<div class="ee-ig-step"><div class="ee-ig-num">' +
@@ -1105,7 +1105,7 @@ window.eeDeleteAccount = async function(){
     b.firstChild.textContent = '\u2193 Add to Home Screen';
     b.addEventListener('click', function(){
       if (window.__eeShowA2HS) { return window.__eeShowA2HS(); }
-      alert('To install ElevateEdu:\n\n1. Tap the Share button in Safari.\n2. Choose Add to Home Screen.\n3. Tap Add.');
+      alert('To install ElevateEdu:\n\n1. Tap the Share button in your browser.\n2. Choose Add to Home Screen.\n3. Tap Add.');
     });
   }
 
