@@ -1771,6 +1771,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<b>Add to home screen</b><i>Keep ElevateEdu one tap away, like a normal app.</i></div>' +
           '<button class="eeSetBtn" id="eeSetInstall" type="button">Show me</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Send feedback</b><i>Something broken, confusing or missing? Tell me - it goes straight to the person who built this.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetSay" type="button">Open</button></div>' +
+          '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
           '<button class="eeSetBtn" id="eeSetOut" type="button">Log out</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
@@ -1784,12 +1787,15 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<button class="eeSetBtn ee-danger" id="eeSetGo" type="button">Yes, do it</button> ' +
           '<button class="eeSetBtn" id="eeSetNo" type="button">Never mind</button></div>' +
         '<p id="eeSetFoot">ElevateEdu - free forever, no ads<br>' +
-          '<a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></p>' +
+          '<a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></p>' +
       '</div>';
     document.body.appendChild(o);
 
     o.addEventListener('click', function (ev) { if (ev.target === o) closeSheet(); });
     document.getElementById('eeSetClose').addEventListener('click', closeSheet);
+    document.getElementById('eeSetSay').addEventListener('click', function () {
+      location.href = 'about.html';
+    });
     document.getElementById('eeSetNo').addEventListener('click', function () {
       pending = null;
       document.getElementById('eeSetConfirm').style.display = 'none';
@@ -1907,4 +1913,60 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', clean);
   else clean();
+})();
+
+/* =============================================================
+   Usage ping
+   A single row per student, rewritten at most once a day, so we can
+   answer "how many people actually use this?" without bolting a
+   tracker onto the app. It stores nothing beyond a first date, a last
+   date and a day count, under the account id that already owns every
+   other row. If it fails for any reason it stays quiet.
+   ============================================================= */
+(function () {
+  var STAMP = 'ee_usage_pinged';
+  var LOCAL = 'ee_usage_stats';
+  function today() {
+    return new Date().toISOString().slice(0, 10);
+  }
+  async function ping() {
+    try {
+      if (localStorage.getItem(STAMP) === today()) return;
+      if (typeof supabase === 'undefined' || !supabase.createClient) return;
+      var c =
+        window.__eeSB ||
+        supabase.createClient(
+          'https://vkpmasigkotdmfkmjqoy.supabase.co',
+          'sb_publishable_Il0sbz8SOahZGLORSiYlLg_bbb5jOIi'
+        );
+      var got = await c.auth.getSession();
+      var user =
+        got && got.data && got.data.session && got.data.session.user;
+      if (!user) return;
+      var prev = {};
+      try {
+        prev = JSON.parse(localStorage.getItem(LOCAL) || '{}') || {};
+      } catch (e) {}
+      var stats = {
+        firstSeen: prev.firstSeen || today(),
+        lastSeen: today(),
+        days: (prev.days || 0) + 1,
+      };
+      var res = await c.from('user_data').upsert(
+        { user_id: user.id, data_key: 'usage_stats', data_value: stats },
+        { onConflict: 'user_id,data_key' }
+      );
+      if (res && res.error) return;
+      localStorage.setItem(LOCAL, JSON.stringify(stats));
+      localStorage.setItem(STAMP, today());
+    } catch (e) {}
+  }
+  function later() {
+    setTimeout(ping, 4000);
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', later);
+  } else {
+    later();
+  }
 })();
