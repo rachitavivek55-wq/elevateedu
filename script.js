@@ -400,14 +400,15 @@ var elevateAuth = (function () {
      first-time visitor has no reason to trust the app enough to install it,
      and the sign-in screen stays clean. Shown once, and never inside an app
      that is already installed. */
-  function installGuide() {
+  window.__eeShowInstallGuide = function (force) { try { installGuide(force); } catch (e) {} };
+  function installGuide(force) {
     var pn = location.pathname || '';
-    if (!/index\.html$/i.test(pn) && !/\/$/.test(pn)) return;
-    if (isStandalone()) return;
+    if (!force && !/index\.html$/i.test(pn) && !/\/$/.test(pn)) return;
+    if (!force && isStandalone()) return;
     if (document.getElementById('eeInstallGuide')) return;
     var seen = '';
     try { seen = localStorage.getItem('ee_install_guide') || ''; } catch (e) {}
-    if (seen === '1') return;
+    if (!force && seen === '1') return;
     var ua = navigator.userAgent || '';
     var android = /android/i.test(ua);
     var ios =
@@ -1163,7 +1164,9 @@ window.eeDeleteAccount = async function(){
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   }
   function alreadyDone(){
-    return installed() || localStorage.getItem('ee_a2hs_done') === '1';
+    var guideSeen = '';
+    try { guideSeen = localStorage.getItem('ee_install_guide') || ''; } catch (e) {}
+    return installed() || guideSeen === '1' || localStorage.getItem('ee_a2hs_done') === '1';
   }
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   var isAndroid = /android/i.test(navigator.userAgent);
@@ -1230,6 +1233,7 @@ window.eeDeleteAccount = async function(){
   }
   function showCard(){
     if (document.getElementById('eeA2HS')) return;
+    if (document.getElementById('eeInstallGuide')) return;
     var ov = document.createElement('div');
     ov.id = 'eeA2HS';
     ov.style.cssText = 'position:fixed;inset:0;z-index:10000;display:flex;align-items:flex-end;justify-content:center;background:rgba(0,0,0,0.35);padding:16px;';
@@ -1805,6 +1809,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
     document.getElementById('eeSetDel').addEventListener('click', function () { askFor('gone'); });
     document.getElementById('eeSetInstall').addEventListener('click', function () {
       closeSheet();
+      try {
+        if (window.__eeShowInstallGuide) { window.__eeShowInstallGuide(true); return; }
+      } catch (e) {}
       try { if (window.__eeShowA2HS) window.__eeShowA2HS(); } catch (e) {}
     });
     document.getElementById('eeSetGo').addEventListener('click', function () {
@@ -1831,7 +1838,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
     document.getElementById('eeSetConfirm').style.display = 'none';
     pending = null;
     var row = document.getElementById('eeSetInstallRow');
-    if (row) row.style.display = window.__eeShowA2HS ? 'flex' : 'none';
+    var inApp = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    if (row) row.style.display = inApp ? 'none' : 'flex';
     o.classList.add('ee-open');
   }
 
