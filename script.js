@@ -423,26 +423,11 @@ var elevateAuth = (function () {
       '<svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor">' +
       '<circle cx="12" cy="5" r="1.9"/><circle cx="12" cy="12" r="1.9"/>' +
       '<circle cx="12" cy="19" r="1.9"/></svg>';
-    var steps;
-    if (android) {
-      steps = [
-        ['Tap the menu button', 'The three dots ' + dots + ' at the top right of your browser.'],
-        ['Scroll down a little', 'Find <b>Install app</b> or <b>Add to Home screen</b>.'],
-        ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
-      ];
-    } else if (ios) {
-      steps = [
-        ['Tap the Share button', 'The square with an arrow coming out of it ' + share + ' in your browser, usually at the bottom of the screen.'],
-        ['Scroll down a little', 'Find <b>Add to Home Screen</b> &mdash; some phones call it <b>Add as Web App</b>.'],
-        ['Tap it and you are good to go', 'ElevateEdu sits on your home screen like any other app.'],
-      ];
-    } else {
-      steps = [
-        ['Look in the address bar', 'There is a small install icon at the right hand end.'],
-        ['Or open the browser menu', 'Choose <b>Install ElevateEdu</b>.'],
-        ['That is it', 'ElevateEdu opens in its own window, just like an app.'],
-      ];
-    }
+    var steps = [
+      ['Tap the Share button', 'The square with an arrow coming out of it ' + share + ' in your browser, usually at the bottom of the screen. On some browsers it is the three dots ' + dots + ' menu instead.'],
+      ['Scroll down and find <b>Add to Home Screen</b>', 'Some browsers call it <b>Add as Web App</b> or <b>Install app</b>.'],
+      ['Tap it and it is added!', 'ElevateEdu now sits on your home screen like any other app.'],
+    ];
     var back = document.createElement('div');
     back.id = 'eeInstallGuide';
     back.className = 'ee-ig-back';
