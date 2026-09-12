@@ -1732,6 +1732,18 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '#eeGear{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
     '#eeGear:active{transform:scale(.9)}' +
     '#eeGear svg{width:18px;height:18px}' +
+    '#eeFeed{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
+    '#eeFeed:active{transform:scale(.9)}' +
+    '#eeFeed svg{width:18px;height:18px}' +
+    '#eeFbOverlay{position:fixed;inset:0;background:rgba(45,32,28,.45);display:none;align-items:center;justify-content:center;z-index:100000;padding:22px}' +
+    '#eeFbOverlay.on{display:flex}' +
+    '#eeFbCard{background:var(--card,#fffaf1);border-radius:20px;max-width:360px;width:100%;box-sizing:border-box;padding:22px 20px;box-shadow:0 18px 50px rgba(75,56,50,.25);text-align:center}' +
+    '#eeFbIcon{width:46px;height:46px;border-radius:15px;background:#f5e6ca;color:#6f4e37;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}' +
+    '#eeFbIcon svg{width:23px;height:23px}' +
+    '#eeFbCard h3{margin:0 0 8px;font-size:17px;color:#4b3832}' +
+    '#eeFbCard p{margin:0 0 16px;font-size:14px;line-height:1.55;color:#6f5b4b}' +
+    '#eeFbGo{display:block;width:100%;box-sizing:border-box;text-decoration:none;background:#6f4e37;color:#fff;border:0;border-radius:14px;padding:13px 16px;font-size:15px!important;font-weight:600;font-family:inherit;cursor:pointer}' +
+    '#eeFbLater{display:block;width:100%;margin-top:8px;background:transparent;border:0;color:#8a7355;font-size:14px!important;font-family:inherit;padding:10px;cursor:pointer}' +
     '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
     '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
     '#eeSetOverlay.ee-open{display:flex}' +
@@ -1765,6 +1777,49 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '<path d="M12 2.5v3M12 18.5v3M2.5 12h3M18.5 12h3M5.3 5.3l2.1 2.1M16.6 16.6l2.1 2.1M18.7 5.3l-2.1 2.1M7.4 16.6l-2.1 2.1"></path>' +
     '</svg>';
 
+  /* The feedback note simply points at a Google form, so there is no
+     inbox to watch and nothing for a student to sign up for. */
+  var FEEDBACK_FORM = 'https://forms.gle/oFH1v8VfvAXr2TjK9';
+  var SPEECH = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>';
+  function drawFeed(b) {
+    try {
+      if (window.lucide && window.lucide.createIcons) {
+        b.innerHTML = '<i data-lucide="message-square"></i>';
+        window.lucide.createIcons();
+        if (b.querySelector('svg')) return true;
+      }
+    } catch (e) {}
+    b.innerHTML = SPEECH;
+    return false;
+  }
+  function closeFeedback() {
+    var o = document.getElementById('eeFbOverlay');
+    if (o) o.classList.remove('on');
+  }
+  function openFeedback() {
+    var o = document.getElementById('eeFbOverlay');
+    if (!o) {
+      o = document.createElement('div');
+      o.id = 'eeFbOverlay';
+      o.innerHTML =
+        '<div id="eeFbCard" role="dialog" aria-modal="true" aria-label="Give feedback">' +
+          '<div id="eeFbIcon">' + SPEECH + '</div>' +
+          '<h3>Got a minute?</h3>' +
+          '<p>Please fill out this Google form to give ElevateEdu some feedback and help us out!</p>' +
+          '<a id="eeFbGo" href="' + FEEDBACK_FORM + '" target="_blank" rel="noopener noreferrer">Open the feedback form</a>' +
+          '<button id="eeFbLater" type="button">Maybe later</button>' +
+        '</div>';
+      document.body.appendChild(o);
+      o.addEventListener('click', function (e) {
+        if (e.target === o) closeFeedback();
+      });
+      o.querySelector('#eeFbLater').addEventListener('click', closeFeedback);
+      o.querySelector('#eeFbGo').addEventListener('click', function () {
+        setTimeout(closeFeedback, 400);
+      });
+    }
+    o.classList.add('on');
+  }
   function drawGear(btn) {
     try {
       if (window.lucide && window.lucide.createIcons) {
@@ -1877,7 +1932,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<b>Add to home screen</b><i>Keep ElevateEdu one tap away, like a normal app.</i></div>' +
           '<button class="eeSetBtn" id="eeSetInstall" type="button">Show me</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
-          '<b>Send feedback</b><i>Something broken, confusing or missing? Tell me - it goes straight to the person who built this.</i></div>' +
+          '<b>Send feedback</b><i>Something broken, confusing or missing? Fill in the quick form - it goes straight to the person who built this.</i></div>' +
           '<button class="eeSetBtn" id="eeSetSay" type="button">Open</button></div>' +
           '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
@@ -1900,7 +1955,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
     o.addEventListener('click', function (ev) { if (ev.target === o) closeSheet(); });
     document.getElementById('eeSetClose').addEventListener('click', closeSheet);
     document.getElementById('eeSetSay').addEventListener('click', function () {
-      location.href = 'about.html';
+      closeSheet();
+      openFeedback();
     });
     document.getElementById('eeSetNo').addEventListener('click', function () {
       pending = null;
@@ -1957,20 +2013,31 @@ window.addEventListener("beforeinstallprompt", function (e) {
       setTimeout(function () { drawGear(btn); }, 1200);
     }
     btn.addEventListener('click', openSheet);
+    var fb = document.createElement('button');
+    fb.id = 'eeFeed';
+    fb.type = 'button';
+    fb.setAttribute('aria-label', 'Give feedback');
+    if (!drawFeed(fb)) {
+      setTimeout(function () { drawFeed(fb); }, 1200);
+    }
+    fb.addEventListener('click', openFeedback);
     var chip = bar.querySelector('.date-chip');
     if (chip && chip.parentNode) {
       var wrap = document.createElement('div');
       wrap.id = 'eeTitleRight';
       chip.parentNode.insertBefore(wrap, chip);
+      wrap.appendChild(fb);
       wrap.appendChild(btn);
       wrap.appendChild(chip);
     } else {
       bar.appendChild(btn);
+      bar.appendChild(fb);
     }
   }
 
   function boot() { addStyle(); mountGear(); }
   window.eeOpenSettings = openSheet;
+  window.eeOpenFeedback = openFeedback;
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
 })();
