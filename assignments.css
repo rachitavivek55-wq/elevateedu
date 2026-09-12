@@ -719,3 +719,58 @@
   color: var(--as-bad) !important;
   border-color: var(--as-line) !important;
 }
+
+/* ---------- finishing work ----------
+   A tick on every row retires the item instead of deleting it, and the
+   Completed work list under the class keeps it around, greyed out, with
+   an arrow to put it back if it was tapped by mistake. */
+.as-item-done {
+  border: none;
+  background: transparent;
+  color: var(--as-good);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 9px;
+  flex: 0 0 auto;
+  display: flex;
+  opacity: 0.75;
+}
+.as-item-done:hover {
+  background: #eef0e2;
+  opacity: 1;
+}
+.as-item-done i,
+.as-item-done svg {
+  width: 19px;
+  height: 19px;
+}
+.as-item-undo {
+  border: none;
+  background: transparent;
+  color: var(--as-muted);
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 9px;
+  flex: 0 0 auto;
+  display: flex;
+  opacity: 0.6;
+}
+.as-item-undo:hover {
+  background: #f0e4cf;
+  opacity: 1;
+}
+.as-item-undo i,
+.as-item-undo svg {
+  width: 17px;
+  height: 17px;
+}
+.as-item.as-done {
+  opacity: 0.7;
+}
+.as-item.as-done .as-item-title {
+  text-decoration: line-through;
+  text-decoration-color: var(--as-muted);
+}
+.as-done-label {
+  color: var(--as-good);
+}
