@@ -233,6 +233,127 @@ var elevateAuth = (function () {
     supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
   }
 
+  /* ---------- Continue with Google ----------
+     Google's own screen names whichever address the sign-in was started
+     from. Starting it from the database's address made that screen read as a
+     long random string, which is exactly the sort of thing that makes someone
+     back out of signing in. Starting it from this site's own address makes
+     Google say "to continue to elevateedu.app" instead.
+     Google hands back a signed identity note, which is then traded for a
+     session. Plain page moves only, no pop-up windows, so this also works
+     inside the installed app on an iPhone. */
+  var GOOGLE_CLIENT_ID =
+    '1003029518884-53qtkv7ctqk46us80uq98br9crgi2jk7.apps.googleusercontent.com';
+  /* Only addresses registered with Google can start it directly. Anywhere
+     else (a preview build, a local copy) quietly uses the older route. */
+  var GOOGLE_DIRECT_ORIGINS = [
+    'https://elevateedu.app',
+    'https://www.elevateedu.app',
+    'https://elevate-edu-student.netlify.app',
+  ];
+
+  function googleLegacySignIn() {
+    try {
+      supabaseClient.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname },
+      });
+    } catch (e) {
+      setMsg('Google could not open just now. Check your connection and try again.', '#b3261e');
+    }
+  }
+
+  function googleCanGoDirect() {
+    if (GOOGLE_DIRECT_ORIGINS.indexOf(window.location.origin) === -1) return false;
+    if (!window.crypto || !window.crypto.subtle || !window.crypto.getRandomValues) return false;
+    if (!window.TextEncoder || !window.URLSearchParams) return false;
+    return true;
+  }
+
+  /* One-use random value. Google is given the scrambled form and the plain
+     form stays here, so the note that comes back can be proven to belong to
+     this sign-in and not a replayed older one. */
+  async function googleNoncePair() {
+    var bytes = new Uint8Array(32);
+    window.crypto.getRandomValues(bytes);
+    var raw = '';
+    var i;
+    for (i = 0; i < bytes.length; i++) raw += ('0' + bytes[i].toString(16)).slice(-2);
+    var digest = await window.crypto.subtle.digest('SHA-256', new TextEncoder().encode(raw));
+    var view = new Uint8Array(digest);
+    var hashed = '';
+    for (i = 0; i < view.length; i++) hashed += ('0' + view[i].toString(16)).slice(-2);
+    return { raw: raw, hashed: hashed };
+  }
+
+  async function startGoogleSignIn() {
+    if (!googleCanGoDirect()) {
+      googleLegacySignIn();
+      return;
+    }
+    try {
+      var pair = await googleNoncePair();
+      localStorage.setItem('ee_gnonce', pair.raw);
+      window.location.href =
+        'https://accounts.google.com/o/oauth2/v2/auth' +
+        '?client_id=' + encodeURIComponent(GOOGLE_CLIENT_ID) +
+        '&response_type=id_token' +
+        '&scope=' + encodeURIComponent('openid email profile') +
+        '&redirect_uri=' + encodeURIComponent(window.location.origin + '/') +
+        '&nonce=' + encodeURIComponent(pair.hashed) +
+        '&prompt=select_account';
+    } catch (e) {
+      googleLegacySignIn();
+    }
+  }
+
+  /* Reads the note Google left behind and trades it for a session. Says true
+     only when a session really came back, so a half-finished attempt still
+     lands on the sign-in screen rather than an empty app. */
+  async function consumeGoogleIdToken() {
+    var hash = window.location.hash || '';
+    if (hash.indexOf('id_token=') === -1) return false;
+    var token = null;
+    var raw = null;
+    try {
+      token = new URLSearchParams(hash.replace(/^#/, '')).get('id_token');
+    } catch (e) {}
+    try {
+      raw = localStorage.getItem('ee_gnonce');
+      localStorage.removeItem('ee_gnonce');
+    } catch (e2) {}
+    /* Wipe it from the address bar straight away: a home-screen shortcut
+       must never keep a spent note in the address it re-opens. */
+    try {
+      window.history.replaceState(
+        null,
+        '',
+        window.location.pathname + (window.location.search || '')
+      );
+    } catch (e3) {}
+    if (!token || !raw) return false;
+    var tries;
+    for (tries = 0; tries < 30 && !supabaseClient; tries++) {
+      initSupabase();
+      if (supabaseClient) break;
+      await new Promise(function (done) {
+        setTimeout(done, 100);
+      });
+    }
+    if (!supabaseClient) return false;
+    try {
+      var res = await supabaseClient.auth.signInWithIdToken({
+        provider: 'google',
+        token: token,
+        nonce: raw,
+      });
+      if (res && res.error) return false;
+      return !!(res && res.data && res.data.session);
+    } catch (e4) {
+      return false;
+    }
+  }
+
   /* Continue with Google. The button only draws itself if the Google provider
      is actually switched on in Supabase, so it can never sit there half-wired
      and dead. It matters most on an installed iPhone app: Google finishes the
@@ -302,14 +423,7 @@ var elevateAuth = (function () {
       + '</svg><span>Continue with Google</span>';
     b.addEventListener('click', function () {
       setMsg('Opening Google...');
-      try {
-        supabaseClient.auth.signInWithOAuth({
-          provider: 'google',
-          options: { redirectTo: window.location.origin + window.location.pathname },
-        });
-      } catch (e) {
-        setMsg('Google could not open just now. Check your connection and try again.', '#b3261e');
-      }
+      startGoogleSignIn();
     });
     wrap.appendChild(b);
     var safe = document.createElement('div');
@@ -618,6 +732,9 @@ var elevateAuth = (function () {
   }
 
   async function checkSession() {
+    try {
+      await consumeGoogleIdToken();
+    } catch (e0) {}
     var {
       data: { session },
     } = await (supabaseClient ? supabaseClient.auth.getSession() : Promise.resolve({ data: { session: null } }));
