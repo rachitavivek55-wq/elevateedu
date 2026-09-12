@@ -774,3 +774,10 @@
 .as-done-label {
   color: var(--as-good);
 }
+
+/* Both of these are switched off with the hidden attribute when a class is
+   open, and a plain display rule would otherwise keep them on screen. */
+.as-fab[hidden],
+.as-tabs[hidden] {
+  display: none !important;
+}
