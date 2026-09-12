@@ -131,6 +131,7 @@
         var isWork =
           e.type === 'assignment' || e.type === 'exam' || e.type === 'task';
         if (!isWork) return false;
+        if (e.done === true) return false;
         if (filterClassId != null)
           return String(e.classId) === String(filterClassId);
         return true;
@@ -192,11 +193,81 @@
       '</span>' +
       '</div>' +
       '</div>' +
+      '<button class="as-item-done" data-done-cal="' +
+        i.id +
+        '" aria-label="Mark as finished"><i data-lucide="check"></i></button>' +
       '<button class="as-item-del" data-del-cal="' +
       i.id +
       '" aria-label="Delete"><i data-lucide="trash-2"></i></button>' +
       '</div>'
     );
+  }
+  /* Finished work is never thrown away. It is flagged done and moves into
+     the Completed work list for its class, where it can be put back. */
+  function doneItems(filterClassId) {
+    return loadCal()
+      .filter(function (e) {
+        var isDone = e.done === true;
+        if (!isDone) return false;
+        if (e.type !== 'assignment' && e.type !== 'exam' && e.type !== 'task')
+          return false;
+        if (filterClassId != null)
+          return String(e.classId) === String(filterClassId);
+        return true;
+      })
+      .sort(function (a, b) {
+        return (b.doneAt || 0) - (a.doneAt || 0);
+      });
+  }
+  function markDone(id, val) {
+    var cal = loadCal();
+    cal.forEach(function (e) {
+      if (String(e.id) !== String(id)) return;
+      if (val) {
+        e.done = true;
+        e.doneAt = Date.now();
+      } else {
+        delete e.done;
+        delete e.doneAt;
+      }
+    });
+    saveCal(cal);
+    if (currentView === 'detail') renderClassDetail();
+    else if (currentView === 'work') renderWork();
+    else renderClasses();
+  }
+  function doneWhen(ts) {
+    if (!ts) return 'Finished';
+    var d = new Date(ts);
+    return 'Finished ' + (d.getMonth() + 1) + '/' + d.getDate();
+  }
+  function doneItemHtml(i) {
+    var cls = i.classId ? classById(i.classId) : null;
+    var sub = [];
+    if (cls && subShowsClass) sub.push(esc(cls.name));
+    sub.push(doneWhen(i.doneAt));
+    return (
+      '<div class="as-item as-done">' +
+      '<button class="as-item-undo" data-undone-cal="' + i.id + '" aria-label="Move back to to-do"><i data-lucide="rotate-ccw"></i></button>' +
+      '<div class="as-item-main">' +
+      '<div class="as-item-title">' + esc(i.title) + '</div>' +
+      '<div class="as-item-sub"><span>' + sub.join(' &middot; ') + '</span></div>' +
+      '</div>' +
+      '<button class="as-item-del" data-del-cal="' + i.id + '" aria-label="Delete"><i data-lucide="trash-2"></i></button>' +
+      '</div>'
+    );
+  }
+  function doneSectionHtml(classId) {
+    var d = doneItems(classId);
+    if (!d.length) return '';
+    var html =
+      '<div class="as-group-label as-done-label">Completed work (' +
+      d.length +
+      ')</div>';
+    d.forEach(function (i) {
+      html += doneItemHtml(i);
+    });
+    return html;
   }
   function groupedWorkHtml(items) {
     var t = todayYmd();
@@ -264,13 +335,13 @@
       week +
       '</span><span class="as-stat-label">This week</span></div>';
     var list = $('asWorkList');
-    if (!items.length) {
+    if (!items.length && !doneItems(null).length) {
       list.innerHTML =
         '<div class="as-empty"><i data-lucide="clipboard-check"></i><p>No work due yet.<br>Open a class and tap &ldquo;Add work&rdquo; to add an assignment, exam, or task.</p></div>';
       icons();
       return;
     }
-    list.innerHTML = groupedWorkHtml(items);
+    list.innerHTML = groupedWorkHtml(items) + doneSectionHtml(null);
     icons();
   }
 
@@ -398,7 +469,7 @@
       c.id +
       '" aria-label="Edit class"><i data-lucide="pencil"></i></button>';
     var items = workItems(c.id);
-    if (!items.length) {
+    if (!items.length && !doneItems(c.id).length) {
       $('asDetailWork').innerHTML =
         '<div class="as-empty"><i data-lucide="clipboard-list"></i><p>No work for this class yet.<br>Tap &ldquo;Add work&rdquo; below.</p></div>';
     } else {
@@ -406,6 +477,10 @@
       $('asDetailWork').innerHTML = groupedWorkHtml(items);
       subShowsClass = true;
     }
+    subShowsClass = false;
+    var dw = $('asDoneWork');
+    if (dw) dw.innerHTML = doneSectionHtml(c.id);
+    subShowsClass = true;
     icons();
   }
 
@@ -990,6 +1065,18 @@
 
     document.addEventListener('click', function (e) {
       var t = e.target;
+      var fin = t.closest ? t.closest('[data-done-cal]') : null;
+      if (fin) {
+        e.stopPropagation();
+        markDone(fin.getAttribute('data-done-cal'), true);
+        return;
+      }
+      var unfin = t.closest ? t.closest('[data-undone-cal]') : null;
+      if (unfin) {
+        e.stopPropagation();
+        markDone(unfin.getAttribute('data-undone-cal'), false);
+        return;
+      }
       var del = t.closest ? t.closest('[data-del-cal]') : null;
       if (del) {
         e.stopPropagation();
