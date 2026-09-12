@@ -1745,6 +1745,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '#eeFbGo{display:block;width:100%;box-sizing:border-box;text-decoration:none;background:#6f4e37;color:#fff;border:0;border-radius:14px;padding:13px 16px;font-size:15px!important;font-weight:600;font-family:inherit;cursor:pointer}' +
     '#eeFbLater{display:block;width:100%;margin-top:8px;background:transparent;border:0;color:#8a7355;font-size:14px!important;font-family:inherit;padding:10px;cursor:pointer}' +
     '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
+    '@media (max-width:379px){#eeGear,#eeFeed{width:30px;height:30px;border-radius:10px}#eeGear svg,#eeFeed svg{width:16px;height:16px}#eeTitleRight{gap:6px}}' +
     '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
     '#eeSetOverlay.ee-open{display:flex}' +
     '#eeSetCard{width:100%;max-width:430px;background:#fbf4e6;border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(75,56,50,.20);animation:eeSetUp .22s ease}' +
