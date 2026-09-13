@@ -124,6 +124,8 @@ let editingId = null;
     const key = ymd(date);
     const dow = date.getDay();
     return entries.filter((e) => {
+      // Work that has been marked finished in Assignments drops off the calendar.
+      if (e.done === true || e.completed === true) return false;
       if (e.type === 'commitment') return e.days && e.days.includes(dow);
       return e.date === key;
     });
