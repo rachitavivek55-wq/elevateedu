@@ -903,3 +903,100 @@ input, select, textarea, button {
 .home-help a:active {
   opacity: 0.9;
 }
+
+/* ===== What-it-is detail under the sign-in box =====
+   Only shown to people arriving in a browser. The installed app keeps its
+   bare sign-in screen, because someone who installed it already knows what
+   this is. Turned on by the ee-has-land class in Section 1. */
+.ee-land[hidden] {
+  display: none !important;
+}
+.auth-overlay.ee-has-land {
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  overflow-y: auto;
+  padding: 28px 16px 44px;
+}
+.ee-land {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 340px;
+  margin: 18px auto 0;
+  text-align: left;
+}
+.ee-land-h {
+  margin: 0 0 12px;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ee-land-grid {
+  display: grid;
+  gap: 8px;
+}
+.ee-land-card {
+  background: var(--cream);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: var(--shadow-soft);
+}
+.ee-land-card b {
+  display: block;
+  margin-bottom: 3px;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--espresso);
+}
+.ee-land-card span {
+  display: block;
+  font-size: 11.5px;
+  line-height: 1.55;
+  color: var(--coffee);
+  opacity: 0.78;
+}
+.ee-land-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  margin: 14px 0 0;
+}
+.ee-land-chips span {
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: var(--cream);
+  box-shadow: var(--shadow-soft);
+  font-size: 10.5px;
+  font-weight: 600;
+  color: var(--coffee);
+}
+.ee-land-note {
+  margin: 12px 2px 0;
+  text-align: center;
+  font-size: 11px;
+  line-height: 1.6;
+  color: var(--coffee);
+  opacity: 0.72;
+}
+.ee-land-links {
+  margin: 10px 0 0;
+  text-align: center;
+  font-size: 11px;
+  color: var(--coffee);
+  opacity: 0.65;
+}
+.ee-land-links a {
+  color: inherit;
+  text-decoration: underline;
+}
+@media (min-width: 720px) {
+  .ee-land {
+    max-width: 620px;
+  }
+  .ee-land-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}
