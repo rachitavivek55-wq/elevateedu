@@ -465,6 +465,17 @@ var elevateAuth = (function () {
 
   function showAuthScreen() {
     if (authScreen) authScreen.style.display = 'flex';
+    var eeLandBox = document.getElementById('eeLand');
+    if (eeLandBox) {
+      // Someone who installed the app already knows what it is, so only people
+      // arriving in a browser get the explanation under the sign-in box.
+      var eeShowLand = !isStandalone();
+      eeLandBox.hidden = !eeShowLand;
+      if (authScreen) {
+        if (eeShowLand) authScreen.classList.add('ee-has-land');
+        else authScreen.classList.remove('ee-has-land');
+      }
+    }
     if (authForm) authForm.reset();
     if (authMsg) authMsg.textContent = '';
     var waiting = '';
@@ -1936,6 +1947,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<b>Send feedback</b><i>Something broken, confusing or missing? Fill in the quick form - it goes straight to the person who built this.</i></div>' +
           '<button class="eeSetBtn" id="eeSetSay" type="button">Open</button></div>' +
           '<div class="eeSetRow"><div class="eeL">' +
+            '<b>Tell a friend</b><i>Know someone drowning in assignments? Send them the link - it is free.</i></div>' +
+            '<button class="eeSetBtn" id="eeSetShare" type="button">Share</button></div>' +
+          '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
           '<button class="eeSetBtn" id="eeSetOut" type="button">Log out</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
@@ -1958,6 +1972,28 @@ window.addEventListener("beforeinstallprompt", function (e) {
     document.getElementById('eeSetSay').addEventListener('click', function () {
       closeSheet();
       openFeedback();
+    });
+    var eeShareBtn = document.getElementById('eeSetShare');
+    if (eeShareBtn) eeShareBtn.addEventListener('click', function () {
+      var eeUrl = 'https://elevateedu.app';
+      var eeMsg = 'ElevateEdu - a free planner for school. Assignments, timetable, grades and notes in one app.';
+      // Phones get the proper share sheet; everything else falls back to a copy.
+      try {
+        if (navigator.share) {
+          navigator.share({ title: 'ElevateEdu', text: eeMsg, url: eeUrl }).catch(function () {});
+          return;
+        }
+      } catch (e) {}
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(eeUrl).then(function () {
+            eeShareBtn.textContent = 'Link copied';
+            setTimeout(function () { eeShareBtn.textContent = 'Share'; }, 1800);
+          }).catch(function () { window.prompt('Copy this link:', eeUrl); });
+          return;
+        }
+      } catch (e) {}
+      window.prompt('Copy this link:', eeUrl);
     });
     document.getElementById('eeSetNo').addEventListener('click', function () {
       pending = null;
