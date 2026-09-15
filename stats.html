@@ -27,9 +27,10 @@
       .card span { display: block; font-size: 11.5px; color: var(--muted); margin-top: 3px; }
       h2 { font-size: 14.5px; font-weight: 600; margin: 0 0 9px; }
       .rows { background: #fff; border: 1px solid var(--beige); border-radius: 16px; overflow: hidden; }
+      .rows + h2 { margin-top: 26px; }
       .row { display: flex; align-items: center; gap: 10px; padding: 11px 15px; border-top: 1px solid var(--line); font-size: 13px; }
       .row:first-child { border-top: 0; }
-      .row .d { flex: none; width: 104px; color: var(--muted); }
+      .row .d { flex: none; width: 122px; color: var(--muted); }
       .row .bar { height: 8px; border-radius: 99px; background: var(--brown); opacity: 0.85; }
       .row .n { margin-left: auto; font-weight: 600; }
       .msg { background: #fff; border: 1px solid var(--beige); border-radius: 16px; padding: 17px; font-size: 14px; line-height: 1.6; }
@@ -55,6 +56,11 @@
         var sub = document.getElementById('stSub');
         var out = document.getElementById('stOut');
         function msg(html) { sub.textContent = ''; out.innerHTML = '<div class="msg">' + html + '</div>'; }
+        function esc(s) {
+          return String(s).replace(/[&<>"]/g, function (ch) {
+            return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch];
+          });
+        }
         function n(v) { return typeof v === 'number' && isFinite(v) ? v : 0; }
         function pretty(day) {
           var p = String(day).split('-');
@@ -88,8 +94,26 @@
             });
             html += '</div>';
           }
+          var tools = Array.isArray(d.tools) ? d.tools.slice() : [];
+          html += '<h2>Which tools people actually use</h2>';
+          if (!tools.length) {
+            html += '<div class="msg">Nobody has saved anything in a tool yet.</div>';
+          } else {
+            var tmax = 1;
+            tools.forEach(function (r) { if (n(r.people) > tmax) tmax = n(r.people); });
+            html += '<div class="rows">';
+            tools.forEach(function (r) {
+              var c = n(r.people);
+              var w = Math.max(8, Math.round((c / tmax) * 110));
+              html += '<div class="row"><span class="d">' + esc(r.tool) + '</span>';
+              html += '<span class="bar" style="width:' + w + 'px"></span>';
+              html += '<span class="n">' + c + '</span></div>';
+            });
+            html += '</div>';
+          }
           html += '<p class="foot">A sign-in means a Google account opened the app for the first time. ';
           html += '&ldquo;Actually saved something&rdquo; means that account has at least one thing stored — classes, assignments, notes and so on. ';
+          html += 'The tool list counts how many people have saved something in each one. ';
           html += 'This page refreshes itself every time you open it, and only you can see it.</p>';
           var oldest = days.length ? pretty(days[days.length - 1].day) : '';
           var line = n(d.total) + (n(d.total) === 1 ? ' person has' : ' people have') + ' signed in';
