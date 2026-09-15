@@ -69,10 +69,10 @@
           var max = 1;
           days.forEach(function (r) { if (n(r.signups) > max) max = n(r.signups); });
           var html = '<div class="cards">';
-          html += card(n(d.total), 'people have signed in');
-          html += card(n(d.last7), 'came back this week');
-          html += card(n(d.returning), 'used it on more than one day');
-          html += card(n(d.saved), 'have saved real work');
+          html += card(n(d.total), 'people have ever signed in');
+          html += card(n(d.last7), 'opened it in the last 7 days');
+          html += card(n(d.returning), 'came back on a different day');
+          html += card(n(d.saved), 'have actually saved something');
           html += '</div>';
           html += '<h2>New sign-ins by day</h2>';
           if (!days.length) {
@@ -89,9 +89,13 @@
             html += '</div>';
           }
           html += '<p class="foot">A sign-in means a Google account opened the app for the first time. ';
-          html += '&ldquo;Saved real work&rdquo; means that account has at least one thing stored — classes, assignments, notes and so on. ';
-          html += 'Only you can see this page.</p>';
-          sub.textContent = 'Updated just now.';
+          html += '&ldquo;Actually saved something&rdquo; means that account has at least one thing stored — classes, assignments, notes and so on. ';
+          html += 'This page refreshes itself every time you open it, and only you can see it.</p>';
+          var oldest = days.length ? pretty(days[days.length - 1].day) : '';
+          var line = n(d.total) + (n(d.total) === 1 ? ' person has' : ' people have') + ' signed in';
+          if (oldest) line += ' since ' + oldest;
+          line += '. ' + n(d.last30) + ' opened the app in the last 30 days.';
+          sub.textContent = line;
           out.innerHTML = html;
         }
         async function go() {
