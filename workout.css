@@ -1,14 +1,14 @@
 /* ===== Workout Planner tool ===== */
 :root {
-  --wk-ink: #473a36;
-  --wk-muted: #82725d;
-  --wk-line: #e1d6c8;
-  --wk-tile: #f8f2e9;
-  --wk-card: #fefcf8;
-  --wk-coffee: #67503f;
-  --wk-espresso: #473a36;
-  --wk-cream: #efe3d0;
-  --wk-beige: #d4c4b1;
+  --wk-ink: #4b3832;
+  --wk-muted: #8a7355;
+  --wk-line: #e6d8c3;
+  --wk-tile: #fbf4e6;
+  --wk-card: #fffdf7;
+  --wk-coffee: #6f4e37;
+  --wk-espresso: #4b3832;
+  --wk-cream: #f5e6ca;
+  --wk-beige: #dcc7aa;
   --wk-accent: #7a8b5a;
   --wk-danger: #b0645e;
 }
@@ -40,11 +40,11 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: linear-gradient(140deg, #67503f 0%, #473a36 100%);
+  background: linear-gradient(140deg, #6f4e37 0%, #4b3832 100%);
   border-radius: 18px;
   padding: 15px 16px;
   margin: 14px 0 16px;
-  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.18);
+  box-shadow: 0 8px 20px rgba(75, 56, 50, 0.18);
 }
 .wk-sum-block {
   flex: 1 1 0;
@@ -61,14 +61,14 @@
 }
 .wk-sum-label {
   font-size: 10.5px;
-  color: rgba(239, 227, 208, 0.72);
+  color: rgba(245, 230, 202, 0.72);
   margin-top: 4px;
   letter-spacing: 0.3px;
 }
 .wk-sum-divider {
   width: 1px;
   align-self: stretch;
-  background: rgba(239, 227, 208, 0.18);
+  background: rgba(245, 230, 202, 0.18);
   margin: 2px 8px;
 }
 
@@ -83,7 +83,7 @@
   border: 1px solid var(--wk-line);
   border-radius: 18px;
   padding: 14px 15px 12px;
-  box-shadow: 0 4px 14px rgba(103, 80, 63, 0.06);
+  box-shadow: 0 4px 14px rgba(111, 78, 55, 0.06);
   position: relative;
 }
 .wk-card-top {
@@ -263,13 +263,13 @@
   height: 56px;
   border-radius: 50%;
   border: none;
-  background: linear-gradient(145deg, #67503f, #473a36);
+  background: linear-gradient(145deg, #6f4e37, #4b3832);
   color: var(--wk-cream);
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.32);
+  box-shadow: 0 8px 20px rgba(75, 56, 50, 0.32);
   transition: transform 0.1s ease;
   z-index: 20;
 }
@@ -299,7 +299,7 @@
   max-height: 88%;
   display: flex;
   flex-direction: column;
-  box-shadow: 0 -10px 30px rgba(71, 58, 54, 0.2);
+  box-shadow: 0 -10px 30px rgba(75, 56, 50, 0.2);
   animation: wkSlideUp 0.22s ease;
 }
 @keyframes wkSlideUp {
@@ -377,7 +377,7 @@
   border-color: var(--wk-beige);
 }
 .wk-input::placeholder {
-  color: #b1a695;
+  color: #b7a98f;
 }
 
 /* exercise rows in builder */
@@ -430,7 +430,7 @@
   padding: 0 24px 0 0;
 }
 .wk-ex-row .wk-row-name::placeholder {
-  color: #b1a695;
+  color: #b7a98f;
 }
 .wk-row-fields {
   display: flex;
@@ -451,7 +451,7 @@
   outline: none;
 }
 .wk-row-mini::placeholder {
-  color: #baaf9f;
+  color: #c0b299;
 }
 .wk-row-link {
   flex: 1.6 1 0;
@@ -505,7 +505,7 @@
   transform: scale(0.97);
 }
 .wk-btn-primary {
-  background: linear-gradient(145deg, #67503f, #473a36);
+  background: linear-gradient(145deg, #6f4e37, #4b3832);
   color: var(--wk-cream);
 }
 .wk-btn-ghost {
@@ -556,7 +556,7 @@
   padding: 20px 18px 16px;
   width: 100%;
   max-width: 300px;
-  box-shadow: 0 12px 30px rgba(71, 58, 54, 0.28);
+  box-shadow: 0 12px 30px rgba(75, 56, 50, 0.28);
 }
 .wk-confirm-msg {
   font-size: 14.5px;
@@ -583,7 +583,7 @@
   padding: 10px 18px;
   border-radius: 999px;
   z-index: 70;
-  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.3);
+  box-shadow: 0 8px 20px rgba(75, 56, 50, 0.3);
   animation: wkToast 0.2s ease;
 }
 @keyframes wkToast {
@@ -683,7 +683,7 @@
 .wk-mode-btn.is-on {
   background: var(--wk-coffee);
   color: #fff;
-  box-shadow: 0 2px 6px rgba(103, 80, 63, 0.25);
+  box-shadow: 0 2px 6px rgba(111, 78, 55, 0.25);
 }
 .wk-mode-pane {
   margin-bottom: 4px;

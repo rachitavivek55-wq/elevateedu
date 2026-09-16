@@ -1,13 +1,13 @@
 /* ===== Notes tool ===== */
 :root {
-  --nt-ink: #473a36;
-  --nt-muted: #82725d;
-  --nt-line: #ded3c2;
-  --nt-tile: #f8f2e9;
-  --nt-coffee: #67503f;
-  --nt-cream: #efe3d0;
-  --nt-beige: #d4c4b1;
-  --nt-highlight: #ebddb2;
+  --nt-ink: #4b3832;
+  --nt-muted: #8a7355;
+  --nt-line: #e4d6bc;
+  --nt-tile: #fbf4e6;
+  --nt-coffee: #6f4e37;
+  --nt-cream: #f5e6ca;
+  --nt-beige: #dcc7aa;
+  --nt-highlight: #f7e7a6;
   --nt-danger: #b0645e;
 }
 
@@ -431,7 +431,7 @@
   border: 0;
   border-radius: 999px;
   background: transparent;
-  color: #f5f1ec;
+  color: #f7f1ea;
   cursor: pointer;
   transition: background 0.15s ease, opacity 0.15s ease;
   -webkit-tap-highlight-color: transparent;
@@ -450,7 +450,7 @@
 .nt-photo-zlevel {
   min-width: 50px;
   text-align: center;
-  color: #f5f1ec;
+  color: #f7f1ea;
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.01em;
@@ -480,7 +480,7 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(71, 58, 54, 0.32);
+  box-shadow: 0 6px 18px rgba(75, 56, 50, 0.32);
   z-index: 5;
 }
 .nt-fab i {
@@ -492,7 +492,7 @@
 .nt-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(71, 58, 54, 0.34);
+  background: rgba(75, 56, 50, 0.34);
   /* 40+ keeps the sheet clear of the fixed menu bar (z-index 35). */
   z-index: 40;
 }
@@ -505,7 +505,7 @@
   border-radius: 24px 24px 0 0;
   padding: 18px 18px 24px;
   z-index: 41;
-  box-shadow: 0 -8px 24px rgba(71, 58, 54, 0.2);
+  box-shadow: 0 -8px 24px rgba(75, 56, 50, 0.2);
 }
 .nt-sheet-head {
   display: flex;
@@ -626,7 +626,7 @@
 .nt-confirm-wrap {
   position: absolute;
   inset: 0;
-  background: rgba(71, 58, 54, 0.34);
+  background: rgba(75, 56, 50, 0.34);
   /* Above the sheet it is asked from. */
   z-index: 60;
   display: grid;
@@ -639,7 +639,7 @@
   padding: 20px;
   width: 100%;
   max-width: 280px;
-  box-shadow: 0 10px 30px rgba(71, 58, 54, 0.3);
+  box-shadow: 0 10px 30px rgba(75, 56, 50, 0.3);
 }
 .nt-confirm p {
   margin: 0 0 16px;

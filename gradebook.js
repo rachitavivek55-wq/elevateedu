@@ -4,14 +4,14 @@
 
   /* ---------- palette ---------- */
   var SWATCHES = [
-    '#67503f',
+    '#6f4e37',
     '#a9746e',
     '#8c9a5b',
-    '#b08667',
+    '#c08457',
     '#7a6a99',
     '#4b7d78',
     '#b0645e',
-    '#8f765a',
+    '#9a7b4f',
   ];
 
   /* ---------- data ---------- */
@@ -1252,7 +1252,7 @@ function letterToPct(l) {
         ',' +
         (H - padB) +
         ' Z';
-      parts.push('<path d="' + area + '" fill="rgba(103,80,63,0.10)"/>');
+      parts.push('<path d="' + area + '" fill="rgba(111,78,55,0.10)"/>');
       parts.push(
         '<path d="' +
           dpath +

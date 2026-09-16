@@ -168,14 +168,14 @@
       c.pts[c.pts.length - 1][0].toFixed(1) +
       '" cy="' +
       c.pts[c.pts.length - 1][1].toFixed(1) +
-      '" r="3" fill="#67503f" />';
+      '" r="3" fill="#6f4e37" />';
     return (
       '<path d="' +
       c.area +
-      '" fill="#67503f" fill-opacity="0.08" />' +
+      '" fill="#6f4e37" fill-opacity="0.08" />' +
       '<path d="' +
       c.line +
-      '" fill="none" stroke="#67503f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />' +
+      '" fill="none" stroke="#6f4e37" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />' +
       dots
     );
   }
@@ -480,14 +480,14 @@
             p[0].toFixed(1) +
             '" cy="' +
             p[1].toFixed(1) +
-            '" r="3.2" fill="#67503f" />'
+            '" r="3.2" fill="#6f4e37" />'
           );
         })
         .join('');
       var maxLbl =
         '<text x="' +
         pad +
-        '" y="12" font-size="10" fill="#82725d">' +
+        '" y="12" font-size="10" fill="#8a7355">' +
         fmtNum(c2.max) +
         '</text>';
       var minLbl =
@@ -495,16 +495,16 @@
         pad +
         '" y="' +
         (h - 4) +
-        '" font-size="10" fill="#82725d">' +
+        '" font-size="10" fill="#8a7355">' +
         fmtNum(c2.min) +
         '</text>';
       svg.innerHTML =
         '<path d="' +
         c2.area +
-        '" fill="#67503f" fill-opacity="0.09" />' +
+        '" fill="#6f4e37" fill-opacity="0.09" />' +
         '<path d="' +
         c2.line +
-        '" fill="none" stroke="#67503f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />' +
+        '" fill="none" stroke="#6f4e37" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />' +
         dots +
         maxLbl +
         minLbl;
