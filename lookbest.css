@@ -1,11 +1,11 @@
 :root {
-  --lb-cream: #dadfe5;
-  --lb-white: #fafbfc;
-  --lb-beige: #b7c2cf;
-  --lb-coffee: #455261;
-  --lb-espresso: #383e45;
-  --lb-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
-  --lb-line: rgba(69, 82, 97, 0.16);
+  --lb-cream: #efe3d0;
+  --lb-white: #fefcf8;
+  --lb-beige: #d4c4b1;
+  --lb-coffee: #67503f;
+  --lb-espresso: #473a36;
+  --lb-shadow: 0 10px 30px rgba(71, 58, 54, 0.14);
+  --lb-line: rgba(103, 80, 63, 0.16);
 }
 
 [hidden] {
@@ -20,7 +20,7 @@
   margin: 2px 2px 12px;
   font-size: 13.5px;
   line-height: 1.5;
-  color: rgba(56, 62, 69, 0.72);
+  color: rgba(71, 58, 54, 0.72);
 }
 
 /* ---- Category chips ---- */
@@ -105,7 +105,7 @@
 }
 .lb-card:active {
   transform: scale(0.985);
-  box-shadow: 0 6px 18px rgba(56, 62, 69, 0.12);
+  box-shadow: 0 6px 18px rgba(71, 58, 54, 0.12);
 }
 .lb-card-top {
   display: flex;
@@ -131,7 +131,7 @@
 }
 .lb-card-min {
   font-size: 11.5px;
-  color: rgba(56, 62, 69, 0.5);
+  color: rgba(71, 58, 54, 0.5);
 }
 .lb-card-title {
   margin: 0 0 6px;
@@ -144,7 +144,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: rgba(56, 62, 69, 0.68);
+  color: rgba(71, 58, 54, 0.68);
 }
 
 /* ---- Reader overlay ---- */
@@ -202,7 +202,7 @@
 }
 .lb-read-min {
   font-size: 11.5px;
-  color: rgba(56, 62, 69, 0.5);
+  color: rgba(71, 58, 54, 0.5);
 }
 .lb-read-close {
   display: inline-flex;

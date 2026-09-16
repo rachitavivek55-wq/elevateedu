@@ -586,7 +586,7 @@
       document.execCommand(
         'hiliteColor',
         false,
-        active ? 'transparent' : '#c7ced6'
+        active ? 'transparent' : '#ebddb2'
       );
     } else if (cmd === 'formatBlock') {
       // toggle heading
@@ -611,7 +611,7 @@
         document.queryCommandValue('backColor');
       if (!c) return false;
       c = c.toLowerCase().replace(/\s/g, '');
-      return c.indexOf('247,231,166') >= 0 || c === '#c7ced6';
+      return c.indexOf('247,231,166') >= 0 || c === '#ebddb2';
     } catch (e) {
       return false;
     }

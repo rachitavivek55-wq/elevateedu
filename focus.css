@@ -1,11 +1,11 @@
 :root {
-  --lb-cream: #dadfe5;
-  --lb-white: #fafbfc;
-  --lb-beige: #b7c2cf;
-  --lb-coffee: #455261;
-  --lb-espresso: #383e45;
-  --lb-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
-  --lb-line: rgba(69, 82, 97, 0.16);
+  --lb-cream: #efe3d0;
+  --lb-white: #fefcf8;
+  --lb-beige: #d4c4b1;
+  --lb-coffee: #67503f;
+  --lb-espresso: #473a36;
+  --lb-shadow: 0 10px 30px rgba(71, 58, 54, 0.14);
+  --lb-line: rgba(103, 80, 63, 0.16);
 }
 
 [hidden] {
@@ -20,7 +20,7 @@
   margin: 2px 2px 12px;
   font-size: 13.5px;
   line-height: 1.5;
-  color: rgba(56, 62, 69, 0.72);
+  color: rgba(71, 58, 54, 0.72);
 }
 
 /* ---- Category chips ---- */
@@ -105,7 +105,7 @@
 }
 .lb-card:active {
   transform: scale(0.985);
-  box-shadow: 0 6px 18px rgba(56, 62, 69, 0.12);
+  box-shadow: 0 6px 18px rgba(71, 58, 54, 0.12);
 }
 .lb-card-top {
   display: flex;
@@ -131,7 +131,7 @@
 }
 .lb-card-min {
   font-size: 11.5px;
-  color: rgba(56, 62, 69, 0.5);
+  color: rgba(71, 58, 54, 0.5);
 }
 .lb-card-title {
   margin: 0 0 6px;
@@ -144,7 +144,7 @@
   margin: 0;
   font-size: 13px;
   line-height: 1.5;
-  color: rgba(56, 62, 69, 0.68);
+  color: rgba(71, 58, 54, 0.68);
 }
 
 /* ---- Reader overlay ---- */
@@ -202,7 +202,7 @@
 }
 .lb-read-min {
   font-size: 11.5px;
-  color: rgba(56, 62, 69, 0.5);
+  color: rgba(71, 58, 54, 0.5);
 }
 .lb-read-close {
   display: inline-flex;
@@ -256,10 +256,10 @@
 .fx-widget {
   margin: 18px 0 6px;
   padding: 18px 16px 20px;
-  background: var(--lb-white, #fafbfc);
-  border: 1px solid var(--lb-line, rgba(69, 82, 97, 0.14));
+  background: var(--lb-white, #fefcf8);
+  border: 1px solid var(--lb-line, rgba(103, 80, 63, 0.14));
   border-radius: 20px;
-  box-shadow: 0 6px 18px rgba(56, 62, 69, 0.08);
+  box-shadow: 0 6px 18px rgba(71, 58, 54, 0.08);
   text-align: center;
 }
 .fx-widget-label {
@@ -267,7 +267,7 @@
   letter-spacing: 0.14em;
   text-transform: uppercase;
   font-weight: 600;
-  color: var(--lb-coffee, #455261);
+  color: var(--lb-coffee, #67503f);
   opacity: 0.75;
   margin-bottom: 12px;
 }
@@ -275,7 +275,7 @@
 .fx-pomo-time {
   font-size: 46px;
   font-weight: 600;
-  color: var(--lb-espresso, #383e45);
+  color: var(--lb-espresso, #473a36);
   font-variant-numeric: tabular-nums;
   letter-spacing: 0.02em;
   transition: color 0.3s ease, transform 0.3s ease;
@@ -292,9 +292,9 @@
   flex-wrap: wrap;
 }
 .fx-pomo-mode {
-  border: 1px solid var(--lb-line, rgba(69, 82, 97, 0.16));
-  background: var(--lb-cream, #dadfe5);
-  color: var(--lb-coffee, #455261);
+  border: 1px solid var(--lb-line, rgba(103, 80, 63, 0.16));
+  background: var(--lb-cream, #efe3d0);
+  color: var(--lb-coffee, #67503f);
   font-family: inherit;
   font-size: 12.5px;
   font-weight: 500;
@@ -304,9 +304,9 @@
   transition: background 0.2s ease, color 0.2s ease;
 }
 .fx-pomo-mode.is-active {
-  background: var(--lb-coffee, #455261);
+  background: var(--lb-coffee, #67503f);
   color: #fff;
-  border-color: var(--lb-coffee, #455261);
+  border-color: var(--lb-coffee, #67503f);
 }
 .fx-pomo-ctrls {
   display: flex;
@@ -320,18 +320,18 @@
   padding: 11px 22px;
   border-radius: 14px;
   cursor: pointer;
-  border: 1px solid var(--lb-line, rgba(69, 82, 97, 0.18));
-  background: var(--lb-cream, #dadfe5);
-  color: var(--lb-espresso, #383e45);
+  border: 1px solid var(--lb-line, rgba(103, 80, 63, 0.18));
+  background: var(--lb-cream, #efe3d0);
+  color: var(--lb-espresso, #473a36);
   transition: transform 0.12s ease, background 0.2s ease, opacity 0.2s ease;
 }
 .fx-pomo-btn:active {
   transform: scale(0.96);
 }
 .fx-pomo-btn.fx-primary {
-  background: var(--lb-coffee, #455261);
+  background: var(--lb-coffee, #67503f);
   color: #fff;
-  border-color: var(--lb-coffee, #455261);
+  border-color: var(--lb-coffee, #67503f);
 }
 /* Breathing */
 .fx-breathe-circle {
@@ -345,10 +345,10 @@
   cursor: pointer;
   background: radial-gradient(
     circle at 50% 40%,
-    #eceef1,
-    var(--lb-beige, #b7c2cf)
+    #f7f1e6,
+    var(--lb-beige, #d4c4b1)
   );
-  border: 2px solid rgba(69, 82, 97, 0.18);
+  border: 2px solid rgba(103, 80, 63, 0.18);
   transform: scale(0.82);
   transition: transform 4s ease-in-out, background 4s ease-in-out;
   user-select: none;
@@ -358,7 +358,7 @@
   background: radial-gradient(
     circle at 50% 40%,
     #fff,
-    var(--lb-cream, #dadfe5)
+    var(--lb-cream, #efe3d0)
   );
 }
 .fx-breathe-circle.is-out {
@@ -367,6 +367,6 @@
 .fx-breathe-word {
   font-size: 15px;
   font-weight: 600;
-  color: var(--lb-espresso, #383e45);
+  color: var(--lb-espresso, #473a36);
   letter-spacing: 0.02em;
 }

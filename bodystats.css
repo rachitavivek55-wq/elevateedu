@@ -1,12 +1,12 @@
 /* ===== Body Stats tool (ElevateEdu warm theme) ===== */
 :root {
-  --bs-cream: #dadfe5;
-  --bs-white: #fafbfc;
-  --bs-beige: #b7c2cf;
-  --bs-coffee: #455261;
-  --bs-espresso: #383e45;
-  --bs-line: #cdd3da;
-  --bs-muted: #626f7d;
+  --bs-cream: #efe3d0;
+  --bs-white: #fefcf8;
+  --bs-beige: #d4c4b1;
+  --bs-coffee: #67503f;
+  --bs-espresso: #473a36;
+  --bs-line: #e0d5c7;
+  --bs-muted: #82725d;
   --bs-accent: #7a8b5a;
   --bs-danger: #b0645e;
 } /* */
@@ -34,11 +34,11 @@
   display: flex;
   align-items: center;
   justify-content: space-around;
-  background: linear-gradient(135deg, #455261, #383e45);
+  background: linear-gradient(135deg, #67503f, #473a36);
   border-radius: 18px;
   padding: 16px 10px;
   margin-bottom: 20px;
-  box-shadow: 0 8px 20px rgba(56, 62, 69, 0.18);
+  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.18);
 }
 .bs-sum-item {
   display: flex;
@@ -53,13 +53,13 @@
 }
 .bs-sum-label {
   font-size: 11px;
-  color: #b2becb;
+  color: #d0c0ad;
   letter-spacing: 0.3px;
 }
 .bs-sum-div {
   width: 1px;
   height: 30px;
-  background: rgba(218, 223, 229, 0.25);
+  background: rgba(239, 227, 208, 0.25);
 }
 
 /* Category cards */
@@ -73,7 +73,7 @@
   border: 1px solid var(--bs-line);
   border-radius: 16px;
   padding: 14px 16px;
-  box-shadow: 0 4px 14px rgba(69, 82, 97, 0.06);
+  box-shadow: 0 4px 14px rgba(103, 80, 63, 0.06);
   cursor: pointer;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
@@ -200,11 +200,11 @@
   height: 56px;
   border: none;
   border-radius: 50%;
-  background: linear-gradient(135deg, #455261, #383e45);
+  background: linear-gradient(135deg, #67503f, #473a36);
   color: var(--bs-cream);
   display: grid;
   place-items: center;
-  box-shadow: 0 8px 20px rgba(56, 62, 69, 0.32);
+  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.32);
   cursor: pointer;
   z-index: 20;
 }
@@ -220,7 +220,7 @@
 .bs-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(56, 62, 69, 0.4);
+  background: rgba(71, 58, 54, 0.4);
   display: flex;
   align-items: flex-end;
   z-index: 40;
@@ -284,7 +284,7 @@
 .bs-input {
   width: 100%;
   border: 1px solid var(--bs-line);
-  background: #fafbfc;
+  background: #fefcf8;
   border-radius: 12px;
   padding: 12px 14px;
   font-size: 15px;
@@ -360,7 +360,7 @@
   height: 15px;
 }
 .bs-btn-primary {
-  background: linear-gradient(135deg, #455261, #383e45);
+  background: linear-gradient(135deg, #67503f, #473a36);
   color: var(--bs-cream);
 }
 .bs-btn-ghost {
@@ -494,7 +494,7 @@
 .bs-confirm-wrap {
   position: absolute;
   inset: 0;
-  background: rgba(56, 62, 69, 0.42);
+  background: rgba(71, 58, 54, 0.42);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -507,7 +507,7 @@
   padding: 22px 20px 18px;
   width: 100%;
   max-width: 300px;
-  box-shadow: 0 12px 30px rgba(56, 62, 69, 0.3);
+  box-shadow: 0 12px 30px rgba(71, 58, 54, 0.3);
 }
 .bs-confirm-msg {
   font-size: 15px;
@@ -532,7 +532,7 @@
   border-radius: 999px;
   font-size: 13px;
   font-weight: 500;
-  box-shadow: 0 8px 20px rgba(56, 62, 69, 0.3);
+  box-shadow: 0 8px 20px rgba(71, 58, 54, 0.3);
   z-index: 70;
   animation: bsToastIn 0.2s ease;
 }

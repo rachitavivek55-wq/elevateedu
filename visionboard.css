@@ -1,12 +1,12 @@
 :root {
-  --vb-cream: #dadfe5;
-  --vb-white: #fafbfc;
-  --vb-beige: #b7c2cf;
-  --vb-coffee: #455261;
-  --vb-espresso: #383e45;
-  --vb-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
-  --vb-line: rgba(69, 82, 97, 0.16);
-  --vb-accent: #455261;
+  --vb-cream: #efe3d0;
+  --vb-white: #fefcf8;
+  --vb-beige: #d4c4b1;
+  --vb-coffee: #67503f;
+  --vb-espresso: #473a36;
+  --vb-shadow: 0 10px 30px rgba(71, 58, 54, 0.14);
+  --vb-line: rgba(103, 80, 63, 0.16);
+  --vb-accent: #67503f;
 }
 
 .vb-screen {
@@ -31,7 +31,7 @@
   background: var(--vb-white);
   border-radius: 14px;
   padding: 11px 14px;
-  box-shadow: 0 2px 8px rgba(56, 62, 69, 0.05);
+  box-shadow: 0 2px 8px rgba(71, 58, 54, 0.05);
 }
 
 /* Style switcher */
@@ -94,7 +94,7 @@
   cursor: pointer;
   padding: 0;
   transition: transform 0.15s ease;
-  box-shadow: 0 2px 6px rgba(56, 62, 69, 0.18);
+  box-shadow: 0 2px 6px rgba(71, 58, 54, 0.18);
 }
 .vb-theme:active {
   transform: scale(0.9);
@@ -132,31 +132,31 @@
   padding: 16px 14px;
   min-height: 320px;
   border: 1px solid var(--vb-line);
-  box-shadow: inset 0 2px 10px rgba(56, 62, 69, 0.06);
+  box-shadow: inset 0 2px 10px rgba(71, 58, 54, 0.06);
   transition: background 0.3s ease;
 }
 /* Style: plain board — uses board colour */
 .vb-board[data-style='board'] {
-  background: var(--vb-board-color, #dadfe5);
+  background: var(--vb-board-color, #efe3d0);
   border: 1.5px solid rgba(var(--vb-accent-rgb), 0.28);
 }
 
 /* Style: corkboard — board colour surface, accent frame */
 .vb-board[data-style='cork'] {
-  background-color: var(--vb-board-color, #8d9fb3);
+  background-color: var(--vb-board-color, #c0a281);
   background-image: radial-gradient(
-    rgba(56, 62, 69, 0.24) 1.1px,
+    rgba(71, 58, 54, 0.24) 1.1px,
     transparent 1.2px
   );
   background-size: 12px 12px;
   background-position: 0 0;
   border: 12px solid rgba(var(--vb-accent-rgb), 0.6);
-  box-shadow: inset 0 0 0 2px rgba(56, 62, 69, 0.18);
+  box-shadow: inset 0 0 0 2px rgba(71, 58, 54, 0.18);
 }
 
 /* Style: binder paper — board colour paper, accent ruled lines, single red margin */
 .vb-board[data-style='binder'] {
-  background-color: var(--vb-board-color, #fafbfc);
+  background-color: var(--vb-board-color, #fefcf8);
   background-image: repeating-linear-gradient(
     to bottom,
     transparent 0,
@@ -165,7 +165,7 @@
     rgba(var(--vb-accent-rgb), 0.22) 28px
   );
   border: 1.5px solid rgba(var(--vb-accent-rgb), 0.2);
-  box-shadow: 0 2px 10px rgba(56, 62, 69, 0.08);
+  box-shadow: 0 2px 10px rgba(71, 58, 54, 0.08);
 }
 .vb-board[data-style='binder']::before {
   content: '';
@@ -179,11 +179,11 @@
 }
 /* Style: bulletin felt — board colour felt, accent border */
 .vb-board[data-style='bulletin'] {
-  background-color: var(--vb-board-color, #ced4db);
+  background-color: var(--vb-board-color, #e3d6c6);
   background-image: repeating-linear-gradient(
     45deg,
-    rgba(56, 62, 69, 0.05) 0,
-    rgba(56, 62, 69, 0.05) 2px,
+    rgba(71, 58, 54, 0.05) 0,
+    rgba(71, 58, 54, 0.05) 2px,
     transparent 2px,
     transparent 6px
   );
@@ -208,7 +208,7 @@
   border: 1px solid var(--vb-line);
   border-radius: 12px;
   padding: 12px 12px 12px;
-  box-shadow: 0 6px 16px rgba(56, 62, 69, 0.12);
+  box-shadow: 0 6px 16px rgba(71, 58, 54, 0.12);
   cursor: pointer;
   transition: transform 0.15s ease, box-shadow 0.2s ease;
   overflow: hidden;
@@ -274,7 +274,7 @@
   border-radius: 8px;
   margin-top: 8px;
   display: block;
-  background: var(--vb-cream, #dadfe5);
+  background: var(--vb-cream, #efe3d0);
   border: 1px solid var(--vb-line);
 }
 .vb-item-title {
@@ -355,7 +355,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 10px 24px rgba(56, 62, 69, 0.32);
+  box-shadow: 0 10px 24px rgba(71, 58, 54, 0.32);
   z-index: 50;
   transition: transform 0.15s ease;
 }
@@ -388,7 +388,7 @@
   padding: 10px 18px 18px;
   max-height: 88%;
   overflow-y: auto;
-  box-shadow: 0 -10px 30px rgba(56, 62, 69, 0.24);
+  box-shadow: 0 -10px 30px rgba(71, 58, 54, 0.24);
 }
 .vb-sheet[hidden] {
   display: none !important;
@@ -556,7 +556,7 @@
   border: 2px solid transparent;
   cursor: pointer;
   padding: 0;
-  box-shadow: 0 2px 5px rgba(56, 62, 69, 0.2);
+  box-shadow: 0 2px 5px rgba(71, 58, 54, 0.2);
 }
 .vb-pin.is-active {
   border-color: var(--vb-espresso);
@@ -699,7 +699,7 @@
   padding: 0;
   border: none;
   background: var(--vb-white);
-  box-shadow: 0 6px 18px rgba(56, 62, 69, 0.08);
+  box-shadow: 0 6px 18px rgba(71, 58, 54, 0.08);
   cursor: pointer;
   overflow: hidden;
   text-align: left;
@@ -714,14 +714,14 @@
 .vb-board-card-preview {
   height: 72px;
   position: relative;
-  border-bottom: 1px solid rgba(69, 82, 97, 0.08);
+  border-bottom: 1px solid rgba(103, 80, 63, 0.08);
   overflow: hidden;
 }
 .vb-board-card-count {
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(56, 62, 69, 0.55);
+  background: rgba(71, 58, 54, 0.55);
   color: var(--vb-white);
   font-size: 11px;
   font-weight: 600;
@@ -757,8 +757,8 @@
 }
 /* Add-new tile */
 .vb-add-tile {
-  border: 2px dashed rgba(69, 82, 97, 0.35);
-  background: rgba(250, 251, 252, 0.5);
+  border: 2px dashed rgba(103, 80, 63, 0.35);
+  background: rgba(254, 252, 248, 0.5);
   border-radius: 18px;
   min-height: 132px;
   display: flex;
@@ -771,7 +771,7 @@
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 .vb-add-tile:active {
-  background: rgba(183, 194, 207, 0.35);
+  background: rgba(212, 196, 177, 0.35);
 }
 .vb-add-tile i {
   width: 26px;
@@ -833,7 +833,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow: 0 3px 10px rgba(56, 62, 69, 0.08);
+  box-shadow: 0 3px 10px rgba(71, 58, 54, 0.08);
 }
 .vb-board-menu i {
   width: 18px;
@@ -855,7 +855,7 @@
   border: 2px solid transparent;
   cursor: pointer;
   padding: 0;
-  box-shadow: 0 0 0 1px rgba(56, 62, 69, 0.12);
+  box-shadow: 0 0 0 1px rgba(71, 58, 54, 0.12);
 }
 .vb-theme-sw.is-active {
   border-color: var(--vb-white);
@@ -898,7 +898,7 @@
   border-radius: 50%;
   background: var(--sw);
   border: 2px solid var(--vb-white);
-  box-shadow: 0 0 0 1px rgba(56, 62, 69, 0.18);
+  box-shadow: 0 0 0 1px rgba(71, 58, 54, 0.18);
   cursor: pointer;
   padding: 0;
   transition: transform 0.1s ease;
@@ -930,12 +930,12 @@
     #ba68c8,
     #e57373
   );
-  box-shadow: 0 0 0 2px var(--vb-white), 0 2px 6px rgba(56, 62, 69, 0.2);
+  box-shadow: 0 0 0 2px var(--vb-white), 0 2px 6px rgba(71, 58, 54, 0.2);
 }
 .vb-wheel-btn i {
   width: 15px;
   height: 15px;
-  color: #383e45;
+  color: #473a36;
   filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.8));
 }
 .vb-wheel-btn input[type='color'] {
@@ -961,7 +961,7 @@
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
-  box-shadow: 0 2px 8px rgba(56, 62, 69, 0.08);
+  box-shadow: 0 2px 8px rgba(71, 58, 54, 0.08);
   flex: none;
 }
 .vb-scatter-btn i {

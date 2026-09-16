@@ -410,7 +410,7 @@
     var entry = {
       id: Date.now() + Math.floor(Math.random() * 1000),
       title: '🏋️ ' + w.name,
-      color: '#455261',
+      color: '#67503f',
       notes: notesParts.join(', '),
       source: 'workout',
       workoutId: w.id,

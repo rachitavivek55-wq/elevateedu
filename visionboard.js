@@ -148,8 +148,8 @@
     'DEC',
   ];
   var THEME_HEX = {
-    coffee: '#455261',
-    clay: '#76889c',
+    coffee: '#67503f',
+    clay: '#a4816e',
     sage: '#7d8471',
     plum: '#7a6583',
     gold: '#c2a14d',
@@ -168,12 +168,12 @@
     bulletin: 'Felt',
   };
   var DEFAULT_BOARD_COLOR = {
-    board: '#dadfe5',
-    cork: '#8d9fb3',
-    binder: '#fafbfc',
-    bulletin: '#ced4db',
+    board: '#efe3d0',
+    cork: '#c0a281',
+    binder: '#fefcf8',
+    bulletin: '#e3d6c6',
   };
-  var DEFAULT_HI = '#455261';
+  var DEFAULT_HI = '#67503f';
 
   var state = { boards: [] };
   var currentBoardId = null;

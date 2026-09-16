@@ -751,7 +751,7 @@
     ctx.font = 'bold 30px Poppins, sans-serif';
     var tw = ctx.measureText(txt).width;
     var px = x + w / 2;
-    ctx.fillStyle = 'rgba(56,62,69,.82)';
+    ctx.fillStyle = 'rgba(71,58,54,.82)';
     var bw = tw + 34,
       bh = 44;
     var bx = px - bw / 2;
@@ -759,7 +759,7 @@
     if (ctx.roundRect) ctx.roundRect(bx, y, bw, bh, 22);
     else ctx.rect(bx, y, bw, bh);
     ctx.fill();
-    ctx.fillStyle = '#dadfe5';
+    ctx.fillStyle = '#efe3d0';
     ctx.textAlign = 'center';
     ctx.textBaseline = 'middle';
     ctx.fillText(txt, px, y + bh / 2 + 1);
@@ -773,7 +773,7 @@
       gap = 12;
     cv.width = W;
     cv.height = H;
-    ctx.fillStyle = '#dadfe5';
+    ctx.fillStyle = '#efe3d0';
     ctx.fillRect(0, 0, W, H);
     var ia = await loadImg(collageA.src),
       ib = await loadImg(collageB.src);

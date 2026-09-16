@@ -1,19 +1,19 @@
 /* ===== ElevateEdu — Soft Warm Theme ===== */
 :root {
-  --cream: #dadfe5;
-  --beige: #b7c2cf;
-  --coffee: #455261;
-  --espresso: #383e45;
+  --cream: #efe3d0;
+  --beige: #d4c4b1;
+  --coffee: #67503f;
+  --espresso: #473a36;
 
   /* Soft, calm surfaces (no stark white) */
-  --bg: #dde1e6;
-  --tile: #eef0f3;
-  --tile-accent: #d8dde3;
-  --greet-1: #cad1d8;
-  --greet-2: #bec8d3;
+  --bg: #eee4d5;
+  --tile: #f8f2e9;
+  --tile-accent: #eae0d1;
+  --greet-1: #e3d5c0;
+  --greet-2: #dbccb6;
 
-  --shadow: 0 10px 30px rgba(56, 62, 69, 0.08);
-  --shadow-soft: 0 4px 14px rgba(56, 62, 69, 0.05);
+  --shadow: 0 10px 30px rgba(71, 58, 54, 0.08);
+  --shadow-soft: 0 4px 14px rgba(71, 58, 54, 0.05);
 }
 
 * {
@@ -25,7 +25,7 @@
 body {
   font-family: 'Poppins', -apple-system, sans-serif;
   font-weight: 300;
-  background: linear-gradient(160deg, #dadfe5 0%, #cbd2da 100%);
+  background: linear-gradient(160deg, #eae2d5 0%, #e0d5c5 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
@@ -172,18 +172,18 @@ body {
   padding: 16px 12px;
   border-radius: 28px;
   text-align: center;
-  box-shadow: inset 0 0 0 1px rgba(69, 82, 97, 0.07), 0 6px 16px -8px rgba(69, 82, 97, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(103, 80, 63, 0.07), 0 6px 16px -8px rgba(103, 80, 63, 0.28);
   -webkit-tap-highlight-color: transparent;
 }
 .grid > .tile:hover {
-  box-shadow: inset 0 0 0 1px rgba(69, 82, 97, 0.09), 0 10px 20px -8px rgba(69, 82, 97, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(103, 80, 63, 0.09), 0 10px 20px -8px rgba(103, 80, 63, 0.32);
 }
 .grid > .tile .tile-icon {
   width: 56px;
   height: 56px;
   border-radius: 18px;
   margin-bottom: 12px;
-  box-shadow: inset 0 0 0 1px rgba(69, 82, 97, 0.06), 0 3px 8px -5px rgba(69, 82, 97, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(103, 80, 63, 0.06), 0 3px 8px -5px rgba(103, 80, 63, 0.35);
 }
 .grid > .tile .tile-icon svg {
   width: 27px;
@@ -203,7 +203,7 @@ body {
 }
 .grid > .tile:active {
   transform: scale(0.975);
-  box-shadow: inset 0 0 0 1px rgba(69, 82, 97, 0.09), 0 3px 10px -8px rgba(69, 82, 97, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(103, 80, 63, 0.09), 0 3px 10px -8px rgba(103, 80, 63, 0.3);
 }
 
 .tile-icon {
@@ -242,7 +242,7 @@ body {
   align-items: center;
   background: var(--tile);
   padding: 12px 8px 20px;
-  border-top: 1px solid rgba(183, 194, 207, 0.4);
+  border-top: 1px solid rgba(212, 196, 177, 0.4);
 }
 
 .nav-item {
@@ -382,12 +382,12 @@ body {
   gap: 14px;
 }
 .grid > .app-card + .app-card {
-  border-top: 1px solid rgba(69, 82, 97, 0.1);
+  border-top: 1px solid rgba(103, 80, 63, 0.1);
 }
 .grid > .app-card:hover {
   transform: none;
   box-shadow: none;
-  background: rgba(69, 82, 97, 0.04);
+  background: rgba(103, 80, 63, 0.04);
 }
 
 .app-icon {
@@ -741,8 +741,8 @@ input, select, textarea, button {
   height: 34px;
   border-radius: 50%;
   border: none;
-  background: rgba(69, 82, 97, 0.1);
-  color: #455261;
+  background: rgba(103, 80, 63, 0.1);
+  color: #67503f;
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -777,7 +777,7 @@ input, select, textarea, button {
   height: 76px;
   margin: 0 auto 12px;
   border-radius: 20px;
-  box-shadow: 0 10px 24px rgba(56, 62, 69, 0.22);
+  box-shadow: 0 10px 24px rgba(71, 58, 54, 0.22);
 }
 .ee-land-tag {
   margin: 2px 0 16px;
@@ -806,21 +806,21 @@ input, select, textarea, button {
   overflow: auto;
   padding: 20px 18px 16px;
   border-radius: 22px;
-  background: #f8f9fa;
+  background: #fdf9f5;
   box-shadow: 0 18px 50px rgba(40, 28, 24, 0.32);
   text-align: left;
 }
 .ee-ig-card h3 {
   margin: 0 0 5px;
   font-size: 16px;
-  color: #383e45;
+  color: #473a36;
   text-align: center;
 }
 .ee-ig-sub {
   margin: 0 0 16px;
   font-size: 12px;
   line-height: 1.5;
-  color: #455261;
+  color: #67503f;
   opacity: 0.75;
   text-align: center;
 }
@@ -833,7 +833,7 @@ input, select, textarea, button {
   flex: 0 0 22px;
   height: 22px;
   border-radius: 50%;
-  background: #455261;
+  background: #67503f;
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -847,13 +847,13 @@ input, select, textarea, button {
 .ee-ig-h {
   font-size: 12.5px;
   font-weight: 600;
-  color: #383e45;
+  color: #473a36;
   margin-bottom: 2px;
 }
 .ee-ig-p {
   font-size: 11.5px;
   line-height: 1.6;
-  color: #455261;
+  color: #67503f;
   opacity: 0.85;
 }
 .ee-ig-p svg {
@@ -866,7 +866,7 @@ input, select, textarea, button {
   padding: 12px;
   border: none;
   border-radius: 999px;
-  background: #455261;
+  background: #67503f;
   color: #fff;
   font-family: inherit;
   font-size: 13.5px;
@@ -881,7 +881,7 @@ input, select, textarea, button {
   border: none;
   font-family: inherit;
   font-size: 11.5px;
-  color: #455261;
+  color: #67503f;
   opacity: 0.6;
   cursor: pointer;
 }
@@ -894,10 +894,10 @@ input, select, textarea, button {
 }
 .home-help a {
   font-size: 12.5px;
-  color: var(--coffee, #383e45);
+  color: var(--coffee, #473a36);
   opacity: 0.65;
   text-decoration: none;
-  border-bottom: 1px solid rgba(56, 62, 69, 0.22);
+  border-bottom: 1px solid rgba(71, 58, 54, 0.22);
   padding-bottom: 1px;
 }
 .home-help a:active {

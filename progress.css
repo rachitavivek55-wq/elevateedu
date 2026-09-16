@@ -1,13 +1,13 @@
 /* progress styles */
 
 :root {
-  --pg-cream: #dadfe5;
-  --pg-white: #fafbfc;
-  --pg-beige: #b7c2cf;
-  --pg-coffee: #455261;
-  --pg-espresso: #383e45;
-  --pg-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
-  --pg-line: rgba(69, 82, 97, 0.16);
+  --pg-cream: #efe3d0;
+  --pg-white: #fefcf8;
+  --pg-beige: #d4c4b1;
+  --pg-coffee: #67503f;
+  --pg-espresso: #473a36;
+  --pg-shadow: 0 10px 30px rgba(71, 58, 54, 0.14);
+  --pg-line: rgba(103, 80, 63, 0.16);
 }
 .pg-screen {
   padding: 16px 18px 96px;
@@ -60,7 +60,7 @@
 .pg-sum-div {
   width: 1px;
   height: 34px;
-  background: rgba(218, 223, 229, 0.28);
+  background: rgba(239, 227, 208, 0.28);
 }
 
 .pg-cats {
@@ -110,7 +110,7 @@
   position: absolute;
   top: 8px;
   right: 8px;
-  background: rgba(56, 62, 69, 0.82);
+  background: rgba(71, 58, 54, 0.82);
   color: var(--pg-cream);
   font-size: 11px;
   font-weight: 600;
@@ -193,7 +193,7 @@
 .pg-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(56, 62, 69, 0.42);
+  background: rgba(71, 58, 54, 0.42);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -207,7 +207,7 @@
   background: var(--pg-white);
   border-radius: 22px 22px 0 0;
   padding: 20px 18px 24px;
-  box-shadow: 0 -8px 30px rgba(56, 62, 69, 0.2);
+  box-shadow: 0 -8px 30px rgba(71, 58, 54, 0.2);
   max-height: 88%;
   overflow-y: auto;
   animation: pgUp 0.22s ease;
@@ -457,7 +457,7 @@
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(transparent, rgba(56, 62, 69, 0.78));
+  background: linear-gradient(transparent, rgba(71, 58, 54, 0.78));
   color: var(--pg-cream);
   font-size: 10px;
   font-weight: 600;
@@ -582,7 +582,7 @@
   position: absolute;
   top: 16px;
   right: 16px;
-  background: rgba(218, 223, 229, 0.16);
+  background: rgba(239, 227, 208, 0.16);
   color: var(--pg-cream);
 }
 .pg-viewer-meta {
@@ -613,7 +613,7 @@
 .pg-confirm-wrap {
   position: absolute;
   inset: 0;
-  background: rgba(56, 62, 69, 0.5);
+  background: rgba(71, 58, 54, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;

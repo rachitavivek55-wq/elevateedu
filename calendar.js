@@ -66,7 +66,7 @@
   let entries = load();
   let view = 'week';
   let cursor = new Date();
-  let selectedColor = '#455261';
+  let selectedColor = '#67503f';
   let selectedDays = [];
   let currentType = 'commitment';
 let editingId = null;
@@ -232,7 +232,7 @@ let editingId = null;
             '" data-adidx="' +
             j +
             '" style="--ec:' +
-            (e.color || '#455261') +
+            (e.color || '#67503f') +
             '" title="' +
             escapeHtml(e.title + (e.notes ? ' — ' + e.notes : '')) +
             '">' +
@@ -415,7 +415,7 @@ let editingId = null;
     }
     var chip = document.createElement('div');
     chip.className = 'cal-event';
-    chip.style.setProperty('--ec', e.color || '#455261');
+    chip.style.setProperty('--ec', e.color || '#67503f');
     chip.style.top = top + 'px';
     chip.style.height = height + 'px';
     // side-by-side layout for overlapping events (3px gutter each side kept)
@@ -475,7 +475,7 @@ let editingId = null;
       evs.forEach((e) => {
         html +=
           '<span class="cal-dot" style="background:' +
-          (e.color || '#455261') +
+          (e.color || '#67503f') +
           '"></span>';
       });
       if (extra > 0) html += '<span class="m-more">+' + extra + '</span>';
@@ -586,7 +586,7 @@ let editingId = null;
   function resetForm() {
     form.reset();
     setType('commitment');
-    selectedColor = '#455261';
+    selectedColor = '#67503f';
     selectedDays = [];
     document
       .querySelectorAll('.cal-swatch')
@@ -596,7 +596,7 @@ let editingId = null;
     document
       .querySelectorAll('.cal-day-pick')
       .forEach((d) => d.classList.remove('on'));
-    document.getElementById('fColor').value = '#455261';
+    document.getElementById('fColor').value = '#67503f';
     document.getElementById('fDate').value = ymd(new Date());
     editingId = null;
     var __tabs = document.getElementById('calTypeTabs');
@@ -618,7 +618,7 @@ let editingId = null;
     modalTitle.textContent = 'Edit ' + e.type.charAt(0).toUpperCase() + e.type.slice(1);
     document.getElementById('fTitle').value = e.title || '';
     document.getElementById('fNotes').value = e.notes || '';
-    selectedColor = e.color || '#455261';
+    selectedColor = e.color || '#67503f';
     document.getElementById('fColor').value = selectedColor;
     document.querySelectorAll('.cal-swatch').forEach(function (sw) {
       sw.classList.toggle('on', sw.dataset.color === selectedColor);
