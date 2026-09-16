@@ -1,11 +1,11 @@
 :root {
-  --mp-cream: #f5e6ca;
-  --mp-white: #fffdf7;
-  --mp-beige: #dcc7aa;
-  --mp-coffee: #6f4e37;
-  --mp-espresso: #4b3832;
-  --mp-shadow: 0 10px 30px rgba(75, 56, 50, 0.14);
-  --mp-line: rgba(111, 78, 55, 0.16);
+  --mp-cream: #dadfe5;
+  --mp-white: #fafbfc;
+  --mp-beige: #b7c2cf;
+  --mp-coffee: #455261;
+  --mp-espresso: #383e45;
+  --mp-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
+  --mp-line: rgba(69, 82, 97, 0.16);
 }
 .mp-screen {
   padding: 16px 18px 96px;
@@ -58,7 +58,7 @@
 .mp-sum-div {
   width: 1px;
   height: 34px;
-  background: rgba(245, 230, 202, 0.28);
+  background: rgba(218, 223, 229, 0.28);
 }
 
 .mp-tabs {
@@ -249,7 +249,7 @@
 .mp-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(75, 56, 50, 0.42);
+  background: rgba(56, 62, 69, 0.42);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -263,7 +263,7 @@
   background: var(--mp-white);
   border-radius: 22px 22px 0 0;
   padding: 20px 18px 24px;
-  box-shadow: 0 -8px 30px rgba(75, 56, 50, 0.2);
+  box-shadow: 0 -8px 30px rgba(56, 62, 69, 0.2);
   max-height: 90%;
   overflow-y: auto;
   animation: mpUp 0.22s ease;
@@ -598,7 +598,7 @@
 .mp-confirm-wrap {
   position: absolute;
   inset: 0;
-  background: rgba(75, 56, 50, 0.5);
+  background: rgba(56, 62, 69, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;

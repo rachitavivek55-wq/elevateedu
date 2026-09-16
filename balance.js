@@ -253,8 +253,8 @@
 
     svg.innerHTML =
       '<defs><linearGradient id="blGrad" x1="0" y1="0" x2="0" y2="1">' +
-      '<stop offset="0%" stop-color="#6f4e37" stop-opacity="0.28"/>' +
-      '<stop offset="100%" stop-color="#6f4e37" stop-opacity="0.02"/>' +
+      '<stop offset="0%" stop-color="#455261" stop-opacity="0.28"/>' +
+      '<stop offset="100%" stop-color="#455261" stop-opacity="0.02"/>' +
       '</linearGradient></defs>' +
       '<path class="bl-area" d="' +
       areaPts +

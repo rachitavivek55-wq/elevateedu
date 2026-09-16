@@ -3,14 +3,14 @@
   var CAL_KEY = 'elevate_calendar_entries';
   var CLASS_KEY = 'elevate_assignments_classes';
   var SWATCHES = [
-    '#6f4e37',
+    '#455261',
     '#a9746e',
     '#8c9a5b',
-    '#c08457',
+    '#718aa6',
     '#7a6a99',
     '#4b7d78',
     '#b0645e',
-    '#9a7b4f',
+    '#627387',
   ];
   var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   var FULLDAYS = [
@@ -174,7 +174,7 @@
       i.id +
       '">' +
       '<span class="as-item-dot" style="background:' +
-      esc(i.color || '#6f4e37') +
+      esc(i.color || '#455261') +
       '"></span>' +
       '<div class="as-item-main">' +
       '<div class="as-item-title">' +
@@ -373,7 +373,7 @@
           '<div class="as-class" data-open-class="' +
           c.id +
           '" style="--as-cc:' +
-          esc(c.color || '#6f4e37') +
+          esc(c.color || '#455261') +
           '">' +
           '<div class="as-class-main"><div class="as-class-name">' +
           esc(c.name) +
@@ -456,7 +456,7 @@
               (c.end ? '&ndash;' + prettyTime(c.end) : '')
             : '')
       );
-    $('asDetailCard').style.setProperty('--as-cc', c.color || '#6f4e37');
+    $('asDetailCard').style.setProperty('--as-cc', c.color || '#455261');
     $('asDetailCard').innerHTML =
       '<div class="as-detail-main"><div class="as-detail-name">' +
       esc(c.name) +

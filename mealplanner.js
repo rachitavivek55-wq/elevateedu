@@ -2,7 +2,7 @@
   'use strict';
   var MP_KEY = 'elevate_meals';
   var CAL_KEY = 'elevate_calendar_entries';
-  var MEAL_COLOR = '#6F4E37';
+  var MEAL_COLOR = '#455261';
   var TYPES = [
     { id: 'breakfast', label: 'Breakfast', icon: 'sunrise' },
     { id: 'lunch', label: 'Lunch', icon: 'sun' },

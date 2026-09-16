@@ -1,12 +1,12 @@
 :root {
-  --ck-cream: #f5e6ca;
-  --ck-white: #fffdf7;
-  --ck-beige: #dcc7aa;
-  --ck-coffee: #6f4e37;
-  --ck-espresso: #4b3832;
-  --ck-line: rgba(111, 78, 55, 0.16);
-  --ck-shadow: 0 10px 30px rgba(75, 56, 50, 0.14);
-  --ck-shadow-sm: 0 4px 14px rgba(75, 56, 50, 0.1);
+  --ck-cream: #dadfe5;
+  --ck-white: #fafbfc;
+  --ck-beige: #b7c2cf;
+  --ck-coffee: #455261;
+  --ck-espresso: #383e45;
+  --ck-line: rgba(69, 82, 97, 0.16);
+  --ck-shadow: 0 10px 30px rgba(56, 62, 69, 0.14);
+  --ck-shadow-sm: 0 4px 14px rgba(56, 62, 69, 0.1);
 }
 
 /* The tool sits above the bottom bar, so the last row and the add field are
@@ -413,7 +413,7 @@
 .ck-backdrop {
   position: absolute;
   inset: 0;
-  background: rgba(75, 56, 50, 0.35);
+  background: rgba(56, 62, 69, 0.35);
   z-index: 40;
 }
 .ck-sheet {

@@ -1,10 +1,10 @@
 /* ===== Calendar tool styles (ElevateEdu warm theme) ===== */
 :root {
-  --cal-line: #e4d6bc;
-  --cal-tile: #fbf4e6;
-  --cal-tile-2: #f3e7d0;
-  --cal-ink: #4b3832;
-  --cal-muted: #8a7355;
+  --cal-line: #c8cfd8;
+  --cal-tile: #eef0f3;
+  --cal-tile-2: #dde1e6;
+  --cal-ink: #383e45;
+  --cal-muted: #626f7d;
 }
 
 .cal-screen {
@@ -36,7 +36,7 @@
 .cal-view-btn.active {
   background: var(--cal-tile);
   color: var(--cal-ink);
-  box-shadow: 0 2px 6px rgba(75, 56, 50, 0.08);
+  box-shadow: 0 2px 6px rgba(56, 62, 69, 0.08);
 }
 
 /* Period nav */
@@ -105,7 +105,7 @@
   border-radius: 16px;
   overflow: hidden;
   background: var(--cal-tile);
-  box-shadow: 0 4px 14px rgba(75, 56, 50, 0.06);
+  box-shadow: 0 4px 14px rgba(56, 62, 69, 0.06);
 }
 .cal-weekhead {
   display: grid;
@@ -197,17 +197,17 @@
   max-width: 100%;
   box-sizing: border-box;
   border-radius: 8px;
-  border-left: 3px solid var(--ec, #6f4e37);
+  border-left: 3px solid var(--ec, #455261);
   padding: 3px 6px;
   font-size: 10px;
   font-weight: 600;
   line-height: 1.25;
-  background: color-mix(in oklab, var(--ec, #6f4e37) 24%, #fff7ea);
-  color: color-mix(in oklab, var(--ec, #6f4e37) 40%, #2a1b12);
+  background: color-mix(in oklab, var(--ec, #455261) 24%, #f3f4f6);
+  color: color-mix(in oklab, var(--ec, #455261) 40%, #181e24);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  box-shadow: 0 1px 2px rgba(75, 56, 50, 0.1);
+  box-shadow: 0 1px 2px rgba(56, 62, 69, 0.1);
   cursor: pointer;
 }
 
@@ -217,14 +217,14 @@
   left: 3px;
   right: 3px;
   border-radius: 9px;
-  border-left: 3px solid var(--ec, #6f4e37);
+  border-left: 3px solid var(--ec, #455261);
   padding: 4px 7px;
   font-size: 10px;
   line-height: 1.25;
-  background: color-mix(in oklab, var(--ec, #6f4e37) 22%, #fff7ea);
-  color: color-mix(in oklab, var(--ec, #6f4e37) 40%, #2a1b12);
+  background: color-mix(in oklab, var(--ec, #455261) 22%, #f3f4f6);
+  color: color-mix(in oklab, var(--ec, #455261) 40%, #181e24);
   overflow: hidden;
-  box-shadow: 0 1px 2px rgba(75, 56, 50, 0.1);
+  box-shadow: 0 1px 2px rgba(56, 62, 69, 0.1);
   z-index: 2;
   cursor: pointer;
 }
@@ -263,7 +263,7 @@
 }
 .cal-event.is-tiny {
   padding: 2px;
-  background: var(--ec, #6f4e37);
+  background: var(--ec, #455261);
 }
 .cal-event.is-tiny .ev-time,
 .cal-event.is-tiny .ev-title {
@@ -366,7 +366,7 @@
   border-radius: 4px;
 }
 .cal-ygrid span.has-ev {
-  background: color-mix(in oklab, var(--cal-ink) 24%, #fcf3e2);
+  background: color-mix(in oklab, var(--cal-ink) 24%, #eceff2);
   color: var(--cal-ink);
   font-weight: 600;
 }
@@ -388,7 +388,7 @@
   display: grid;
   place-items: center;
   cursor: pointer;
-  box-shadow: 0 6px 18px rgba(75, 56, 50, 0.35);
+  box-shadow: 0 6px 18px rgba(56, 62, 69, 0.35);
   z-index: 20;
   transition: transform 0.15s ease;
 }
@@ -415,7 +415,7 @@
   display: none;
 }
 .cal-modal {
-  background: var(--bg, #f3e7d0);
+  background: var(--bg, #dde1e6);
   width: 100%;
   max-height: 90%;
   overflow-y: auto;
@@ -599,7 +599,7 @@
 }
 .cal-swatch.on {
   border-color: var(--cal-ink);
-  box-shadow: 0 0 0 2px var(--bg, #f3e7d0), 0 0 0 4px var(--cal-ink);
+  box-shadow: 0 0 0 2px var(--bg, #dde1e6), 0 0 0 4px var(--cal-ink);
 }
 .cal-wheel {
   position: relative;
@@ -737,7 +737,7 @@
 
 .cal-set-select:focus {
   outline: none;
-  border-color: #6f4e37;
+  border-color: #455261;
 }
 .cal-set-actions {
   display: flex;
@@ -761,8 +761,8 @@
   border: 1px solid var(--cal-line);
 }
 .cal-set-btn.primary {
-  background: #6f4e37;
+  background: #455261;
   color: #fff;
-  box-shadow: 0 3px 10px rgba(111, 78, 55, 0.28);
+  box-shadow: 0 3px 10px rgba(69, 82, 97, 0.28);
 }
 .cal-set-btn:active { transform: translateY(1px); }

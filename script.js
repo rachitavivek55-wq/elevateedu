@@ -30,7 +30,7 @@
   add('link', { rel: 'manifest', href: './manifest.json' }, 'link[rel=\'manifest\']');
   add('link', { rel: 'apple-touch-icon', href: './apple-touch-icon.png' }, 'link[rel=\'apple-touch-icon\']');
   add('link', { rel: 'icon', type: 'image/png', href: './icon-192.png' }, 'link[rel=\'icon\']');
-  add('meta', { name: 'theme-color', content: '#4b3832' }, 'meta[name=\'theme-color\']');
+  add('meta', { name: 'theme-color', content: '#383e45' }, 'meta[name=\'theme-color\']');
   add('meta', { name: 'mobile-web-app-capable', content: 'yes' }, 'meta[name=\'mobile-web-app-capable\']');
   add('meta', { name: 'apple-mobile-web-app-capable', content: 'yes' }, 'meta[name=\'apple-mobile-web-app-capable\']');
   add('meta', { name: 'apple-mobile-web-app-status-bar-style', content: 'black-translucent' }, 'meta[name=\'apple-mobile-web-app-status-bar-style\']');
@@ -392,13 +392,13 @@ var elevateAuth = (function () {
     box.id = 'eeInstallCard';
     box.style.cssText = 'background:rgba(255,255,255,.72);border:1.5px solid rgba(163,59,31,.32);'
       + 'border-radius:18px;padding:13px 15px;margin-bottom:16px;text-align:left;';
-    var html = '<div style="font-size:12.5px;font-weight:700;color:#4b3832;margin-bottom:7px;">'
+    var html = '<div style="font-size:12.5px;font-weight:700;color:#383e45;margin-bottom:7px;">'
       + 'Important &mdash; add ElevateEdu to your home screen first</div>'
       + '<div style="font-size:11px;line-height:1.5;color:#a33b1f;font-weight:700;margin-bottom:8px;">'
       + 'Please do not skip this step. Do it before you sign in.</div>'
-      + '<ol style="margin:0;padding-left:17px;font-size:11.5px;line-height:1.65;color:#6f4e37;">';
+      + '<ol style="margin:0;padding-left:17px;font-size:11.5px;line-height:1.65;color:#455261;">';
     for (var i = 0; i < steps.length; i++) html += '<li>' + steps[i] + '</li>';
-    html += '</ol><div style="font-size:10.5px;line-height:1.5;color:#6f4e37;opacity:.75;'
+    html += '</ol><div style="font-size:10.5px;line-height:1.5;color:#455261;opacity:.75;'
       + 'margin-top:8px;">It opens full screen, keeps working offline, and stays signed in.'
       + ' Then sign in just once, below.</div>';
     box.innerHTML = html;
@@ -624,11 +624,11 @@ var elevateAuth = (function () {
     inp.autocomplete = 'off';
     inp.spellcheck = false;
     inp.placeholder = 'Paste code or link';
-    inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(75,56,50,0.28);background:#fffdf8;color:#4B3832;font-size:15px;font-family:inherit;';
+    inp.style.cssText = 'flex:1;min-width:0;padding:13px;border-radius:14px;border:1px solid rgba(56,62,69,0.28);background:#fbfbfc;color:#383e45;font-size:15px;font-family:inherit;';
     var btn = document.createElement('button');
     btn.type = 'button';
     btn.textContent = 'Sign in';
-    btn.style.cssText = 'border:none;background:#6F4E37;color:#F5E6CA;border-radius:14px;padding:13px 18px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;';
+    btn.style.cssText = 'border:none;background:#455261;color:#dadfe5;border-radius:14px;padding:13px 18px;font-weight:700;font-size:15px;font-family:inherit;cursor:pointer;';
     btn.addEventListener('click', function () { verifySignIn(inp, btn); });
     inp.addEventListener('keydown', function (ev) {
       if (ev.key === 'Enter') { ev.preventDefault(); verifySignIn(inp, btn); }
@@ -643,7 +643,7 @@ var elevateAuth = (function () {
       var pb = document.createElement('button');
       pb.type = 'button';
       pb.textContent = 'Paste from clipboard';
-      pb.style.cssText = 'margin-top:9px;width:100%;border:1px solid rgba(75,56,50,0.28);background:transparent;color:#4B3832;border-radius:14px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;';
+      pb.style.cssText = 'margin-top:9px;width:100%;border:1px solid rgba(56,62,69,0.28);background:transparent;color:#383e45;border-radius:14px;padding:12px;font-weight:700;font-size:14px;cursor:pointer;';
       pb.addEventListener('click', function () {
         navigator.clipboard.readText().then(function (txt) {
           if (!txt || !txt.trim()) {
@@ -1023,7 +1023,7 @@ var elevateAuth = (function () {
         n.appendChild(x);
         document.body.appendChild(n);
       }
-      n.style.background = signedIn ? "#3a2f26" : "#7c2f22";
+      n.style.background = signedIn ? "#2b3035" : "#7c2f22";
       n.style.color = "#fff";
       var txt = document.getElementById("eeRoomBannerText");
       if (txt) {
@@ -1095,8 +1095,8 @@ window.eeDeleteAccount = async function(){
    so ElevateEdu installs to the home screen and opens fullscreen.
    ============================================================ */
 (function(){
-  var COFFEE = '#6F4E37';
-  var CREAM  = '#F5E6CA';
+  var COFFEE = '#455261';
+  var CREAM  = '#dadfe5';
   // Graduation-cap (mortarboard) icon in ElevateEdu colors, as SVG.
   function iconSVG(size){
     return '<svg xmlns="http://www.w3.org/2000/svg" width="'+size+'" height="'+size+'" viewBox="0 0 512 512">' +
@@ -1177,8 +1177,8 @@ window.eeDeleteAccount = async function(){
    Hidden automatically once installed / running standalone.
    ============================================================ */
 (function(){
-  var COFFEE = '#6F4E37';
-  var CREAM  = '#F5E6CA';
+  var COFFEE = '#455261';
+  var CREAM  = '#dadfe5';
   // If already installed / running as an app, do nothing.
   function isStandalone(){
     return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
@@ -1199,7 +1199,7 @@ window.eeDeleteAccount = async function(){
     b.style.cssText = 'position:fixed;left:50%;transform:translateX(-50%);bottom:86px;z-index:9999;'+
       'background:'+COFFEE+';color:'+CREAM+';border:none;border-radius:999px;'+
       'padding:11px 20px;font-family:inherit;font-weight:600;font-size:14px;'+
-      'box-shadow:0 6px 18px rgba(75,56,50,0.28);cursor:pointer;opacity:0;transition:opacity .3s;';
+      'box-shadow:0 6px 18px rgba(56,62,69,0.28);cursor:pointer;opacity:0;transition:opacity .3s;';
     var x = document.createElement('span');
     x.innerHTML = '\u00d7';
     x.title = 'Dismiss';
@@ -1272,7 +1272,7 @@ window.eeDeleteAccount = async function(){
    app is already installed or the user dismissed it before.
    ============================================================ */
 (function(){
-  var COFFEE = '#6F4E37', CREAM = '#F5E6CA', ESPRESSO = '#4B3832';
+  var COFFEE = '#455261', CREAM = '#dadfe5', ESPRESSO = '#383e45';
   function installed(){
     return (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
   }
@@ -1292,7 +1292,7 @@ window.eeDeleteAccount = async function(){
     var chromium = /Chrome|Chromium|CriOS|Edg\//.test(ua);
     var mac = /Macintosh/.test(ua) && !iPadOS;
     var OL = '<ol style="margin:10px 0 0 18px;padding:0;line-height:1.8;">';
-    function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">' + t + '</div>'; }
+    function tip(t){ return '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(56,62,69,0.18);opacity:0.85;">' + t + '</div>'; }
     var SIGNIN = 'You stay signed in - the installed app uses the same session as your browser, so everything is already there.';
     var IOSNOTE = 'iPhone keeps a home screen app and Safari separate, so sign in once inside the new icon: type your email, then press and hold the link in the email, copy it, and paste it into the app. That sign-in sticks, and everything you saved is already waiting.';
     if (ios && !safari) {
@@ -1375,7 +1375,7 @@ window.eeDeleteAccount = async function(){
       } catch (e) { hs = ''; }
       if (hs) {
         var hw = document.createElement('div');
-        hw.style.cssText = 'margin-top:16px;padding:12px;border-radius:12px;background:rgba(111,78,55,0.10);';
+        hw.style.cssText = 'margin-top:16px;padding:12px;border-radius:12px;background:rgba(69,82,97,0.10);';
         var hl = document.createElement('div');
         hl.style.cssText = 'font-size:13px;line-height:1.45;';
         hl.innerHTML = '<b>One extra step, just once.</b> The home-screen app cannot tell that you are already signed in here. Copy your sign-in code now, then paste it the first time you open the app.';
@@ -1451,7 +1451,7 @@ window.eeDeleteAccount = async function(){
    Works on iOS Safari, Android/Chrome, and desktop.
    ============================================================ */
 window.showInstallFirstGuide = function (email) {
-  var COFFEE = "#6F4E37", CREAM = "#F5E6CA", ESPRESSO = "#4B3832";
+  var COFFEE = "#455261", CREAM = "#dadfe5", ESPRESSO = "#383e45";
   var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   var isAndroid = /android/i.test(navigator.userAgent);
   var standalone = (window.matchMedia && window.matchMedia("(display-mode: standalone)").matches) || window.navigator.standalone === true;
@@ -1471,7 +1471,7 @@ window.showInstallFirstGuide = function (email) {
         + '<li>Close your browser and open the new <b>ElevateEdu</b> icon on your home screen.</li>'
         + '<li>In the app, type your email and tap send. Then open your email, <b>press and hold</b> the sign-in link, choose <b>Copy Link</b>, and paste it into the box in the app.</li>'
         + '</ol>'
-        + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(75,56,50,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so the sign-in has to happen <b>inside the app</b> to stick. Tapping the link opens Safari, which is why you copy it and paste it in instead. You only ever do this once.</div>';
+        + '<div style="font-size:13px;margin-top:12px;padding-top:10px;border-top:1px solid rgba(56,62,69,0.18);opacity:0.85;">iPhone treats a home screen app and Safari as two separate places, so the sign-in has to happen <b>inside the app</b> to stick. Tapping the link opens Safari, which is why you copy it and paste it in instead. You only ever do this once.</div>';
     }
     if (isAndroid) {
       return OL
@@ -1555,7 +1555,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     if (document.getElementById("eeStandaloneHint")) return;
     var hint = document.createElement("div");
     hint.id = "eeStandaloneHint";
-    hint.style.cssText = "margin-top:14px;font-size:13px;line-height:1.5;color:#6F4E37;text-align:center;";
+    hint.style.cssText = "margin-top:14px;font-size:13px;line-height:1.5;color:#455261;text-align:center;";
     hint.innerHTML = "Enter your email above and tap send - then open the link from your email <b>in this app</b> to stay signed in.";
     authForm.appendChild(hint);
   }
@@ -1740,45 +1740,45 @@ window.addEventListener("beforeinstallprompt", function (e) {
    ============================================================== */
 (function () {
   var CSS =
-    '#eeGear{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
+    '#eeGear{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#eef0f3);box-shadow:var(--shadow-soft,0 4px 14px rgba(56,62,69,.06));color:#455261;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
     '#eeGear:active{transform:scale(.9)}' +
     '#eeGear svg{width:18px;height:18px}' +
-    '#eeFeed{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#fbf4e6);box-shadow:var(--shadow-soft,0 4px 14px rgba(75,56,50,.06));color:#6f4e37;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
+    '#eeFeed{width:34px;height:34px;border-radius:12px;border:0;padding:0;background:var(--tile,#eef0f3);box-shadow:var(--shadow-soft,0 4px 14px rgba(56,62,69,.06));color:#455261;display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s ease}' +
     '#eeFeed:active{transform:scale(.9)}' +
     '#eeFeed svg{width:18px;height:18px}' +
     '#eeFbOverlay{position:fixed;inset:0;background:rgba(45,32,28,.45);display:none;align-items:center;justify-content:center;z-index:100000;padding:22px}' +
     '#eeFbOverlay.on{display:flex}' +
-    '#eeFbCard{background:var(--card,#fffaf1);border-radius:20px;max-width:360px;width:100%;box-sizing:border-box;padding:22px 20px;box-shadow:0 18px 50px rgba(75,56,50,.25);text-align:center}' +
-    '#eeFbIcon{width:46px;height:46px;border-radius:15px;background:#f5e6ca;color:#6f4e37;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}' +
+    '#eeFbCard{background:var(--card,#f7f8f9);border-radius:20px;max-width:360px;width:100%;box-sizing:border-box;padding:22px 20px;box-shadow:0 18px 50px rgba(56,62,69,.25);text-align:center}' +
+    '#eeFbIcon{width:46px;height:46px;border-radius:15px;background:#dadfe5;color:#455261;display:flex;align-items:center;justify-content:center;margin:0 auto 12px}' +
     '#eeFbIcon svg{width:23px;height:23px}' +
-    '#eeFbCard h3{margin:0 0 8px;font-size:17px;color:#4b3832}' +
-    '#eeFbCard p{margin:0 0 16px;font-size:14px;line-height:1.55;color:#6f5b4b}' +
-    '#eeFbGo{display:block;width:100%;box-sizing:border-box;text-decoration:none;background:#6f4e37;color:#fff;border:0;border-radius:14px;padding:13px 16px;font-size:15px!important;font-weight:600;font-family:inherit;cursor:pointer}' +
-    '#eeFbLater{display:block;width:100%;margin-top:8px;background:transparent;border:0;color:#8a7355;font-size:14px!important;font-family:inherit;padding:10px;cursor:pointer}' +
+    '#eeFbCard h3{margin:0 0 8px;font-size:17px;color:#383e45}' +
+    '#eeFbCard p{margin:0 0 16px;font-size:14px;line-height:1.55;color:#545c66}' +
+    '#eeFbGo{display:block;width:100%;box-sizing:border-box;text-decoration:none;background:#455261;color:#fff;border:0;border-radius:14px;padding:13px 16px;font-size:15px!important;font-weight:600;font-family:inherit;cursor:pointer}' +
+    '#eeFbLater{display:block;width:100%;margin-top:8px;background:transparent;border:0;color:#626f7d;font-size:14px!important;font-family:inherit;padding:10px;cursor:pointer}' +
     '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
     '@media (max-width:379px){#eeGear,#eeFeed{width:30px;height:30px;border-radius:10px}#eeGear svg,#eeFeed svg{width:16px;height:16px}#eeTitleRight{gap:6px}}' +
-    '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
+    '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(56,62,69,.42);display:none;align-items:flex-end;justify-content:center}' +
     '#eeSetOverlay.ee-open{display:flex}' +
-    '#eeSetCard{width:100%;max-width:430px;background:#fbf4e6;border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(75,56,50,.20);animation:eeSetUp .22s ease}' +
+    '#eeSetCard{width:100%;max-width:430px;background:#eef0f3;border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(56,62,69,.20);animation:eeSetUp .22s ease}' +
     '@keyframes eeSetUp{from{transform:translateY(28px);opacity:.5}to{transform:translateY(0);opacity:1}}' +
-    '#eeSetCard h3{margin:0;font-size:17px;color:#4b3832;font-weight:600}' +
+    '#eeSetCard h3{margin:0;font-size:17px;color:#383e45;font-weight:600}' +
     '.eeSetTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}' +
-    '#eeSetClose{border:0;background:#efe3cc;color:#6f4e37;width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;font-family:inherit}' +
-    '#eeSetWho{font-size:12px;color:#8a6f5c;margin:0 0 6px;word-break:break-all}' +
-    '.eeSetRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(111,78,55,.10)}' +
+    '#eeSetClose{border:0;background:#d8dde3;color:#455261;width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;font-family:inherit}' +
+    '#eeSetWho{font-size:12px;color:#67727e;margin:0 0 6px;word-break:break-all}' +
+    '.eeSetRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(69,82,97,.10)}' +
     '.eeSetRow .eeL{flex:1 1 auto}' +
-    '.eeSetRow .eeL b{display:block;font-size:14px;color:#4b3832;font-weight:600}' +
-    '.eeSetRow .eeL i{display:block;font-style:normal;font-size:11.5px;color:#8a6f5c;margin-top:3px;line-height:1.35}' +
-    '.eeSetBtn{border:0;border-radius:14px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:#efe3cc;color:#4b3832;white-space:nowrap;font-family:inherit}' +
-    '.eeSetBtn.ee-warn{background:#f0dcc6;color:#8a5a2f}' +
-    '.eeSetBtn.ee-danger{background:#e7b9a4;color:#6b2f18}' +
+    '.eeSetRow .eeL b{display:block;font-size:14px;color:#383e45;font-weight:600}' +
+    '.eeSetRow .eeL i{display:block;font-style:normal;font-size:11.5px;color:#67727e;margin-top:3px;line-height:1.35}' +
+    '.eeSetBtn{border:0;border-radius:14px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:#d8dde3;color:#383e45;white-space:nowrap;font-family:inherit}' +
+    '.eeSetBtn.ee-warn{background:#d5dbe1;color:#465b73}' +
+    '.eeSetBtn.ee-danger{background:#bac5d1;color:#2f4054}' +
     '.eeSetBtn:active{transform:scale(.96)}' +
     '.eeSetBtn[disabled]{opacity:.55}' +
-    '#eeSetConfirm{display:none;margin-top:12px;background:#f7ece0;border:1px solid rgba(111,78,55,.16);border-radius:16px;padding:12px}' +
-    '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:#6f4e37;line-height:1.45}' +
-    '#eeSetType{width:100%;box-sizing:border-box;border:1px solid rgba(111,78,55,.25);border-radius:12px;padding:9px 10px;font-size:13px;font-family:inherit;color:#4b3832;background:#fff;margin-bottom:8px}' +
-    '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:#8a6f5c;line-height:1.6}' +
-    '#eeSetFoot a{color:#6f4e37;text-decoration:underline;margin:0 6px}';
+    '#eeSetConfirm{display:none;margin-top:12px;background:#e8ebef;border:1px solid rgba(69,82,97,.16);border-radius:16px;padding:12px}' +
+    '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:#455261;line-height:1.45}' +
+    '#eeSetType{width:100%;box-sizing:border-box;border:1px solid rgba(69,82,97,.25);border-radius:12px;padding:9px 10px;font-size:13px;font-family:inherit;color:#383e45;background:#fff;margin-bottom:8px}' +
+    '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:#67727e;line-height:1.6}' +
+    '#eeSetFoot a{color:#455261;text-decoration:underline;margin:0 6px}';
 
   /* Every other icon in the app is drawn by Lucide, so we ask Lucide for
      the cog too and it lines up with the rest of the set exactly. The
@@ -1925,7 +1925,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
       : 'This removes your account and everything in it, for good. Type <b>DELETE</b> below if that is what you want.';
     inp.value = '';
     inp.placeholder = word;
-    inp.style.borderColor = 'rgba(111,78,55,.25)';
+    inp.style.borderColor = 'rgba(69,82,97,.25)';
     box.style.display = 'block';
     try { inp.focus(); } catch (e) {}
   }
@@ -2013,7 +2013,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
       var inp = document.getElementById('eeSetType');
       var want = pending === 'wipe' ? 'ERASE' : 'DELETE';
       if ((inp.value || '').trim().toUpperCase() !== want) {
-        inp.style.borderColor = '#c0704f';
+        inp.style.borderColor = '#6b86a4';
         inp.placeholder = 'Please type ' + want;
         return;
       }
