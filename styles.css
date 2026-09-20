@@ -4,6 +4,8 @@
   --beige: #dcc7aa;
   --coffee: #6f4e37;
   --espresso: #4b3832;
+  --line-rgb: 111, 78, 55;
+  --shadow-rgb: 75, 56, 50;
 
   /* Soft, calm surfaces (no stark white) */
   --bg: #f3e7d0;
@@ -13,8 +15,48 @@
   --greet-2: #e3d0ae;
 
 
-  --shadow: 0 12px 34px rgba(75, 56, 50, 0.22);
-  --shadow-soft: 0 5px 16px rgba(75, 56, 50, 0.15);
+  --shadow: 0 12px 34px rgba(var(--shadow-rgb), 0.22);
+  --shadow-soft: 0 5px 16px rgba(var(--shadow-rgb), 0.15);
+}
+
+[data-theme="sage"] {
+  --cream: #d5eada;
+  --beige: #b6d0bb;
+  --coffee: #456145;
+  --espresso: #3a4538;
+  --bg: #d9eadd;
+  --tile: #ebf6ee;
+  --tile-accent: #d5e6d9;
+  --greet-1: #c4decb;
+  --greet-2: #bbd6c1;
+  --line-rgb: 69, 97, 69;
+  --shadow-rgb: 58, 69, 56;
+}
+[data-theme="blue"] {
+  --cream: #d6e0e9;
+  --beige: #b8c5ce;
+  --coffee: #465960;
+  --espresso: #394344;
+  --bg: #dae2e9;
+  --tile: #ecf1f5;
+  --tile-accent: #d6dee5;
+  --greet-1: #c6d1dc;
+  --greet-2: #bdc9d4;
+  --line-rgb: 70, 89, 96;
+  --shadow-rgb: 57, 67, 68;
+}
+[data-theme="rose"] {
+  --cream: #ebd4d6;
+  --beige: #d1b5b9;
+  --coffee: #62444e;
+  --espresso: #45383e;
+  --bg: #ebd8d9;
+  --tile: #f6ebeb;
+  --tile-accent: #e7d4d5;
+  --greet-1: #dfc3c5;
+  --greet-2: #d7babd;
+  --line-rgb: 98, 68, 78;
+  --shadow-rgb: 69, 56, 62;
 }
 
 * {
@@ -141,7 +183,7 @@ body {
 
 .tile {
   background: var(--tile);
-  border: 1px solid rgba(111, 78, 55, 0.1);
+  border: 1px solid rgba(var(--line-rgb), 0.1);
   border-radius: 20px;
   padding: 16px 18px;
   display: flex;
@@ -174,18 +216,18 @@ body {
   padding: 16px 12px;
   border-radius: 28px;
   text-align: center;
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.12), 0 8px 20px -8px rgba(111, 78, 55, 0.38);
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), 0.12), 0 8px 20px -8px rgba(var(--line-rgb), 0.38);
   -webkit-tap-highlight-color: transparent;
 }
 .grid > .tile:hover {
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.16), 0 14px 26px -8px rgba(111, 78, 55, 0.44);
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), 0.16), 0 14px 26px -8px rgba(var(--line-rgb), 0.44);
 }
 .grid > .tile .tile-icon {
   width: 56px;
   height: 56px;
   border-radius: 18px;
   margin-bottom: 12px;
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.11), 0 4px 10px -5px rgba(111, 78, 55, 0.45);
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), 0.11), 0 4px 10px -5px rgba(var(--line-rgb), 0.45);
 }
 .grid > .tile .tile-icon svg {
   width: 27px;
@@ -205,7 +247,7 @@ body {
 }
 .grid > .tile:active {
   transform: scale(0.975);
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.16), 0 3px 10px -8px rgba(111, 78, 55, 0.4);
+  box-shadow: inset 0 0 0 1px rgba(var(--line-rgb), 0.16), 0 3px 10px -8px rgba(var(--line-rgb), 0.4);
 }
 
 .tile-icon {
@@ -353,7 +395,7 @@ body {
 /* ===== Mini app cards (system pages) ===== */
 .app-card {
   background: var(--tile);
-  border: 1px solid rgba(111, 78, 55, 0.1);
+  border: 1px solid rgba(var(--line-rgb), 0.1);
   border-radius: 20px;
   padding: 18px;
   display: flex;
@@ -385,12 +427,12 @@ body {
   gap: 14px;
 }
 .grid > .app-card + .app-card {
-  border-top: 1px solid rgba(111, 78, 55, 0.1);
+  border-top: 1px solid rgba(var(--line-rgb), 0.1);
 }
 .grid > .app-card:hover {
   transform: none;
   box-shadow: none;
-  background: rgba(111, 78, 55, 0.04);
+  background: rgba(var(--line-rgb), 0.04);
 }
 
 .app-icon {
@@ -744,8 +786,8 @@ input, select, textarea, button {
   height: 34px;
   border-radius: 50%;
   border: none;
-  background: rgba(111, 78, 55, 0.1);
-  color: #6f4e37;
+  background: rgba(var(--line-rgb), 0.1);
+  color: var(--coffee);
   display: grid;
   place-items: center;
   cursor: pointer;
@@ -780,7 +822,7 @@ input, select, textarea, button {
   height: 76px;
   margin: 0 auto 12px;
   border-radius: 20px;
-  box-shadow: 0 10px 24px rgba(75, 56, 50, 0.22);
+  box-shadow: 0 10px 24px rgba(var(--shadow-rgb), 0.22);
 }
 .ee-land-tag {
   margin: 2px 0 16px;
@@ -816,14 +858,14 @@ input, select, textarea, button {
 .ee-ig-card h3 {
   margin: 0 0 5px;
   font-size: 16px;
-  color: #4b3832;
+  color: var(--espresso);
   text-align: center;
 }
 .ee-ig-sub {
   margin: 0 0 16px;
   font-size: 12px;
   line-height: 1.5;
-  color: #6f4e37;
+  color: var(--coffee);
   opacity: 0.75;
   text-align: center;
 }
@@ -836,7 +878,7 @@ input, select, textarea, button {
   flex: 0 0 22px;
   height: 22px;
   border-radius: 50%;
-  background: #6f4e37;
+  background: var(--coffee);
   color: #fff;
   font-size: 11px;
   font-weight: 600;
@@ -850,13 +892,13 @@ input, select, textarea, button {
 .ee-ig-h {
   font-size: 12.5px;
   font-weight: 600;
-  color: #4b3832;
+  color: var(--espresso);
   margin-bottom: 2px;
 }
 .ee-ig-p {
   font-size: 11.5px;
   line-height: 1.6;
-  color: #6f4e37;
+  color: var(--coffee);
   opacity: 0.85;
 }
 .ee-ig-p svg {
@@ -869,7 +911,7 @@ input, select, textarea, button {
   padding: 12px;
   border: none;
   border-radius: 999px;
-  background: #6f4e37;
+  background: var(--coffee);
   color: #fff;
   font-family: inherit;
   font-size: 13.5px;
@@ -884,7 +926,7 @@ input, select, textarea, button {
   border: none;
   font-family: inherit;
   font-size: 11.5px;
-  color: #6f4e37;
+  color: var(--coffee);
   opacity: 0.6;
   cursor: pointer;
 }
@@ -900,7 +942,7 @@ input, select, textarea, button {
   color: var(--coffee, #4b3832);
   opacity: 0.65;
   text-decoration: none;
-  border-bottom: 1px solid rgba(75, 56, 50, 0.22);
+  border-bottom: 1px solid rgba(var(--shadow-rgb), 0.22);
   padding-bottom: 1px;
 }
 .home-help a:active {

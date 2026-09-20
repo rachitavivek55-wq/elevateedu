@@ -1,6 +1,12 @@
 // PWA head tags — added on every page so ElevateEdu can be installed to a
 // phone's home screen and use the standalone (no browser chrome) styling.
 (function () {
+  try {
+    var eeT = localStorage.getItem('ee-theme');
+    if (eeT) document.documentElement.setAttribute('data-theme', eeT);
+  } catch (e) {}
+})();
+(function () {
   var head = document.head;
   if (!head) return;
   function add(tag, attrs, probe) {
@@ -1757,28 +1763,35 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '#eeFbLater{display:block;width:100%;margin-top:8px;background:transparent;border:0;color:#8a7355;font-size:14px!important;font-family:inherit;padding:10px;cursor:pointer}' +
     '#eeTitleRight{display:flex;align-items:center;gap:10px}' +
     '@media (max-width:379px){#eeGear,#eeFeed{width:30px;height:30px;border-radius:10px}#eeGear svg,#eeFeed svg{width:16px;height:16px}#eeTitleRight{gap:6px}}' +
-    '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(75,56,50,.42);display:none;align-items:flex-end;justify-content:center}' +
+    '#eeSetOverlay{position:fixed;inset:0;z-index:99998;background:rgba(var(--shadow-rgb),.42);display:none;align-items:flex-end;justify-content:center}' +
     '#eeSetOverlay.ee-open{display:flex}' +
-    '#eeSetCard{width:100%;max-width:430px;background:#fbf4e6;border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(75,56,50,.20);animation:eeSetUp .22s ease}' +
+    '#eeSetCard{width:100%;max-width:430px;background:var(--tile);border-radius:26px 26px 0 0;padding:18px 20px 26px;max-height:88vh;overflow:auto;box-shadow:0 -12px 34px rgba(var(--shadow-rgb),.20);animation:eeSetUp .22s ease}' +
     '@keyframes eeSetUp{from{transform:translateY(28px);opacity:.5}to{transform:translateY(0);opacity:1}}' +
-    '#eeSetCard h3{margin:0;font-size:17px;color:#4b3832;font-weight:600}' +
+    '#eeSetCard h3{margin:0;font-size:17px;color:var(--espresso);font-weight:600}' +
     '.eeSetTop{display:flex;align-items:center;justify-content:space-between;margin-bottom:4px}' +
-    '#eeSetClose{border:0;background:#efe3cc;color:#6f4e37;width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;font-family:inherit}' +
-    '#eeSetWho{font-size:12px;color:#8a6f5c;margin:0 0 6px;word-break:break-all}' +
-    '.eeSetRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(111,78,55,.10)}' +
+    '#eeSetClose{border:0;background:var(--tile-accent);color:var(--coffee);width:30px;height:30px;border-radius:50%;font-size:17px;line-height:1;cursor:pointer;font-family:inherit}' +
+    '#eeSetWho{font-size:12px;color:var(--coffee);margin:0 0 6px;word-break:break-all}' +
+    '.eeSetRow{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid rgba(var(--line-rgb),.10)}' +
     '.eeSetRow .eeL{flex:1 1 auto}' +
-    '.eeSetRow .eeL b{display:block;font-size:14px;color:#4b3832;font-weight:600}' +
-    '.eeSetRow .eeL i{display:block;font-style:normal;font-size:11.5px;color:#8a6f5c;margin-top:3px;line-height:1.35}' +
-    '.eeSetBtn{border:0;border-radius:14px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:#efe3cc;color:#4b3832;white-space:nowrap;font-family:inherit}' +
+    '.eeSetRow .eeL b{display:block;font-size:14px;color:var(--espresso);font-weight:600}' +
+    '.eeSetRow .eeL i{display:block;font-style:normal;font-size:11.5px;color:var(--coffee);margin-top:3px;line-height:1.35}' +
+    '.eeSetBtn{border:0;border-radius:14px;padding:9px 13px;font-size:12.5px;font-weight:600;cursor:pointer;background:var(--tile-accent);color:var(--espresso);white-space:nowrap;font-family:inherit}' +
     '.eeSetBtn.ee-warn{background:#f0dcc6;color:#8a5a2f}' +
     '.eeSetBtn.ee-danger{background:#e7b9a4;color:#6b2f18}' +
     '.eeSetBtn:active{transform:scale(.96)}' +
     '.eeSetBtn[disabled]{opacity:.55}' +
-    '#eeSetConfirm{display:none;margin-top:12px;background:#f7ece0;border:1px solid rgba(111,78,55,.16);border-radius:16px;padding:12px}' +
-    '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:#6f4e37;line-height:1.45}' +
-    '#eeSetType{width:100%;box-sizing:border-box;border:1px solid rgba(111,78,55,.25);border-radius:12px;padding:9px 10px;font-size:13px;font-family:inherit;color:#4b3832;background:#fff;margin-bottom:8px}' +
-    '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:#8a6f5c;line-height:1.6}' +
-    '#eeSetFoot a{color:#6f4e37;text-decoration:underline;margin:0 6px}';
+    '.eeThemeRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}' +
+    '.eeThemeDot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25);cursor:pointer;padding:0}' +
+    '.eeThemeDot[data-theme=""]{background:#6f4e37}' +
+    '.eeThemeDot[data-theme="sage"]{background:#456145}' +
+    '.eeThemeDot[data-theme="blue"]{background:#465960}' +
+    '.eeThemeDot[data-theme="rose"]{background:#62444e}' +
+    '.eeThemeDot.ee-active{box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25),0 0 0 3px var(--espresso)}' +
+    '#eeSetConfirm{display:none;margin-top:12px;background:var(--tile);border:1px solid rgba(var(--line-rgb),.16);border-radius:16px;padding:12px}' +
+    '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:var(--coffee);line-height:1.45}' +
+    '#eeSetType{width:100%;box-sizing:border-box;border:1px solid rgba(var(--line-rgb),.25);border-radius:12px;padding:9px 10px;font-size:13px;font-family:inherit;color:var(--espresso);background:#fff;margin-bottom:8px}' +
+    '#eeSetFoot{margin-top:14px;text-align:center;font-size:11.5px;color:var(--coffee);line-height:1.6}' +
+    '#eeSetFoot a{color:var(--coffee);text-decoration:underline;margin:0 6px}';
 
   /* Every other icon in the app is drawn by Lucide, so we ask Lucide for
      the cog too and it lines up with the rest of the set exactly. The
@@ -1950,6 +1963,14 @@ window.addEventListener("beforeinstallprompt", function (e) {
             '<b>Tell a friend</b><i>Know someone drowning in assignments? Send them the link - it is free.</i></div>' +
             '<button class="eeSetBtn" id="eeSetShare" type="button">Share</button></div>' +
           '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Appearance</b><i>Pick a color palette for the whole app.</i></div>' +
+          '<div class="eeThemeRow" id="eeThemeRow">' +
+            '<button class="eeThemeDot" data-theme="" aria-label="Coffee Brown" title="Coffee Brown"></button>' +
+            '<button class="eeThemeDot" data-theme="sage" aria-label="Sage Green" title="Sage Green"></button>' +
+            '<button class="eeThemeDot" data-theme="blue" aria-label="Dusty Blue" title="Dusty Blue"></button>' +
+            '<button class="eeThemeDot" data-theme="rose" aria-label="Blush Rose" title="Blush Rose"></button>' +
+          '</div></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
           '<button class="eeSetBtn" id="eeSetOut" type="button">Log out</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
@@ -1966,6 +1987,30 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="terms.html">Terms</a></p>' +
       '</div>';
     document.body.appendChild(o);
+
+    (function () {
+      var themeRow = document.getElementById('eeThemeRow');
+      if (themeRow) {
+        var markActive = function () {
+          var cur = document.documentElement.getAttribute('data-theme') || '';
+          var dots = themeRow.querySelectorAll('.eeThemeDot');
+          for (var i = 0; i < dots.length; i++) {
+            var v = dots[i].getAttribute('data-theme') || '';
+            dots[i].classList.toggle('ee-active', v === cur);
+          }
+        };
+        markActive();
+        themeRow.addEventListener('click', function (ev) {
+          var btn = ev.target.closest('.eeThemeDot');
+          if (!btn) return;
+          var val = btn.getAttribute('data-theme') || '';
+          if (val) document.documentElement.setAttribute('data-theme', val);
+          else document.documentElement.removeAttribute('data-theme');
+          try { localStorage.setItem('ee-theme', val); } catch (e) {}
+          markActive();
+        });
+      }
+    })();
 
     o.addEventListener('click', function (ev) { if (ev.target === o) closeSheet(); });
     document.getElementById('eeSetClose').addEventListener('click', closeSheet);
