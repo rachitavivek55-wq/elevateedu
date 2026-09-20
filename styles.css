@@ -12,12 +12,9 @@
   --greet-1: #ead9b8;
   --greet-2: #e3d0ae;
 
-  /* One warm accent for active/interactive moments only */
-  --accent: #e0785c;
-  --accent-tint: rgba(224, 120, 92, 0.16);
 
-  --shadow: 0 10px 30px rgba(75, 56, 50, 0.14);
-  --shadow-soft: 0 4px 14px rgba(75, 56, 50, 0.09);
+  --shadow: 0 12px 34px rgba(75, 56, 50, 0.22);
+  --shadow-soft: 0 5px 16px rgba(75, 56, 50, 0.15);
 }
 
 * {
@@ -176,18 +173,18 @@ body {
   padding: 16px 12px;
   border-radius: 28px;
   text-align: center;
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.07), 0 6px 16px -8px rgba(111, 78, 55, 0.28);
+  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.12), 0 8px 20px -8px rgba(111, 78, 55, 0.38);
   -webkit-tap-highlight-color: transparent;
 }
 .grid > .tile:hover {
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.09), 0 10px 20px -8px rgba(111, 78, 55, 0.32);
+  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.16), 0 14px 26px -8px rgba(111, 78, 55, 0.44);
 }
 .grid > .tile .tile-icon {
   width: 56px;
   height: 56px;
   border-radius: 18px;
   margin-bottom: 12px;
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.06), 0 3px 8px -5px rgba(111, 78, 55, 0.35);
+  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.11), 0 4px 10px -5px rgba(111, 78, 55, 0.45);
 }
 .grid > .tile .tile-icon svg {
   width: 27px;
@@ -207,7 +204,7 @@ body {
 }
 .grid > .tile:active {
   transform: scale(0.975);
-  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.09), 0 3px 10px -8px rgba(111, 78, 55, 0.3);
+  box-shadow: inset 0 0 0 1px rgba(111, 78, 55, 0.16), 0 3px 10px -8px rgba(111, 78, 55, 0.4);
 }
 
 .tile-icon {
@@ -215,7 +212,7 @@ body {
   height: 42px;
   flex-shrink: 0;
   border-radius: 13px;
-  background: var(--accent-tint);
+  background: var(--tile-accent);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -270,8 +267,8 @@ body {
 }
 
 .nav-item.active {
-  background: var(--accent-tint);
-  color: var(--accent);
+  background: var(--tile-accent);
+  color: var(--coffee);
 }
 .nav-item.active .nav-label {
   font-weight: 500;
@@ -293,7 +290,7 @@ body {
 .tile-icon svg {
   width: 22px;
   height: 22px;
-  stroke: var(--accent);
+  stroke: var(--coffee);
   stroke-width: 1.8;
 }
 .nav-icon svg {
