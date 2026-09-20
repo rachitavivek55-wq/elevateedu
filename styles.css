@@ -141,6 +141,7 @@ body {
 
 .tile {
   background: var(--tile);
+  border: 1px solid rgba(111, 78, 55, 0.1);
   border-radius: 20px;
   padding: 16px 18px;
   display: flex;
@@ -352,6 +353,7 @@ body {
 /* ===== Mini app cards (system pages) ===== */
 .app-card {
   background: var(--tile);
+  border: 1px solid rgba(111, 78, 55, 0.1);
   border-radius: 20px;
   padding: 18px;
   display: flex;
