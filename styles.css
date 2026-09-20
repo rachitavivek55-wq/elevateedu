@@ -12,8 +12,12 @@
   --greet-1: #ead9b8;
   --greet-2: #e3d0ae;
 
-  --shadow: 0 10px 30px rgba(75, 56, 50, 0.08);
-  --shadow-soft: 0 4px 14px rgba(75, 56, 50, 0.05);
+  /* One warm accent for active/interactive moments only */
+  --accent: #e0785c;
+  --accent-tint: rgba(224, 120, 92, 0.16);
+
+  --shadow: 0 10px 30px rgba(75, 56, 50, 0.14);
+  --shadow-soft: 0 4px 14px rgba(75, 56, 50, 0.09);
 }
 
 * {
@@ -211,7 +215,7 @@ body {
   height: 42px;
   flex-shrink: 0;
   border-radius: 13px;
-  background: var(--tile-accent);
+  background: var(--accent-tint);
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -266,8 +270,8 @@ body {
 }
 
 .nav-item.active {
-  background: var(--tile-accent);
-  color: var(--coffee);
+  background: var(--accent-tint);
+  color: var(--accent);
 }
 .nav-item.active .nav-label {
   font-weight: 500;
@@ -289,7 +293,7 @@ body {
 .tile-icon svg {
   width: 22px;
   height: 22px;
-  stroke: var(--coffee);
+  stroke: var(--accent);
   stroke-width: 1.8;
 }
 .nav-icon svg {
