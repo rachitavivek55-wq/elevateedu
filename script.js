@@ -1783,9 +1783,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '.eeThemeRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}' +
     '.eeThemeDot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25);cursor:pointer;padding:0}' +
     '.eeThemeDot[data-theme=""]{background:#6f4e37}' +
-    '.eeThemeDot[data-theme="sage"]{background:#456145}' +
-    '.eeThemeDot[data-theme="blue"]{background:#465960}' +
-    '.eeThemeDot[data-theme="rose"]{background:#62444e}' +
+    '.eeThemeDot[data-theme="sage"]{background:#315c31}' +
+    '.eeThemeDot[data-theme="blue"]{background:#31515c}' +
+    '.eeThemeDot[data-theme="rose"]{background:#673545}' +
     '.eeThemeDot.ee-active{box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25),0 0 0 3px var(--espresso)}' +
     '#eeSetConfirm{display:none;margin-top:12px;background:var(--tile);border:1px solid rgba(var(--line-rgb),.16);border-radius:16px;padding:12px}' +
     '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:var(--coffee);line-height:1.45}' +
