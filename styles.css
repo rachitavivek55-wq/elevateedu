@@ -13,24 +13,30 @@
   --tile-accent: #efe3cc;
   --greet-1: #ead9b8;
   --greet-2: #e3d0ae;
+  --page-1: #efe4d0;
+  --page-2: #e6d8bf;
 
 
   --shadow: 0 12px 34px rgba(var(--shadow-rgb), 0.22);
   --shadow-soft: 0 5px 16px rgba(var(--shadow-rgb), 0.15);
 }
 
-[data-theme="jade"] {
-  --cream: #e6e6e6;
-  --beige: #9db096;
-  --coffee: #7b9669;
-  --espresso: #404e3b;
-  --bg: #e0e2de;
-  --tile: #eeeeee;
-  --tile-accent: #d7ddd0;
-  --greet-1: #cdd6c4;
-  --greet-2: #bac8b1;
-  --line-rgb: 123, 150, 105;
-  --shadow-rgb: 64, 78, 59;
+/* Sakura — from the Pinterest palette: Dark Chocolate, Aloewood,
+   Milk Tea, Sakura, Misty Rose (plus lighter tints for surfaces) */
+[data-theme="sakura"] {
+  --cream: #fbeeea;
+  --beige: #aa7f66;
+  --coffee: #7f5836;
+  --espresso: #443025;
+  --bg: #f3d9d4;
+  --tile: #fdf6f4;
+  --tile-accent: #f7ddd9;
+  --greet-1: #f2cfca;
+  --greet-2: #ec9c9d;
+  --page-1: #f7e2de;
+  --page-2: #edc9c4;
+  --line-rgb: 127, 88, 54;
+  --shadow-rgb: 68, 48, 37;
 }
 
 * {
@@ -42,7 +48,7 @@
 body {
   font-family: 'Poppins', -apple-system, sans-serif;
   font-weight: 300;
-  background: linear-gradient(160deg, #efe4d0 0%, #e6d8bf 100%);
+  background: linear-gradient(160deg, var(--page-1) 0%, var(--page-2) 100%);
   min-height: 100vh;
   display: flex;
   align-items: center;
