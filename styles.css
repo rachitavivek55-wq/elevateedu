@@ -39,6 +39,25 @@
   --shadow-rgb: 68, 48, 37;
 }
 
+/* Snowy Days — from the Pinterest palette: Soft Dove, Moon Rock,
+   Spiced Hot Chocolate, Dark Sienna, Black Raspberry
+   (plus lighter tints for surfaces) */
+[data-theme="snowy"] {
+  --cream: #f7f5f3;
+  --beige: #7d726c;
+  --coffee: #4d2f2c;
+  --espresso: #160f0c;
+  --bg: #e3ddd8;
+  --tile: #fbfaf9;
+  --tile-accent: #e7e0dc;
+  --greet-1: #d7cec8;
+  --greet-2: #8d6a68;
+  --page-1: #f0eeeb;
+  --page-2: #dad2cc;
+  --line-rgb: 82, 66, 61;
+  --shadow-rgb: 22, 15, 12;
+}
+
 * {
   margin: 0;
   padding: 0;
