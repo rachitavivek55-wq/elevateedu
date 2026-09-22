@@ -1780,7 +1780,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '.eeSetBtn.ee-danger{background:#e7b9a4;color:#6b2f18}' +
     '.eeSetBtn:active{transform:scale(.96)}' +
     '.eeSetBtn[disabled]{opacity:.55}' +
-    '.eeThemeRow{display:flex;gap:10px;flex-wrap:wrap;align-items:center}' +
+    '.eeThemeRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}' +
     '.eeThemeDot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25);cursor:pointer;padding:0}' +
     '.eeThemeDot[data-theme=""]{background:#6f4e37}' +
     '.eeThemeDot[data-theme="sakura"]{background:#ec9c9d}' +
