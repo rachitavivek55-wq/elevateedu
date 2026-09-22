@@ -76,6 +76,24 @@
   --shadow-rgb: 33, 1, 0;
 }
 
+/* Peony Garden — from the Pinterest palette: Sage Canopy, Honey Reed,
+   Porcelain Haze, Coral Dust, Plum Husk (plus lighter tints for surfaces) */
+[data-theme="peony"] {
+  --cream: #fdf7f4;
+  --beige: #6f7d58;
+  --coffee: #8e4563;
+  --espresso: #522a3d;
+  --bg: #f7ebe7;
+  --tile: #fffbf8;
+  --tile-accent: #fbe0da;
+  --greet-1: #f6e3b9;
+  --greet-2: #e8aea4;
+  --page-1: #eef1e5;
+  --page-2: #f4e1da;
+  --line-rgb: 142, 69, 99;
+  --shadow-rgb: 82, 42, 61;
+}
+
 * {
   margin: 0;
   padding: 0;
