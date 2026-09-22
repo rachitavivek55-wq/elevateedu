@@ -58,6 +58,24 @@
   --shadow-rgb: 22, 15, 12;
 }
 
+/* Golden Hour — from the Pinterest palette: Bistre, Goldfinch, Butter,
+   Indian Red, Garnet (softened + lighter tints for surfaces) */
+[data-theme="golden"] {
+  --cream: #fff8ec;
+  --beige: #96632a;
+  --coffee: #9e3a26;
+  --espresso: #210100;
+  --bg: #f6e8d0;
+  --tile: #fffdf9;
+  --tile-accent: #fbe4c2;
+  --greet-1: #fece79;
+  --greet-2: #e19a33;
+  --page-1: #fdf6ea;
+  --page-2: #f2e0c0;
+  --line-rgb: 124, 45, 28;
+  --shadow-rgb: 33, 1, 0;
+}
+
 * {
   margin: 0;
   padding: 0;

@@ -1785,6 +1785,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '.eeThemeDot[data-theme=""]{background:#6f4e37}' +
     '.eeThemeDot[data-theme="sakura"]{background:#ec9c9d}' +
     '.eeThemeDot[data-theme="snowy"]{background:#8d6a68}' +
+    '.eeThemeDot[data-theme="golden"]{background:#e6a341}' +
     '.eeThemeDot.ee-active{box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25),0 0 0 3px var(--espresso)}' +
     '#eeSetConfirm{display:none;margin-top:12px;background:var(--tile);border:1px solid rgba(var(--line-rgb),.16);border-radius:16px;padding:12px}' +
     '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:var(--coffee);line-height:1.45}' +
@@ -1967,6 +1968,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
             '<button class="eeThemeDot" data-theme="" aria-label="Coffee Brown" title="Coffee Brown"></button>' +
             '<button class="eeThemeDot" data-theme="sakura" aria-label="Sakura" title="Sakura"></button>' +
             '<button class="eeThemeDot" data-theme="snowy" aria-label="Snowy Days" title="Snowy Days"></button>' +
+            '<button class="eeThemeDot" data-theme="golden" aria-label="Golden Hour" title="Golden Hour"></button>' +
           '</div></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
