@@ -94,6 +94,24 @@
   --shadow-rgb: 82, 42, 61;
 }
 
+/* Roasted Peach — from the Pinterest palette: Chocolate, Roasted Peach,
+   Whole Wheat, Milky Coffee, Cream (plus lighter tints for surfaces) */
+[data-theme="peach"] {
+  --cream: #fff7ec;
+  --beige: #8b6b4e;
+  --coffee: #684627;
+  --espresso: #402a16;
+  --bg: #f4e1d1;
+  --tile: #fffcf7;
+  --tile-accent: #f7dcc9;
+  --greet-1: #fed8a6;
+  --greet-2: #d69b86;
+  --page-1: #fdf4e8;
+  --page-2: #f0d9c4;
+  --line-rgb: 104, 70, 39;
+  --shadow-rgb: 64, 42, 22;
+}
+
 * {
   margin: 0;
   padding: 0;

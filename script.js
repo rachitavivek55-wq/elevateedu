@@ -1781,12 +1781,14 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '.eeSetBtn:active{transform:scale(.96)}' +
     '.eeSetBtn[disabled]{opacity:.55}' +
     '.eeThemeRow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}' +
+    '.eeSetRow.eeThemeSet{flex-direction:column;align-items:flex-start;gap:10px}' +
     '.eeThemeDot{width:26px;height:26px;border-radius:50%;border:2px solid rgba(255,255,255,.7);box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25);cursor:pointer;padding:0}' +
     '.eeThemeDot[data-theme=""]{background:#6f4e37}' +
     '.eeThemeDot[data-theme="sakura"]{background:#ec9c9d}' +
     '.eeThemeDot[data-theme="snowy"]{background:#8d6a68}' +
     '.eeThemeDot[data-theme="golden"]{background:#e6a341}' +
     '.eeThemeDot[data-theme="peony"]{background:#8e4563}' +
+    '.eeThemeDot[data-theme="peach"]{background:#daa38f}' +
     '.eeThemeDot.ee-active{box-shadow:0 0 0 1px rgba(var(--shadow-rgb),.25),0 0 0 3px var(--espresso)}' +
     '#eeSetConfirm{display:none;margin-top:12px;background:var(--tile);border:1px solid rgba(var(--line-rgb),.16);border-radius:16px;padding:12px}' +
     '#eeSetConfirmText{margin:0 0 8px;font-size:12.5px;color:var(--coffee);line-height:1.45}' +
@@ -1963,7 +1965,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
           '<div class="eeSetRow"><div class="eeL">' +
             '<b>Tell a friend</b><i>Know someone drowning in assignments? Send them the link - it is free.</i></div>' +
             '<button class="eeSetBtn" id="eeSetShare" type="button">Share</button></div>' +
-          '<div class="eeSetRow"><div class="eeL">' +
+          '<div class="eeSetRow eeThemeSet"><div class="eeL">' +
           '<b>Appearance</b><i>Pick a color palette for the whole app.</i></div>' +
           '<div class="eeThemeRow" id="eeThemeRow">' +
             '<button class="eeThemeDot" data-theme="" aria-label="Coffee Brown" title="Coffee Brown"></button>' +
@@ -1971,6 +1973,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
             '<button class="eeThemeDot" data-theme="snowy" aria-label="Snowy Days" title="Snowy Days"></button>' +
             '<button class="eeThemeDot" data-theme="golden" aria-label="Golden Hour" title="Golden Hour"></button>' +
             '<button class="eeThemeDot" data-theme="peony" aria-label="Peony Garden" title="Peony Garden"></button>' +
+            '<button class="eeThemeDot" data-theme="peach" aria-label="Roasted Peach" title="Roasted Peach"></button>' +
           '</div></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
