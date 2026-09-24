@@ -835,8 +835,8 @@
 .cal-adchip {
   font-size: 10px;
   line-height: 12px;
-  padding: 3px 6px;
-  border-left-width: 4px;
+  padding: 3px 3px 3px 5px;
+  border-left-width: 3px;
   white-space: normal;
   overflow-wrap: break-word;
   max-height: 39px;
