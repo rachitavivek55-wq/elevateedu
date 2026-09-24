@@ -1135,9 +1135,7 @@ input, select, textarea, button {
   padding: 12px 4px 20px;
 }
 .nav-item {
-  flex: 1;
-  min-width: 0;
-  padding: 8px 2px;
+  padding: 8px 6px;
 }
 .nav-label {
   font-size: 10.5px;
