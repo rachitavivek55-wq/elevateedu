@@ -766,3 +766,100 @@
   box-shadow: 0 3px 10px rgba(111, 78, 55, 0.28);
 }
 .cal-set-btn:active { transform: translateY(1px); }
+
+/* ----------------------------------------------------------------
+   Planner refresh
+   The calendar is one of the two screens people actually live in
+   now, so the type, spacing and event chips were tuned for reading
+   at phone width. Nothing about the layout or behaviour changed.
+   ---------------------------------------------------------------- */
+.cal-views {
+  gap: 5px;
+  padding: 5px;
+  border-radius: 18px;
+}
+.cal-view-btn {
+  font-size: 13.5px;
+  font-weight: 600;
+  padding: 9px 0;
+  border-radius: 14px;
+}
+.cal-view-btn.active {
+  box-shadow: 0 2px 8px rgba(75, 56, 50, 0.12);
+}
+.cal-period-label {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
+}
+.cal-today {
+  font-size: 11.5px;
+  font-weight: 600;
+}
+.cal-grid {
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(75, 56, 50, 0.08);
+}
+/* Day names read as small caps so the date below is the loud part. */
+.cal-dayname {
+  padding: 9px 2px 8px;
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.cal-dayname .dn-num {
+  font-size: 15.5px;
+  font-weight: 700;
+  letter-spacing: 0;
+  margin-top: 3px;
+}
+.cal-hourlabel {
+  font-size: 10.5px;
+  font-weight: 600;
+  padding-top: 3px;
+}
+.cal-adlabel {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+.cal-adcell {
+  padding: 4px;
+  gap: 4px;
+}
+/* All-day titles used to be cut to "Math T...". They now wrap onto up
+   to three 12px lines, and the cap is an exact multiple of the line
+   height so a line is never sliced in half. */
+.cal-adchip {
+  font-size: 10px;
+  line-height: 12px;
+  padding: 3px 6px;
+  border-left-width: 4px;
+  white-space: normal;
+  overflow-wrap: break-word;
+  max-height: 39px;
+  overflow: hidden;
+  text-overflow: clip;
+  box-sizing: border-box;
+}
+.cal-event {
+  padding: 5px 8px;
+  border-radius: 10px;
+  border-left-width: 4px;
+  font-size: 10.5px;
+  box-shadow: 0 1px 3px rgba(75, 56, 50, 0.12);
+}
+.cal-event .ev-title {
+  overflow-wrap: break-word;
+}
+.cal-month .m-dayname {
+  font-size: 9.5px;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+}
+.cal-mcell .m-num {
+  font-weight: 600;
+}

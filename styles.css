@@ -1098,3 +1098,53 @@ input, select, textarea, button {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+/* ----------------------------------------------------------------
+   Planner-only home
+   The four square tiles are the planner's main tools. Notes is the
+   fifth, so it sits under the 2x2 grid as one wide card instead of
+   leaving a lone square with a gap beside it.
+   ---------------------------------------------------------------- */
+.grid > .tile.tile-wide {
+  grid-column: 1 / -1;
+  aspect-ratio: auto;
+  flex-direction: row;
+  justify-content: flex-start;
+  text-align: left;
+  gap: 14px;
+  padding: 14px 16px;
+  border-radius: 24px;
+}
+.grid > .tile.tile-wide .tile-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  margin-bottom: 0;
+}
+.grid > .tile.tile-wide .tile-icon svg {
+  width: 22px;
+  height: 22px;
+}
+.grid > .tile.tile-wide .tile-metric {
+  margin: 0 0 0 auto;
+}
+
+/* Five tabs with longer words than before, so each one takes an equal
+   share of the bar and the labels never collide on a small phone. */
+.bottom-nav {
+  padding: 12px 4px 20px;
+}
+.nav-item {
+  flex: 1;
+  min-width: 0;
+  padding: 8px 2px;
+}
+.nav-label {
+  font-size: 10.5px;
+  white-space: nowrap;
+}
+@media (max-width: 360px) {
+  .nav-label {
+    font-size: 9.5px;
+  }
+}

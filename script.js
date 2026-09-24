@@ -57,6 +57,60 @@ function renderDate() {
 renderDate();
 setInterval(renderDate, 60 * 1000);
 
+// 1c) Bottom navigation.
+// The app is the planner now, so the five tabs live here instead of
+// being repeated in the HTML of every page. Any page that still has a
+// .bottom-nav picks up the current set, so nothing can be left
+// pointing at a system that is no longer part of the app.
+(function () {
+  var nav = document.querySelector('.bottom-nav');
+  if (!nav) return;
+  var tabs = [
+    { tab: 'home', label: 'Home', icon: 'house', on: ['', 'index.html'] },
+    {
+      tab: 'calendar',
+      label: 'Calendar',
+      icon: 'calendar-days',
+      on: ['calendar.html'],
+    },
+    {
+      tab: 'checklists',
+      label: 'Checklists',
+      icon: 'list-checks',
+      on: ['checklists.html'],
+    },
+    {
+      tab: 'assignments',
+      label: 'Work',
+      icon: 'clipboard-list',
+      on: ['assignments.html'],
+    },
+    {
+      tab: 'gradebook',
+      label: 'Grades',
+      icon: 'line-chart',
+      on: ['gradebook.html'],
+    },
+  ];
+  var here = (window.location.pathname.split('/').pop() || '').toLowerCase();
+  nav.innerHTML = tabs
+    .map(function (t) {
+      var isHere = t.on.indexOf(here) > -1;
+      return (
+        '<button class="nav-item' +
+        (isHere ? ' active' : '') +
+        '" data-tab="' +
+        t.tab +
+        '"><span class="nav-icon"><i data-lucide="' +
+        t.icon +
+        '"></i></span><span class="nav-label">' +
+        t.label +
+        '</span></button>'
+      );
+    })
+    .join('');
+})();
+
 // 2) Render Lucide icons
 if (window.lucide) {
   window.lucide.createIcons();
@@ -79,11 +133,13 @@ window.eeGetPremium = function () {
 // As we build more systems, just add them here.
 const pages = {
   home: 'index.html',
-  planner: 'planner.html',
-  wallet: 'wallet.html',
-  fitness: 'wellness.html',
-  wellness: 'wellness.html',
-  mindset: 'mindset.html',
+  planner: 'index.html',
+  calendar: 'calendar.html',
+  checklists: 'checklists.html',
+  assignments: 'assignments.html',
+  gradebook: 'gradebook.html',
+  grades: 'gradebook.html',
+  notes: 'notes.html',
 };
 
 // 3b) Tool cards inside a system page: navigate via data-href
@@ -120,7 +176,7 @@ document.querySelectorAll('.tile').forEach((tile) => {
   }
 });
 
-// 6) Home tiles: show live data from each system instead of placeholders
+// 6) Home tiles: show live data from each planner tool
 function updateHomeMetrics() {
   function read(key, fallback) {
     try {
@@ -133,37 +189,80 @@ function updateHomeMetrics() {
   function plural(n, one, many) {
     return n + ' ' + (n === 1 ? one : many);
   }
-  var metrics = {};
+  function stamp(d) {
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
+  }
 
-  var cal = read('elevate_calendar_entries', []);
-  if (Array.isArray(cal)) {
-    var _t = new Date(); var todayStr = _t.getFullYear() + '-' + String(_t.getMonth()+1).padStart(2,'0') + '-' + String(_t.getDate()).padStart(2,'0');
-    var work = cal.filter(function(e) {
+  var metrics = {};
+  var today = stamp(new Date());
+  var entries = read('elevate_calendar_entries', []);
+
+  if (Array.isArray(entries)) {
+    // Calendar: what is actually happening today.
+    var onToday = entries.filter(function (e) {
+      if (!e || !e.title || !String(e.title).trim()) return false;
+      return !!e.date && String(e.date).slice(0, 10) === today;
+    });
+    metrics.calendar = onToday.length
+      ? plural(onToday.length, 'event today', 'events today')
+      : 'Nothing today';
+
+    // Assignments: unfinished work that is not already in the past.
+    var work = entries.filter(function (e) {
       if (!e) return false;
-      var isAssign = (e.type === 'assignment' || e.type === 'exam' || e.type === 'task');
-      if (!isAssign) return false;
-      if (!e.title || !String(e.title).trim()) return false; // ignore blank/placeholder entries
-      if (e.done === true || e.completed === true) return false; // ignore completed
-      if (e.date) { var ds = String(e.date).slice(0,10); if (ds && ds < todayStr) return false; } // ignore past (string compare, tz-safe)
+      var isWork =
+        e.type === 'assignment' || e.type === 'exam' || e.type === 'task';
+      if (!isWork) return false;
+      if (!e.title || !String(e.title).trim()) return false;
+      if (e.done === true || e.completed === true) return false;
+      if (e.date && String(e.date).slice(0, 10) < today) return false;
       return true;
     });
-    if (Array.isArray(work))
-      metrics.planner = plural(work.length, 'assignment', 'assignments');
+    metrics.assignments = work.length
+      ? plural(work.length, 'due', 'due')
+      : 'All clear';
   }
 
-  var bal = read('elevate_balance_state', null);
-  if (bal && typeof bal.amount === 'number' && bal.amount !== 0) {
-    var amt = Math.round(bal.amount * 100) / 100;
-    metrics.wallet = '$' + amt.toLocaleString();
+  // Checklists: boxes still waiting to be ticked.
+  var ck = read('elevate_checklists', null);
+  if (ck && Array.isArray(ck.lists)) {
+    var left = 0;
+    var total = 0;
+    ck.lists.forEach(function (l) {
+      if (!l || !Array.isArray(l.tasks)) return;
+      l.tasks.forEach(function (t) {
+        total++;
+        if (!t || !t.done) left++;
+      });
+    });
+    if (total) {
+      metrics.checklists = left ? plural(left, 'left', 'left') : 'All done';
+    }
   }
 
-  var wk = read('elevate_workouts', []);
-  if (Array.isArray(wk) && wk.length)
-    metrics.wellness = plural(wk.length, 'workout', 'workouts');
+  // Grades: how many classes are being tracked.
+  var gb = read('elevate_gradebook', null);
+  if (gb && Array.isArray(gb.books)) {
+    var classes = 0;
+    gb.books.forEach(function (bk) {
+      if (!bk || !Array.isArray(bk.periods)) return;
+      bk.periods.forEach(function (p) {
+        if (p && Array.isArray(p.classes)) classes += p.classes.length;
+      });
+    });
+    if (classes) metrics.grades = plural(classes, 'class', 'classes');
+  }
 
-  var vb = read('elevate_visionboard', null);
-  if (vb && Array.isArray(vb.boards) && vb.boards.length) {
-    metrics.mindset = plural(vb.boards.length, 'board', 'boards');
+  // Notes.
+  var notes = read('elevate_notes_items', []);
+  if (Array.isArray(notes) && notes.length) {
+    metrics.notes = plural(notes.length, 'note', 'notes');
   }
 
   document.querySelectorAll('.tile').forEach(function (tile) {
@@ -1130,7 +1229,7 @@ window.eeDeleteAccount = async function(){
   var manifest = {
     name: 'ElevateEdu',
     short_name: 'ElevateEdu',
-    description: 'Your all-in-one student planner, wellness & mindset app.',
+    description: 'Your school planner - calendar, checklists, assignments, grades and notes.',
     start_url: './index.html',
     scope: './',
     display: 'standalone',

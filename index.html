@@ -3,18 +3,18 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
-    <meta name="description" content="Plan your school week, track your grades, money, workouts and mindset - all in one place." />
+    <meta name="description" content="Plan your school week - calendar, checklists, assignments, grades and notes in one calm app." />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="ElevateEdu" />
     <meta property="og:title" content="ElevateEdu &mdash; your school week in one calm app" />
-    <meta property="og:description" content="Plan assignments, track your grades, money, workouts and mindset. Free, no ads, and it works on any phone." />
+    <meta property="og:description" content="Your timetable, assignments, checklists, grades and notes in one place. Free, no ads, and it works on any phone." />
     <link rel="canonical" href="https://elevateedu.app/" />
     <meta property="og:url" content="https://elevateedu.app/" />
     <meta property="og:image" content="https://elevateedu.app/icon-512.png" />
     <meta property="og:image:alt" content="The ElevateEdu app icon" />
     <meta name="twitter:card" content="summary" />
     <meta name="twitter:title" content="ElevateEdu &mdash; your school week in one calm app" />
-    <meta name="twitter:description" content="Plan assignments, track your grades, money, workouts and mindset. Free, no ads, and it works on any phone." />
+    <meta name="twitter:description" content="Your timetable, assignments, checklists, grades and notes in one place. Free, no ads, and it works on any phone." />
     <meta name="twitter:image" content="https://elevateedu.app/icon-512.png" />
     <link rel="manifest" href="./manifest.json" />
     <meta name="theme-color" content="#4b3832" />
@@ -42,7 +42,7 @@
       <div class="auth-box">
         <img class="ee-land-icon" src="./icon-192.png" alt="ElevateEdu" width="76" height="76" />
         <h2 class="auth-title">ElevateEdu</h2>
-        <p class="ee-land-tag">Your school week, your grades, your money, your body and your head &mdash; all in one calm little app.</p>
+        <p class="ee-land-tag">Your timetable, your assignments, your checklists and your grades &mdash; all in one calm little app.</p>
         <p class="auth-subtitle">Sign in or create an account</p>
         <form id="elevateAuthForm" class="auth-form" style="display: none">
           <input
@@ -143,31 +143,34 @@
           <p class="greeting-sub">Take a breath and focus today</p>
         </section>
 
-        <!-- Systems Grid -->
+        <!-- Planner tools -->
         <section class="systems">
-          <h3 class="section-label">Your Systems</h3>
+          <h3 class="section-label">Your Planner</h3>
           <div class="grid">
             <article class="tile">
-              <span class="tile-icon"
-                ><i data-lucide="calendar-check"></i
-              ></span>
-              <span class="tile-name">Planner</span>
-              <span class="tile-metric">No tasks yet</span>
+              <span class="tile-icon"><i data-lucide="calendar-days"></i></span>
+              <span class="tile-name">Calendar</span>
+              <span class="tile-metric">Open</span>
             </article>
             <article class="tile">
-              <span class="tile-icon"><i data-lucide="wallet"></i></span>
-              <span class="tile-name">Wallet</span>
-              <span class="tile-metric">Set up</span>
+              <span class="tile-icon"><i data-lucide="list-checks"></i></span>
+              <span class="tile-name">Checklists</span>
+              <span class="tile-metric">Open</span>
             </article>
             <article class="tile">
-              <span class="tile-icon"><i data-lucide="heart-pulse"></i></span>
-              <span class="tile-name">Wellness</span>
-              <span class="tile-metric">Start</span>
+              <span class="tile-icon"><i data-lucide="clipboard-list"></i></span>
+              <span class="tile-name">Assignments</span>
+              <span class="tile-metric">Open</span>
             </article>
             <article class="tile">
-              <span class="tile-icon"><i data-lucide="brain"></i></span>
-              <span class="tile-name">Mindset</span>
-              <span class="tile-metric">Begin</span>
+              <span class="tile-icon"><i data-lucide="line-chart"></i></span>
+              <span class="tile-name">Grades</span>
+              <span class="tile-metric">Open</span>
+            </article>
+            <article class="tile tile-wide">
+              <span class="tile-icon"><i data-lucide="notebook-pen"></i></span>
+              <span class="tile-name">Notes</span>
+              <span class="tile-metric">Open</span>
             </article>
           </div>
         </section>
@@ -190,21 +193,21 @@
           <span class="nav-icon"><i data-lucide="house"></i></span>
           <span class="nav-label">Home</span>
         </button>
-        <button class="nav-item" data-tab="planner">
-          <span class="nav-icon"><i data-lucide="calendar-check"></i></span>
-          <span class="nav-label">Planner</span>
+        <button class="nav-item" data-tab="calendar">
+          <span class="nav-icon"><i data-lucide="calendar-days"></i></span>
+          <span class="nav-label">Calendar</span>
         </button>
-        <button class="nav-item" data-tab="wallet">
-          <span class="nav-icon"><i data-lucide="wallet"></i></span>
-          <span class="nav-label">Wallet</span>
+        <button class="nav-item" data-tab="checklists">
+          <span class="nav-icon"><i data-lucide="list-checks"></i></span>
+          <span class="nav-label">Checklists</span>
         </button>
-        <button class="nav-item" data-tab="fitness">
-          <span class="nav-icon"><i data-lucide="heart-pulse"></i></span>
-          <span class="nav-label">Wellness</span>
+        <button class="nav-item" data-tab="assignments">
+          <span class="nav-icon"><i data-lucide="clipboard-list"></i></span>
+          <span class="nav-label">Work</span>
         </button>
-        <button class="nav-item" data-tab="mindset">
-          <span class="nav-icon"><i data-lucide="brain"></i></span>
-          <span class="nav-label">Mindset</span>
+        <button class="nav-item" data-tab="gradebook">
+          <span class="nav-icon"><i data-lucide="line-chart"></i></span>
+          <span class="nav-label">Grades</span>
         </button>
       </nav>
     </div>

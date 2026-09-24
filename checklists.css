@@ -720,3 +720,98 @@
 [hidden] {
   display: none !important;
 }
+
+/* ----------------------------------------------------------------
+   Planner refresh
+   Bigger rows, bigger type and calmer spacing. A checklist is
+   something you tap at speed, so every row is now a comfortable
+   touch target and the delete cross is quieter than the checkbox.
+   ---------------------------------------------------------------- */
+.ck-intro {
+  font-size: 13.5px;
+  margin: 2px 0 16px;
+}
+.ck-list-card {
+  padding: 16px;
+  border-radius: 20px;
+  gap: 12px;
+}
+.ck-list-name {
+  font-size: 17px;
+  letter-spacing: -0.2px;
+}
+.ck-badge {
+  font-size: 11px;
+  padding: 5px 11px;
+}
+.ck-list-foot {
+  gap: 12px;
+}
+.ck-mini-progress {
+  height: 9px;
+}
+.ck-list-sub {
+  font-size: 12px;
+  opacity: 1;
+}
+.ck-add-btn {
+  margin-top: 16px;
+  padding: 14px;
+  border-radius: 18px;
+  font-size: 14px;
+}
+.ck-detail-title {
+  font-size: 24px;
+  letter-spacing: -0.4px;
+}
+.ck-detail-meta {
+  font-size: 12px;
+  margin-top: 6px;
+}
+.ck-progress-wrap {
+  margin: 18px 0 14px;
+  gap: 12px;
+}
+.ck-progress-bar {
+  height: 12px;
+}
+.ck-progress-text {
+  font-size: 12.5px;
+}
+.ck-tasks {
+  border-radius: 18px;
+}
+.ck-task {
+  padding: 15px 16px;
+  gap: 14px;
+}
+.ck-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 8px;
+}
+.ck-check i {
+  width: 15px;
+  height: 15px;
+}
+.ck-task-label {
+  font-size: 15px;
+  line-height: 1.35;
+}
+.ck-task-del {
+  opacity: 0.32;
+  padding: 6px;
+}
+.ck-task-del i {
+  width: 17px;
+  height: 17px;
+}
+.ck-add-task {
+  margin-top: 14px;
+  gap: 10px;
+}
+.ck-add-task input {
+  padding: 14px 16px;
+  border-radius: 14px;
+  font-size: 14.5px;
+}
