@@ -1,5 +1,5 @@
 // ElevateEdu Service Worker â network-first so updates appear instantly
-const CACHE = 'elevateedu-v81';
+const CACHE = 'elevateedu-v82';
 // The planner shell, so every tool works offline from the moment it is
 // installed. The archived systems are not precached - see ARCHIVE.md.
 const CORE = [
@@ -7,25 +7,19 @@ const CORE = [
   './about.html',
   './account.html',
   './assignments.html',
-  './calendar.html',
   './checklists.html',
   './gradebook.html',
   './index.html',
-  './notes.html',
   './privacy.html',
   './terms.html',
   './assignments.css',
-  './calendar.css',
   './checklists.css',
   './gradebook.css',
-  './notes.css',
   './styles.css',
   './assignments.js',
-  './calendar.js',
   './checklists.js',
   './gbscores.js',
   './gradebook.js',
-  './notes.js',
   './script.js',
   './manifest.json',
   './icon-192.png',

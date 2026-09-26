@@ -68,12 +68,6 @@ setInterval(renderDate, 60 * 1000);
   var tabs = [
     { tab: 'home', label: 'Home', icon: 'house', on: ['', 'index.html'] },
     {
-      tab: 'calendar',
-      label: 'Calendar',
-      icon: 'calendar-days',
-      on: ['calendar.html'],
-    },
-    {
       tab: 'checklists',
       label: 'Checklists',
       icon: 'list-checks',
@@ -81,7 +75,7 @@ setInterval(renderDate, 60 * 1000);
     },
     {
       tab: 'assignments',
-      label: 'Work',
+      label: "Assignments",
       icon: 'clipboard-list',
       on: ['assignments.html'],
     },
@@ -134,12 +128,10 @@ window.eeGetPremium = function () {
 const pages = {
   home: 'index.html',
   planner: 'index.html',
-  calendar: 'calendar.html',
   checklists: 'checklists.html',
   assignments: 'assignments.html',
   gradebook: 'gradebook.html',
   grades: 'gradebook.html',
-  notes: 'notes.html',
 };
 
 // 3b) Tool cards inside a system page: navigate via data-href
