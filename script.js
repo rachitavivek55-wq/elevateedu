@@ -2325,3 +2325,540 @@ window.addEventListener("beforeinstallprompt", function (e) {
     later();
   }
 })();
+
+
+// 8) Home board: the task feed and class grades, live on the home screen.
+(function () {
+  var LETTERS = [
+      { l: 'A+', min: 97 },
+      { l: 'A', min: 93 },
+      { l: 'A-', min: 90 },
+      { l: 'B+', min: 87 },
+      { l: 'B', min: 83 },
+      { l: 'B-', min: 80 },
+      { l: 'C+', min: 77 },
+      { l: 'C', min: 73 },
+      { l: 'C-', min: 70 },
+      { l: 'D+', min: 67 },
+      { l: 'D', min: 63 },
+      { l: 'D-', min: 60 },
+      { l: 'F', min: 0 },
+    ];
+    var LETTER_PCT = {
+      'A+': 98,
+      A: 95,
+      'A-': 91,
+      'B+': 88,
+      B: 85,
+      'B-': 81,
+      'C+': 78,
+      C: 75,
+      'C-': 71,
+      'D+': 68,
+      D: 65,
+      'D-': 61,
+      F: 50,
+    };
+    /* Not every school hands out letters. Plenty of report cards use a small
+     number instead - 1 to 4 for standards, 1 to 7 on an IB card, straight GPA
+     points, or just pass/fail. A 3 out of 4 is not 75 per cent, it is 'meets
+     the standard', so each mark carries its own honest percentage instead of
+     being divided out. That keeps a report-card mark from dragging an average
+     down for no reason. */
+  var SCALES = {
+    std4: {
+      name: 'Standards 1-4',
+      pts: [
+        { v: '4', t: '4 - Exceeds the standard', p: 96 },
+        { v: '3', t: '3 - Meets the standard', p: 88 },
+        { v: '2', t: '2 - Approaching the standard', p: 76 },
+        { v: '1', t: '1 - Beginning', p: 63 },
+        { v: '0', t: '0 - No evidence yet', p: 50 },
+      ],
+    },
+    std3: {
+      name: 'Proficiency 1-3',
+      pts: [
+        { v: '3', t: '3 - Exceeds', p: 95 },
+        { v: '2', t: '2 - Meets', p: 85 },
+        { v: '1', t: '1 - Not yet', p: 65 },
+      ],
+    },
+    ib7: {
+      name: 'IB 1-7',
+      pts: [
+        { v: '7', t: '7 - Excellent', p: 97 },
+        { v: '6', t: '6 - Very good', p: 93 },
+        { v: '5', t: '5 - Good', p: 87 },
+        { v: '4', t: '4 - Satisfactory', p: 80 },
+        { v: '3', t: '3 - Mediocre', p: 70 },
+        { v: '2', t: '2 - Poor', p: 60 },
+        { v: '1', t: '1 - Very poor', p: 45 },
+      ],
+    },
+    gpa4: {
+      name: 'GPA points 0-4',
+      pts: [
+        { v: '4', t: '4.0', p: 95 },
+        { v: '3.7', t: '3.7', p: 91 },
+        { v: '3.3', t: '3.3', p: 88 },
+        { v: '3', t: '3.0', p: 85 },
+        { v: '2.7', t: '2.7', p: 81 },
+        { v: '2.3', t: '2.3', p: 78 },
+        { v: '2', t: '2.0', p: 75 },
+        { v: '1.7', t: '1.7', p: 71 },
+        { v: '1.3', t: '1.3', p: 68 },
+        { v: '1', t: '1.0', p: 65 },
+        { v: '0.7', t: '0.7', p: 61 },
+        { v: '0', t: '0.0', p: 50 },
+      ],
+    },
+    pf: {
+      name: 'Pass / Fail',
+      pts: [
+        { v: 'P', t: 'Pass', p: 100 },
+        { v: 'F', t: 'Fail', p: 50 },
+      ],
+    },
+  };
+  function scalePts(key) {
+    return (SCALES[key] && SCALES[key].pts) || [];
+  }
+  function scalePoint(key, v) {
+    var pts = scalePts(key);
+    for (var i = 0; i < pts.length; i++) {
+      if (pts[i].v === String(v)) return pts[i];
+    }
+    return null;
+  }
+  function scalePct(key, v) {
+    var p = scalePoint(key, v);
+    return p ? p.p : null;
+  }
+  function scaleTop(key) {
+    var pts = scalePts(key);
+    return pts.length ? pts[0].v : '';
+  }
+  function letterToPct(l) {
+      l = (l || '').toUpperCase().trim();
+      return LETTER_PCT.hasOwnProperty(l) ? LETTER_PCT[l] : null;
+    }
+    function pctToLetter(p) {
+      for (var i = 0; i < LETTERS.length; i++) {
+        if (p >= LETTERS[i].min) return LETTERS[i].l;
+      }
+      return 'F';
+    }
+    function pctToGpa(p) {
+      if (p >= 97) return 4.0;
+      if (p >= 93) return 4.0;
+      if (p >= 90) return 3.7;
+      if (p >= 87) return 3.3;
+      if (p >= 83) return 3.0;
+      if (p >= 80) return 2.7;
+      if (p >= 77) return 2.3;
+      if (p >= 73) return 2.0;
+      if (p >= 70) return 1.7;
+      if (p >= 67) return 1.3;
+      if (p >= 63) return 1.0;
+      if (p >= 60) return 0.7;
+      return 0.0;
+    }
+    /* ---------- weighted scores (kept in sync with gbscores.js) ---------- */
+    // One logged score -> a percent, or null when it cannot be read.
+    function scoreItemPct(s) {
+      if (!s) return null;
+      if (s.type === 'letter') return letterToPct(s.value);
+    if (s.type === 'scale') return scalePct(s.scale, s.value);
+      if (s.type === 'percent') {
+        var p = parseFloat(s.value);
+        return isNaN(p) ? null : p;
+      }
+      if (s.type === 'points') {
+        var got = parseFloat(s.got),
+          out = parseFloat(s.out);
+        if (isNaN(got) || isNaN(out) || out === 0) return null;
+        return (got / out) * 100;
+      }
+      return null;
+    }
+    // Average of every score logged for a class, honouring category weights.
+    // Categories with no scores yet sit the round out, so a 10% homework
+    // category still moves the total straight away.
+    function catStatsG(c) {
+      var items = (c && c.items) || [];
+      var got = 0,
+        out = 0,
+        n = 0;
+      items.forEach(function (s) {
+        var p = scoreItemPct(s);
+        if (p === null) return;
+        n += 1;
+        if (s.type === 'points') {
+          got += parseFloat(s.got);
+          out += parseFloat(s.out);
+        } else {
+          got += p;
+          out += 100;
+        }
+      });
+      return n && out > 0 ? { got: got, out: out } : null;
+    }
+    function scoresAvg(cls) {
+      if (!cls || !cls.categories || !cls.categories.length) return null;
+      if (cls.gradeMode === 'points') {
+        var tg = 0,
+          to = 0;
+        cls.categories.forEach(function (c) {
+          var st = catStatsG(c);
+          if (!st) return;
+          tg += st.got;
+          to += st.out;
+        });
+        return to > 0 ? (tg / to) * 100 : null;
+      }
+      var parts = [];
+      cls.categories.forEach(function (c) {
+        var st = catStatsG(c);
+        if (!st) return;
+        var w = parseFloat(c.weight);
+        parts.push({
+          a: (st.got / st.out) * 100,
+          w: isNaN(w) || w <= 0 ? null : w,
+        });
+      });
+      if (!parts.length) return null;
+      var anyW = parts.some(function (p) {
+        return p.w !== null;
+      });
+      if (anyW) {
+        var tw = 0,
+          ts = 0;
+        parts.forEach(function (p) {
+          var w = p.w === null ? 0 : p.w;
+          tw += w;
+          ts += p.a * w;
+        });
+        return tw ? ts / tw : null;
+      }
+      return (
+        parts.reduce(function (s, p) {
+          return s + p.a;
+        }, 0) / parts.length
+      );
+    }
+    // returns percent (number) or null
+    function gradeToPct(cls) {
+      // Logged scores always win over a hand-typed grade.
+      var auto = scoresAvg(cls);
+      if (auto !== null) return auto;
+      if (cls.gradeType === 'percent') {
+        var v = parseFloat(cls.gradeValue);
+        return isNaN(v) ? null : v;
+      }
+      if (cls.gradeType === 'scale') {
+      return scalePct(cls.gradeScale, cls.gradeValue);
+    }
+    if (cls.gradeType === 'number') {
+        var v2 = parseFloat(cls.gradeValue),
+          mx = parseFloat(cls.gradeMax);
+        if (isNaN(v2)) return null;
+        if (isNaN(mx) || mx <= 0) mx = 100;
+        return (v2 / mx) * 100;
+      }
+      if (cls.gradeType === 'letter') {
+        return letterToPct(cls.gradeValue);
+      }
+      return null;
+    }
+    function gradeDisplay(cls) {
+      var autoD = scoresAvg(cls);
+      if (autoD !== null) return Math.round(autoD * 10) / 10 + '%';
+      if (cls.gradeType === 'letter') {
+        return (cls.gradeValue || '').toUpperCase();
+      }
+      if (cls.gradeType === 'percent') {
+        var v = parseFloat(cls.gradeValue);
+        return isNaN(v) ? '—' : Math.round(v * 10) / 10 + '%';
+      }
+      if (cls.gradeType === 'scale') {
+      var sp = scalePoint(cls.gradeScale, cls.gradeValue);
+      return sp ? sp.v : '—';
+    }
+    if (cls.gradeType === 'number') {
+        var a = cls.gradeValue,
+          b = cls.gradeMax;
+        if (a == null || a === '') return '—';
+        return a + (b ? ' / ' + b : '');
+      }
+      return '—';
+    }
+    function gradeColor(p) {
+      if (p == null) return 'var(--gb-muted)';
+      if (p >= 90) return 'var(--gb-good)';
+      if (p >= 80) return 'var(--gb-coffee)';
+      if (p >= 70) return 'var(--gb-warn)';
+      return 'var(--gb-bad)';
+    }
+  
+    /* ---------- averaging ---------- */
+    
+  function readLS(key, fallback) {
+    try {
+      var raw = localStorage.getItem(key);
+      return raw == null ? fallback : JSON.parse(raw);
+    } catch (e) {
+      return fallback;
+    }
+  }
+  function esc(t) {
+    return String(t == null ? '' : t).replace(/[&<>"]/g, function (c) {
+      return c === '&' ? '&amp;' : c === '<' ? '&lt;' : c === '>' ? '&gt;' : '&quot;';
+    });
+  }
+  function stamp(d) {
+    return (
+      d.getFullYear() +
+      '-' +
+      String(d.getMonth() + 1).padStart(2, '0') +
+      '-' +
+      String(d.getDate()).padStart(2, '0')
+    );
+  }
+
+  var TASK_CAP = 5,
+    CLASS_CAP = 6,
+    OVERDUE_DAYS = 14;
+  var flipped = {};
+  function rowKey(i) {
+    return i.src + ':' + i.id;
+  }
+
+  // Every class in the active gradebook, in order.
+  function classes() {
+    var gb = readLS('elevate_gradebook', null);
+    if (!gb || !Array.isArray(gb.books)) return [];
+    var book = null;
+    gb.books.forEach(function (b) {
+      if (b && String(b.id) === String(gb.activeBook)) book = b;
+    });
+    if (!book) book = gb.books[0];
+    if (!book) return [];
+    var out = [];
+    (book.periods || []).forEach(function (p) {
+      (p.classes || []).forEach(function (c) {
+        if (c && c.name) out.push(c);
+      });
+    });
+    return out;
+  }
+
+  // Assignments, exams and checklist boxes are all just tasks here.
+  function tasks() {
+    var today = stamp(new Date());
+    var floor = stamp(new Date(Date.now() - OVERDUE_DAYS * 86400000));
+    var out = [];
+    readLS('elevate_calendar_entries', []).forEach(function (e) {
+      if (!e) return;
+      if (e.type !== 'assignment' && e.type !== 'exam' && e.type !== 'task') return;
+      if (!e.title || !String(e.title).trim()) return;
+      var done = e.done === true || e.completed === true;
+      var day = e.date ? String(e.date).slice(0, 10) : '';
+      if (day && day < floor) return;
+      out.push({
+        src: 'cal',
+        id: e.id,
+        list: '',
+        title: e.title,
+        date: day,
+        kind: e.type,
+        done: done,
+        late: !!day && day < today && !done
+      });
+    });
+    var ck = readLS('elevate_checklists', null);
+    if (ck && Array.isArray(ck.lists)) {
+      ck.lists.forEach(function (l) {
+        (l.tasks || []).forEach(function (t) {
+          if (!t || !t.text) return;
+          out.push({
+            src: 'ck',
+            id: t.id,
+            list: l.id,
+            title: t.text,
+            date: '',
+            kind: l.name || 'Checklist',
+            done: !!t.done,
+            late: false
+          });
+        });
+      });
+    }
+    out.sort(function (a, b) {
+      var ad = a.date || '9999-99-99',
+        bd = b.date || '9999-99-99';
+      return ad < bd ? -1 : ad > bd ? 1 : 0;
+    });
+    return out;
+  }
+
+  // Ticked rows stay put until the next load so a mis-tap can be undone.
+  function live(list) {
+    return list.filter(function (i) {
+      return !i.done || flipped[rowKey(i)];
+    });
+  }
+
+  function dueLabel(i) {
+    if (!i.date) return '';
+    var t = new Date();
+    t.setHours(0, 0, 0, 0);
+    var p = i.date.split('-');
+    var d = new Date(Number(p[0]), Number(p[1]) - 1, Number(p[2]));
+    var n = Math.round((d - t) / 86400000);
+    if (n < 0) return n === -1 ? 'due yesterday' : 'overdue';
+    if (n === 0) return 'due today';
+    if (n === 1) return 'due tomorrow';
+    if (n < 7) return 'due in ' + n + ' days';
+    return 'due ' + d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+  }
+  function kindLabel(i) {
+    if (i.src !== 'cal') return i.kind;
+    return i.kind === 'exam' ? 'Exam' : i.kind === 'assignment' ? 'Assignment' : 'Task';
+  }
+  function rowSub(i) {
+    var bits = [kindLabel(i), dueLabel(i)].filter(Boolean);
+    return bits.join(' \u00b7 ');
+  }
+  function letterFor(cls) {
+    var pct = gradeToPct(cls);
+    return pct == null ? '\u2014' : pctToLetter(pct);
+  }
+
+  function render() {
+    var tl = document.getElementById('eeTaskList');
+    var cl = document.getElementById('eeClassList');
+    if (!tl && !cl) return;
+    if (tl) {
+      var ts = live(tasks());
+      var h = '';
+      ts.slice(0, TASK_CAP).forEach(function (i) {
+        h +=
+          '<button class="ee-row' + (i.done ? ' is-done' : '') + '" data-src="' + esc(i.src) +
+          '" data-id="' + esc(i.id) + '" data-list="' + esc(i.list) + '">' +
+          '<span class="ee-box"><i data-lucide="check"></i></span>' +
+          '<span class="ee-row-main"><span class="ee-row-title">' + esc(i.title) + '</span>' +
+          '<span class="ee-row-sub">' + esc(rowSub(i)) + '</span></span></button>';
+      });
+      if (!ts.length) h = '<p class="ee-empty">Nothing left to do. Enjoy it.</p>';
+      else if (ts.length > TASK_CAP)
+        h += '<button class="ee-more" data-go="assignments.html">See all ' + ts.length + ' tasks</button>';
+      tl.innerHTML = h;
+    }
+    if (cl) {
+      var cs = classes();
+      var h2 = '';
+      cs.slice(0, CLASS_CAP).forEach(function (c) {
+        var shown = gradeDisplay(c);
+        h2 +=
+          '<button class="ee-row" data-go="gradebook.html"><span class="ee-row-main">' +
+          '<span class="ee-row-title">' + esc(c.name) + '</span>' +
+          '<span class="ee-row-sub">' + (shown ? esc(shown) : 'no scores yet') + '</span></span>' +
+          '<span class="ee-grade">' + letterFor(c) + '</span></button>';
+      });
+      if (!cs.length) h2 = '<p class="ee-empty">No classes yet &mdash; tap Grades to add one.</p>';
+      else if (cs.length > CLASS_CAP)
+        h2 += '<button class="ee-more" data-go="gradebook.html">See all ' + cs.length + ' classes</button>';
+      cl.innerHTML = h2;
+    }
+    upNext();
+    if (window.lucide && window.lucide.createIcons) window.lucide.createIcons();
+  }
+
+  // The banner card answers one question: what should I do right now?
+  function upNext() {
+    var card = document.getElementById('eeUpNext');
+    var eyebrow = document.getElementById('eeUpEyebrow');
+    var title = document.getElementById('eeUpTitle');
+    var sub = document.getElementById('eeUpSub');
+    if (!card || !title || !eyebrow || !sub) return;
+    var next = tasks().filter(function (i) {
+      return !i.done;
+    })[0];
+    var go = 'assignments.html';
+    if (next) {
+      eyebrow.textContent = next.late ? 'Overdue' : 'Up next';
+      title.textContent = next.title;
+      sub.textContent = rowSub(next) || 'Tap to open it.';
+      go = next.src === 'ck' ? 'checklists.html' : 'assignments.html';
+    } else {
+      var low = null;
+      classes().forEach(function (c) {
+        var pct = gradeToPct(c);
+        if (pct != null && (low === null || pct < low.pct)) low = { pct: pct, name: c.name };
+      });
+      if (low && low.pct < 80) {
+        eyebrow.textContent = 'Heads up';
+        title.textContent = low.name + ' is at ' + Math.round(low.pct * 10) / 10 + '%';
+        sub.textContent = 'Tap to see what is pulling it down.';
+        go = 'gradebook.html';
+      } else {
+        eyebrow.textContent = 'All caught up';
+        title.textContent = 'Nothing due right now';
+        sub.textContent = low
+          ? 'Lowest class: ' + low.name + ' at ' + Math.round(low.pct * 10) / 10 + '%'
+          : 'Add a task and it shows up here.';
+        go = low ? 'gradebook.html' : 'assignments.html';
+      }
+    }
+    card.setAttribute('data-go', go);
+  }
+
+  function toggle(src, id, list) {
+    if (src === 'cal') {
+      var entries = readLS('elevate_calendar_entries', []);
+      var hit = null;
+      entries.forEach(function (e) {
+        if (e && String(e.id) === String(id)) hit = e;
+      });
+      if (!hit) return;
+      hit.done = !(hit.done === true);
+      if (hit.done) {
+        hit.doneAt = Date.now();
+        flipped['cal:' + id] = 1;
+      } else {
+        delete flipped['cal:' + id];
+      }
+      localStorage.setItem('elevate_calendar_entries', JSON.stringify(entries));
+    } else {
+      var ck = readLS('elevate_checklists', null);
+      if (!ck || !Array.isArray(ck.lists)) return;
+      var task = null;
+      ck.lists.forEach(function (l) {
+        if (String(l.id) !== String(list)) return;
+        (l.tasks || []).forEach(function (t) {
+          if (String(t.id) === String(id)) task = t;
+        });
+      });
+      if (!task) return;
+      task.done = !task.done;
+      if (task.done) flipped['ck:' + id] = 1;
+      else delete flipped['ck:' + id];
+      localStorage.setItem('elevate_checklists', JSON.stringify(ck));
+    }
+  }
+
+  document.addEventListener('click', function (ev) {
+    if (!ev.target || !ev.target.closest) return;
+    var row = ev.target.closest('.ee-row[data-src]');
+    if (row) {
+      toggle(row.getAttribute('data-src'), row.getAttribute('data-id'), row.getAttribute('data-list'));
+      render();
+      return;
+    }
+    var link = ev.target.closest('[data-go]');
+    if (link && link.getAttribute('data-go')) window.location.href = link.getAttribute('data-go');
+  });
+
+  render();
+})();

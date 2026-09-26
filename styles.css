@@ -1147,10 +1147,25 @@ input, select, textarea, button {
   }
 }
 
-/* Home: three big circular tool buttons arranged in a triangle. */
-.grid:has(> .tile) { grid-template-columns: repeat(2, 1fr); gap: 16px; justify-items: center; align-items: center; padding: 4px 0 2px; }
-.grid > .tile { width: 100%; max-width: 206px; aspect-ratio: 1 / 1; border-radius: 50%; padding: 0; gap: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-.grid > .tile:nth-child(3) { grid-column: 1 / -1; width: calc(50% - 8px); }
-.grid > .tile .tile-icon { width: 58px; height: 58px; border-radius: 50%; }
-.grid > .tile .tile-name { font-size: 15px; line-height: 1.2; text-align: center; }
-.grid > .tile .tile-metric { font-size: 10px; padding: 3px 9px; }
+/* Home: a compact tool row, then the live task feed and class grades. */
+.grid:has(> .tile) { grid-template-columns: repeat(3, 1fr); gap: 8px; padding: 0; }
+.grid > .tile { width: auto; max-width: none; aspect-ratio: auto; border-radius: 18px; padding: 10px 6px; gap: 6px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.grid > .tile:nth-child(3) { grid-column: auto; width: auto; }
+.grid > .tile .tile-icon { width: 36px; height: 36px; border-radius: 50%; }
+.grid > .tile .tile-name { font-size: 11px; line-height: 1.2; text-align: center; }
+.grid > .tile .tile-metric { display: none; }
+.home-block { margin-top: 18px; }
+.ee-rows { background: var(--tile); border: 1px solid rgba(var(--line-rgb), 0.1); border-radius: 20px; box-shadow: var(--shadow-soft); overflow: hidden; }
+.ee-row { display: flex; align-items: center; gap: 12px; width: 100%; padding: 12px 14px; background: none; border: 0; border-top: 1px solid rgba(var(--line-rgb), 0.09); text-align: left; cursor: pointer; color: var(--espresso); font-family: inherit; }
+.ee-row:first-child { border-top: 0; }
+.ee-row-main { flex: 1; display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ee-row-title { font-size: 13.5px; font-weight: 600; color: var(--espresso); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.ee-row-sub { font-size: 10.5px; color: var(--coffee); opacity: 0.75; }
+.ee-box { width: 20px; height: 20px; border-radius: 7px; border: 1.5px solid rgba(var(--line-rgb), 0.35); display: grid; place-items: center; flex: 0 0 auto; color: transparent; }
+.ee-box svg { width: 13px; height: 13px; }
+.ee-row.is-done .ee-box { background: var(--tile-accent); color: var(--espresso); border-color: rgba(var(--line-rgb), 0.25); }
+.ee-row.is-done .ee-row-title { text-decoration: line-through; opacity: 0.5; }
+.ee-grade { font-size: 15px; font-weight: 700; color: var(--espresso); }
+.ee-empty { padding: 14px; font-size: 12px; color: var(--coffee); opacity: 0.8; text-align: center; }
+.ee-more { display: block; width: 100%; padding: 10px 12px; font-size: 11px; color: var(--coffee); background: none; border: 0; border-top: 1px solid rgba(var(--line-rgb), 0.09); cursor: pointer; font-family: inherit; }
+.greeting-card { cursor: pointer; }
