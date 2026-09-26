@@ -1147,26 +1147,10 @@ input, select, textarea, button {
   }
 }
 
-/* Home: the tools sit as three mini-app icons, not a list. */
-.grid.grid:has(> .tile) {
-  grid-template-columns: repeat(3, 1fr);
-  gap: 10px;
-}
-.grid > .tile {
-  aspect-ratio: 1 / 1;
-  padding: 12px 6px;
-  gap: 8px;
-}
-.grid > .tile .tile-icon {
-  width: 46px;
-  height: 46px;
-}
-.grid > .tile .tile-name {
-  font-size: 11px;
-  line-height: 1.2;
-  text-align: center;
-}
-.grid > .tile .tile-metric {
-  font-size: 9px;
-  padding: 3px 7px;
-}
+/* Home: three big circular tool buttons arranged in a triangle. */
+.grid:has(> .tile) { grid-template-columns: repeat(2, 1fr); gap: 16px; justify-items: center; align-items: center; padding: 4px 0 2px; }
+.grid > .tile { width: 100%; max-width: 206px; aspect-ratio: 1 / 1; border-radius: 50%; padding: 0; gap: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+.grid > .tile:nth-child(3) { grid-column: 1 / -1; }
+.grid > .tile .tile-icon { width: 58px; height: 58px; border-radius: 50%; }
+.grid > .tile .tile-name { font-size: 15px; line-height: 1.2; text-align: center; }
+.grid > .tile .tile-metric { font-size: 10px; padding: 3px 9px; }
