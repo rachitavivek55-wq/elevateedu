@@ -1169,3 +1169,6 @@ input, select, textarea, button {
 .ee-empty { padding: 14px; font-size: 12px; color: var(--coffee); opacity: 0.8; text-align: center; }
 .ee-more { display: block; width: 100%; padding: 10px 12px; font-size: 11px; color: var(--coffee); background: none; border: 0; border-top: 1px solid rgba(var(--line-rgb), 0.09); cursor: pointer; font-family: inherit; }
 .greeting-card { cursor: pointer; }
+
+/* Home: one block per kind of task, so schoolwork and routines stay apart. */
+.ee-sec + .ee-sec { margin-top: 18px; }

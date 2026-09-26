@@ -2702,11 +2702,52 @@ window.addEventListener("beforeinstallprompt", function (e) {
     return out;
   }
 
-  // Ticked rows stay put until the next load so a mis-tap can be undone.
-  function live(list) {
-    return list.filter(function (i) {
-      return !i.done || flipped[rowKey(i)];
+  // Schoolwork sits in its own block, then each checklist cadence gets one.
+  function cadence(l) {
+    var r = l && l.reset;
+    if (r === 'daily') return { key: 'daily', label: 'Daily tasks', rank: 1 };
+    if (r === 'weekly') return { key: 'weekly', label: 'Weekly tasks', rank: 2 };
+    if (r === 'monthly') return { key: 'monthly', label: 'Monthly tasks', rank: 3 };
+    if (r === 'custom') return { key: 'custom', label: 'Repeating tasks', rank: 4 };
+    return { key: 'never', label: 'Anytime tasks', rank: 5 };
+  }
+  function groups() {
+    var meta = {};
+    var ck = readLS('elevate_checklists', null);
+    if (ck && Array.isArray(ck.lists))
+      ck.lists.forEach(function (l) {
+        meta[String(l.id)] = cadence(l);
+      });
+    var work = [];
+    var buckets = {};
+    tasks().forEach(function (i) {
+      if (i.src !== 'ck') {
+        work.push(i);
+        return;
+      }
+      var c = meta[String(i.list)] || cadence(null);
+      if (!buckets[c.key])
+        buckets[c.key] = { label: c.label, rank: c.rank, go: 'checklists.html', items: [] };
+      buckets[c.key].items.push(i);
     });
+    var out = [{ label: 'Tasks', rank: 0, go: 'assignments.html', items: work }];
+    for (var k in buckets) {
+      if (Object.prototype.hasOwnProperty.call(buckets, k)) out.push(buckets[k]);
+    }
+    out.sort(function (a, b) {
+      return a.rank - b.rank;
+    });
+    return out;
+  }
+  function rowHtml(i) {
+    return (
+      '<button class="ee-row' + (i.done ? ' is-done' : '') +
+      '" data-src="' + esc(i.src) + '" data-id="' + esc(i.id) +
+      '" data-list="' + esc(i.list) + '">' +
+      '<span class="ee-box"><i data-lucide="check"></i></span>' +
+      '<span class="ee-row-main"><span class="ee-row-title">' + esc(i.title) + '</span>' +
+      '<span class="ee-row-sub">' + esc(rowSub(i)) + '</span></span></button>'
+    );
   }
 
   function dueLabel(i) {
@@ -2736,23 +2777,44 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
 
   function render() {
-    var tl = document.getElementById('eeTaskList');
+    var tl = document.getElementById('eeTaskArea');
     var cl = document.getElementById('eeClassList');
     if (!tl && !cl) return;
     if (tl) {
-      var ts = live(tasks());
       var h = '';
-      ts.slice(0, TASK_CAP).forEach(function (i) {
+      var shown = false;
+      groups().forEach(function (g) {
+        var pending = 0;
+        var total = 0;
+        var rows = '';
+        g.items.forEach(function (i) {
+          /* A row ticked on this visit stays put so a mis-tap can be undone,
+             and it no longer uses up a slot, so the next job appears right
+             away instead of looking like it came back later. */
+          if (i.done) {
+            if (flipped[rowKey(i)]) rows += rowHtml(i);
+            return;
+          }
+          total++;
+          if (pending < TASK_CAP) {
+            pending++;
+            rows += rowHtml(i);
+          }
+        });
+        if (!rows) return;
+        shown = true;
         h +=
-          '<button class="ee-row' + (i.done ? ' is-done' : '') + '" data-src="' + esc(i.src) +
-          '" data-id="' + esc(i.id) + '" data-list="' + esc(i.list) + '">' +
-          '<span class="ee-box"><i data-lucide="check"></i></span>' +
-          '<span class="ee-row-main"><span class="ee-row-title">' + esc(i.title) + '</span>' +
-          '<span class="ee-row-sub">' + esc(rowSub(i)) + '</span></span></button>';
+          '<div class="ee-sec"><h3 class="section-label">' + esc(g.label) + '</h3>' +
+          '<div class="ee-rows">' + rows +
+          (total > TASK_CAP
+            ? '<button class="ee-more" data-go="' + esc(g.go) + '">See all ' + total + ' tasks</button>'
+            : '') +
+          '</div></div>';
       });
-      if (!ts.length) h = '<p class="ee-empty">Nothing left to do. Enjoy it.</p>';
-      else if (ts.length > TASK_CAP)
-        h += '<button class="ee-more" data-go="assignments.html">See all ' + ts.length + ' tasks</button>';
+      if (!shown)
+        h =
+          '<div class="ee-sec"><h3 class="section-label">Tasks</h3>' +
+          '<div class="ee-rows"><p class="ee-empty">Nothing left to do. Enjoy it.</p></div></div>';
       tl.innerHTML = h;
     }
     if (cl) {
