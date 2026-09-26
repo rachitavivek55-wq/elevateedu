@@ -1146,3 +1146,17 @@ input, select, textarea, button {
     font-size: 9.5px;
   }
 }
+
+/* Home: three equal full-width tool rows. */
+.grid > .tile.tile-wide {
+  min-height: 78px;
+  padding: 16px 18px;
+  gap: 14px;
+}
+.grid > .tile.tile-wide .tile-icon {
+  width: 48px;
+  height: 48px;
+}
+.grid > .tile.tile-wide .tile-name {
+  font-size: 16px;
+}
