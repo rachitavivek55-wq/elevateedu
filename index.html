@@ -112,7 +112,7 @@
           <div class="ee-land-card"><b>Assignments</b><span>Work sorted by class. Tick it off when you finish and it moves to a completed list instead of being deleted.</span></div>
           <div class="ee-land-card"><b>Gradebook</b><span>Put your scores in and it works out your average, so you always know where you stand.</span></div>
           <div class="ee-land-card"><b>Checklists</b><span>Morning, homework, night &mdash; routines that reset themselves so you are not rewriting the same list every day.</span></div>
-          <div class="ee-land-card"><b>Money &amp; wellness</b><span>Keep an eye on what you spend, plus a few quiet tools for the weeks that get heavy.</span></div>
+          <div class="ee-land-card"><b>One calm home screen</b><span>Opens straight to what is due next, the jobs left today and how each class is doing, so nothing sneaks up on you.</span></div>
         </div>
         <p class="ee-land-chips"><span>Free</span><span>No ads</span><span>Works offline</span><span>Any phone or laptop</span></p>
         <p class="ee-land-note">Sign in with Google above and your work follows you to every device. Add it to your home screen and it opens like a normal app.</p>
@@ -120,6 +120,26 @@
       </section>
     </div>
 
+    <!-- Get started. Section 26 fills in the steps and only ever shows this
+         to an account that has nothing in it yet. -->
+    <div id="eeSetup" class="ee-setup" style="display: none">
+      <div class="ee-setup-box">
+        <p class="ee-setup-step" id="eeSetupStep">Step 1 of 4</p>
+        <h2 class="ee-setup-h" id="eeSetupH">Let us get you set up</h2>
+        <p class="ee-setup-sub" id="eeSetupSub"></p>
+        <div id="eeSetupBody"></div>
+        <button type="button" class="ee-setup-go" id="eeSetupNext">
+          Continue
+        </button>
+        <div class="ee-setup-foot">
+          <button type="button" class="ee-setup-link" id="eeSetupBack">Back</button>
+          <button type="button" class="ee-setup-link" id="eeSetupSkip">
+            Skip for now
+          </button>
+        </div>
+        <div class="ee-setup-dots" id="eeSetupDots"></div>
+      </div>
+    </div>
     <div class="phone">
       <!-- Title Bar -->
       <header class="titlebar">

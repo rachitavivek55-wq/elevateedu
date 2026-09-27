@@ -2838,6 +2838,13 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
 
   // The banner card answers one question: what should I do right now?
+  /* Only set if a name was given during first run setup, so an empty one
+     simply changes nothing. */
+  function firstName() {
+    var p = readLS('elevate_profile', null);
+    return p && typeof p.name === 'string' ? p.name.trim() : '';
+  }
+
   function upNext() {
     var card = document.getElementById('eeUpNext');
     var eyebrow = document.getElementById('eeUpEyebrow');
@@ -2866,7 +2873,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
         go = 'gradebook.html';
       } else {
         eyebrow.textContent = 'All caught up';
-        title.textContent = 'Nothing due right now';
+        title.textContent = firstName()
+          ? 'Nothing due right now, ' + firstName()
+          : 'Nothing due right now';
         sub.textContent = low
           ? 'Lowest class: ' + low.name + ' at ' + Math.round(low.pct * 10) / 10 + '%'
           : 'Add a task and it shows up here.';
@@ -2923,4 +2932,442 @@ window.addEventListener("beforeinstallprompt", function (e) {
   });
 
   render();
+})();
+
+
+/* ═══════════════════════════════════════════════════════════════
+   SECTION 26 — Get started (first run setup)
+   A new account used to open onto four empty screens, which is a
+   poor first minute. Ask a few short questions once instead, and
+   build the gradebook, the class list and a routine out of the
+   answers. Anyone who already has data is never asked.
+   ═══════════════════════════════════════════════════════════════ */
+(function () {
+  var box = document.getElementById('eeSetup');
+  if (!box) return; /* Only the home screen carries the markup. */
+
+  var PROFILE = 'elevate_profile';
+  var GRADES = ['6', '7', '8', '9', '10', '11', '12', 'College'];
+  var SUBJECTS = [
+    'English',
+    'Math',
+    'Science',
+    'History',
+    'Spanish',
+    'PE',
+    'Art',
+    'Music',
+    'Computer Science',
+    'Health',
+  ];
+  var ROUTINES = [
+    {
+      id: 'morning',
+      name: 'Morning',
+      reset: 'daily',
+      tasks: ['Make the bed', 'Pack my bag', 'Check what is due today'],
+    },
+    {
+      id: 'after',
+      name: 'After school',
+      reset: 'daily',
+      tasks: ['Homework', 'Read for 20 minutes', 'Tidy my desk'],
+    },
+    {
+      id: 'week',
+      name: 'Weekly reset',
+      reset: 'weekly',
+      tasks: ['Check my grades', 'Plan the week', 'Clean out my bag'],
+    },
+  ];
+  /* Same palette the gradebook picks from, so the classes made here look
+     like the ones made by hand. */
+  var SWATCHES = [
+    '#6f4e37',
+    '#a9746e',
+    '#8c9a5b',
+    '#c08457',
+    '#7a6a99',
+    '#4b7d78',
+    '#b0645e',
+    '#9a7b4f',
+  ];
+  var STEPS = ['name', 'grade', 'classes', 'routines'];
+
+  var answers = {
+    name: '',
+    grade: '',
+    classes: [],
+    extra: [],
+    routines: ['after'],
+  };
+  var step = 0;
+  var open = false;
+
+  function esc(s) {
+    return String(s == null ? '' : s).replace(/[&<>"]/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c];
+    });
+  }
+  function readJSON(k) {
+    try {
+      return JSON.parse(localStorage.getItem(k));
+    } catch (e) {
+      return null;
+    }
+  }
+  function put(k, v) {
+    try {
+      localStorage.setItem(k, JSON.stringify(v));
+    } catch (e) {}
+  }
+  function gid() {
+    return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function cid() {
+    return 'c' + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+  }
+  function nowISO() {
+    return new Date().toISOString();
+  }
+  function startOfDay(ts) {
+    var d = new Date(ts);
+    d.setHours(0, 0, 0, 0);
+    return d.getTime();
+  }
+  function startOfWeek(ts) {
+    var d = new Date(startOfDay(ts));
+    d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d.getTime();
+  }
+
+  /* Someone who has been using the app already answered all of this by
+     using it, so the questions would only be in the way. */
+  function hasData() {
+    var gb = readJSON('elevate_gradebook');
+    if (gb && gb.books && gb.books.length) return true;
+    var ck = readJSON('elevate_checklists');
+    if (ck && ck.lists && ck.lists.length) return true;
+    var cal = readJSON('elevate_calendar_entries');
+    if (cal && cal.length) return true;
+    var acl = readJSON('elevate_assignments_classes');
+    if (acl && acl.length) return true;
+    return false;
+  }
+  function asked() {
+    var p = readJSON(PROFILE);
+    return !!(p && p.setup);
+  }
+  function markAsked(more) {
+    var p = readJSON(PROFILE) || {};
+    p.setup = true;
+    p.setupAt = nowISO();
+    if (more) {
+      for (var k in more) {
+        if (Object.prototype.hasOwnProperty.call(more, k)) p[k] = more[k];
+      }
+    }
+    put(PROFILE, p);
+  }
+  function needed() {
+    if (open) return false;
+    if (asked()) return false;
+    /* An older account gets the flag quietly and is never interrupted. */
+    if (hasData()) {
+      markAsked();
+      return false;
+    }
+    return true;
+  }
+
+  function gradeLabel(g) {
+    return g === 'College' ? 'College' : 'Grade ' + g;
+  }
+  function chip(label, val, on) {
+    return (
+      '<button type="button" class="ee-setup-chip' +
+      (on ? ' is-on' : '') +
+      '" data-pick="' +
+      esc(val) +
+      '">' +
+      esc(label) +
+      '</button>'
+    );
+  }
+  function toggle(arr, val) {
+    var at = arr.indexOf(val);
+    if (at > -1) arr.splice(at, 1);
+    else arr.push(val);
+  }
+  function pool() {
+    return SUBJECTS.concat(answers.extra);
+  }
+
+  function draw() {
+    var kind = STEPS[step];
+    var body = document.getElementById('eeSetupBody');
+    var h = document.getElementById('eeSetupH');
+    var sub = document.getElementById('eeSetupSub');
+    var html = '';
+    var i;
+    document.getElementById('eeSetupStep').textContent =
+      'Step ' + (step + 1) + ' of ' + STEPS.length;
+    if (kind === 'name') {
+      h.textContent = 'First, what should we call you?';
+      sub.textContent =
+        'A first name is plenty. It only ever shows on your own home screen.';
+      body.innerHTML =
+        '<input id="eeSetupName" class="ee-setup-field" type="text" ' +
+        'placeholder="Your first name" autocomplete="given-name" value="' +
+        esc(answers.name) +
+        '" />';
+    } else if (kind === 'grade') {
+      h.textContent = 'What grade are you in?';
+      sub.textContent =
+        'This names your gradebook, so it is already waiting when you open it.';
+      for (i = 0; i < GRADES.length; i++) {
+        html += chip(
+          gradeLabel(GRADES[i]),
+          GRADES[i],
+          answers.grade === GRADES[i]
+        );
+      }
+      body.innerHTML = '<div class="ee-setup-chips">' + html + '</div>';
+    } else if (kind === 'classes') {
+      h.textContent = 'Which classes are you taking?';
+      sub.textContent =
+        'Tap the ones you have. Each becomes a class in your gradebook and in your assignments.';
+      var p = pool();
+      for (i = 0; i < p.length; i++) {
+        html += chip(p[i], p[i], answers.classes.indexOf(p[i]) > -1);
+      }
+      body.innerHTML =
+        '<div class="ee-setup-chips">' +
+        html +
+        '</div><div class="ee-setup-add">' +
+        '<input id="eeSetupAdd" class="ee-setup-field" type="text" placeholder="Another class" />' +
+        '<button type="button" id="eeSetupAddBtn">Add</button></div>';
+    } else {
+      h.textContent = 'Last one: any routines to keep?';
+      sub.textContent =
+        'Checklists that untick themselves on their own, so you are not rewriting the same list every day.';
+      for (i = 0; i < ROUTINES.length; i++) {
+        html +=
+          '<button type="button" class="ee-setup-pick' +
+          (answers.routines.indexOf(ROUTINES[i].id) > -1 ? ' is-on' : '') +
+          '" data-pick="' +
+          ROUTINES[i].id +
+          '"><b>' +
+          esc(ROUTINES[i].name) +
+          '</b><span>' +
+          esc(ROUTINES[i].tasks.join(' \u00b7 ')) +
+          '</span></button>';
+      }
+      body.innerHTML = '<div class="ee-setup-picks">' + html + '</div>';
+    }
+    document.getElementById('eeSetupNext').textContent =
+      step === STEPS.length - 1 ? 'Finish setup' : 'Continue';
+    document.getElementById('eeSetupBack').style.display = step ? 'block' : 'none';
+    html = '';
+    for (i = 0; i < STEPS.length; i++) {
+      html += '<span' + (i <= step ? ' class="is-on"' : '') + '></span>';
+    }
+    document.getElementById('eeSetupDots').innerHTML = html;
+    var first = body.querySelector('input');
+    if (first) {
+      try {
+        first.focus();
+      } catch (e) {}
+    }
+  }
+
+  function addExtra(raw) {
+    var name = String(raw || '')
+      .trim()
+      .slice(0, 40);
+    if (!name) return;
+    if (pool().indexOf(name) < 0) answers.extra.push(name);
+    if (answers.classes.indexOf(name) < 0) answers.classes.push(name);
+  }
+  /* Whatever is typed but not yet confirmed still counts. Nobody should
+     lose a class because they did not press Add. */
+  function stash() {
+    var n = document.getElementById('eeSetupName');
+    if (n) answers.name = n.value.trim().slice(0, 24);
+    var a = document.getElementById('eeSetupAdd');
+    if (a && a.value.trim()) {
+      addExtra(a.value);
+      a.value = '';
+    }
+  }
+
+  function buildGradebook() {
+    var gb = readJSON('elevate_gradebook');
+    if (!gb || !gb.books) gb = { books: [], activeBook: null };
+    if (gb.books.length) return;
+    var made = [];
+    for (var i = 0; i < answers.classes.length; i++) {
+      made.push({
+        id: gid(),
+        name: answers.classes[i],
+        teacher: '',
+        gradeType: 'letter',
+        gradeValue: '',
+        color: SWATCHES[i % SWATCHES.length],
+        notes: '',
+        dateAdded: nowISO(),
+      });
+    }
+    var book = {
+      id: gid(),
+      name: answers.grade ? gradeLabel(answers.grade) : 'My classes',
+      color: SWATCHES[0],
+      periods: [
+        { id: gid(), name: 'Semester 1', classes: made, dateAdded: nowISO() },
+      ],
+      dateAdded: nowISO(),
+    };
+    gb.books.push(book);
+    gb.activeBook = book.id;
+    put('elevate_gradebook', gb);
+  }
+
+  function buildClasses() {
+    var arr = readJSON('elevate_assignments_classes');
+    if (!Array.isArray(arr)) arr = [];
+    if (arr.length) return;
+    for (var i = 0; i < answers.classes.length; i++) {
+      arr.push({
+        id: gid(),
+        name: answers.classes[i],
+        teacher: '',
+        room: '',
+        days: [],
+        start: '',
+        end: '',
+        color: SWATCHES[i % SWATCHES.length],
+      });
+    }
+    put('elevate_assignments_classes', arr);
+  }
+
+  function buildRoutines() {
+    var ck = readJSON('elevate_checklists');
+    if (!ck || !Array.isArray(ck.lists)) ck = { lists: [] };
+    if (ck.lists.length) return;
+    var ts = Date.now();
+    for (var i = 0; i < ROUTINES.length; i++) {
+      var r = ROUTINES[i];
+      if (answers.routines.indexOf(r.id) < 0) continue;
+      var tasks = [];
+      for (var j = 0; j < r.tasks.length; j++) {
+        tasks.push({ id: cid(), text: r.tasks[j], done: false });
+      }
+      ck.lists.push({
+        id: cid(),
+        name: r.name,
+        reset: r.reset,
+        customNum: 1,
+        customUnit: 'days',
+        created: ts,
+        anchor: startOfDay(ts),
+        days: [],
+        lastReset: r.reset === 'weekly' ? startOfWeek(ts) : startOfDay(ts),
+        tasks: tasks,
+        history: [],
+      });
+    }
+    if (!ck.lists.length) return;
+    put('elevate_checklists', ck);
+  }
+
+  function close() {
+    open = false;
+    box.style.display = 'none';
+  }
+  function show() {
+    open = true;
+    step = 0;
+    box.style.display = 'flex';
+    draw();
+  }
+  function finish() {
+    buildGradebook();
+    buildClasses();
+    buildRoutines();
+    markAsked({ name: answers.name, grade: answers.grade });
+    var go = document.getElementById('eeSetupNext');
+    go.disabled = true;
+    go.textContent = 'Setting it up\u2026';
+    /* A reload is the honest hand-over: every screen then reads the new
+       data from storage instead of half of it being drawn already. */
+    setTimeout(function () {
+      location.reload();
+    }, 400);
+  }
+
+  box.addEventListener('click', function (ev) {
+    var t = ev.target;
+    var hit = t.closest ? t.closest('[data-pick]') : null;
+    if (hit) {
+      var val = hit.getAttribute('data-pick');
+      if (STEPS[step] === 'grade')
+        answers.grade = answers.grade === val ? '' : val;
+      else if (STEPS[step] === 'classes') toggle(answers.classes, val);
+      else toggle(answers.routines, val);
+      draw();
+      return;
+    }
+    if (t.id === 'eeSetupAddBtn') {
+      stash();
+      draw();
+      return;
+    }
+    if (t.id === 'eeSetupBack') {
+      stash();
+      step = Math.max(0, step - 1);
+      draw();
+      return;
+    }
+    if (t.id === 'eeSetupSkip') {
+      markAsked({ skipped: true });
+      close();
+      return;
+    }
+    if (t.id === 'eeSetupNext') {
+      stash();
+      if (step < STEPS.length - 1) {
+        step++;
+        draw();
+        return;
+      }
+      finish();
+    }
+  });
+  box.addEventListener('keydown', function (ev) {
+    if (ev.key !== 'Enter') return;
+    ev.preventDefault();
+    if (ev.target.id === 'eeSetupAdd') {
+      stash();
+      draw();
+      return;
+    }
+    document.getElementById('eeSetupNext').click();
+  });
+
+  /* Signing in is the moment to ask. The install nudge that normally
+     follows waits for the reload, so only one thing is ever on screen. */
+  if (window.elevateAuth && elevateAuth.hideAuthScreen) {
+    var pass = elevateAuth.hideAuthScreen;
+    elevateAuth.hideAuthScreen = function () {
+      if (needed()) {
+        var scr = document.getElementById('elevateAuthScreen');
+        if (scr) scr.style.display = 'none';
+        show();
+        return;
+      }
+      return pass.apply(elevateAuth, arguments);
+    };
+  }
+  window.__eeRunSetup = show;
 })();
