@@ -766,3 +766,47 @@
   color: #fbf4e6;
   -webkit-text-fill-color: #fbf4e6;
 }
+
+/* ───── Layout inside a book ─────
+   The header reads top to bottom now: where you are, which book, which
+   section. "All books" is a real chip so it stops disappearing, and the
+   button that adds a section sits on the same line as the sections. */
+.gb-book-head {
+  margin-bottom: 14px;
+}
+.gb-link {
+  gap: 4px;
+  padding: 7px 13px 7px 9px;
+  border-radius: 999px;
+  background: var(--gb-tile);
+  color: var(--gb-coffee);
+  font-size: 12.5px;
+  font-weight: 600;
+  box-shadow: var(--shadow-soft);
+}
+.gb-book-title-row {
+  align-items: center;
+  margin-bottom: 14px;
+}
+.gb-period-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.gb-periods {
+  flex: 0 1 auto;
+  min-width: 0;
+  padding-bottom: 0;
+}
+.gb-add-period {
+  flex: 0 0 auto;
+  margin: 0;
+}
+.gb-section-summary {
+  margin: 16px 0 18px;
+}
+/* A single book should fill the shelf instead of leaving a gap beside it. */
+.gb-books {
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+}

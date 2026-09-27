@@ -2067,6 +2067,12 @@ window.addEventListener("beforeinstallprompt", function (e) {
             '<button class="eeThemeDot" data-theme="peach" aria-label="Roasted Peach" title="Roasted Peach"></button>' +
           '</div></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
+          '<b>New here?</b><i>A short tour of what assignments, checklists and grades each do.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetTour" type="button">See it</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
+          '<b>Your account &amp; your data</b><i>The email you signed in with, what is saved and where it lives.</i></div>' +
+          '<button class="eeSetBtn" id="eeSetData" type="button">Open</button></div>' +
+        '<div class="eeSetRow"><div class="eeL">' +
           '<b>Log out</b><i>Signs you out here only. Everything you saved stays in your account.</i></div>' +
           '<button class="eeSetBtn" id="eeSetOut" type="button">Log out</button></div>' +
         '<div class="eeSetRow"><div class="eeL">' +
@@ -2139,6 +2145,12 @@ window.addEventListener("beforeinstallprompt", function (e) {
     document.getElementById('eeSetNo').addEventListener('click', function () {
       pending = null;
       document.getElementById('eeSetConfirm').style.display = 'none';
+    });
+    document.getElementById('eeSetTour').addEventListener('click', function () {
+      window.location.href = 'about.html';
+    });
+    document.getElementById('eeSetData').addEventListener('click', function () {
+      window.location.href = 'account.html';
     });
     document.getElementById('eeSetOut').addEventListener('click', doLogout);
     document.getElementById('eeSetWipe').addEventListener('click', function () { askFor('wipe'); });
@@ -2940,7 +2952,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
    A new account used to open onto four empty screens, which is a
    poor first minute. Ask a few short questions once instead, and
    build the gradebook, the class list and a routine out of the
-   answers. Anyone who already has data is never asked.
+   answers. Nothing here is fixed: the routine is fully editable
+   before it is made. Anyone who already has data is never asked.
    ═══════════════════════════════════════════════════════════════ */
 (function () {
   var box = document.getElementById('eeSetup');
@@ -2960,7 +2973,9 @@ window.addEventListener("beforeinstallprompt", function (e) {
     'Computer Science',
     'Health',
   ];
-  var ROUTINES = [
+  /* Starting points for the routine, not the routine itself. Tapping one
+     fills the fields in and everything stays editable after that. */
+  var PRESETS = [
     {
       id: 'morning',
       name: 'Morning',
@@ -2980,6 +2995,13 @@ window.addEventListener("beforeinstallprompt", function (e) {
       tasks: ['Check my grades', 'Plan the week', 'Clean out my bag'],
     },
   ];
+  /* Same three words the checklists page uses, so nothing is renamed
+     halfway through the app. */
+  var CADENCE = [
+    { id: 'daily', label: 'Every day' },
+    { id: 'weekly', label: 'Every week' },
+    { id: 'monthly', label: 'Every month' },
+  ];
   /* Same palette the gradebook picks from, so the classes made here look
      like the ones made by hand. */
   var SWATCHES = [
@@ -2992,14 +3014,18 @@ window.addEventListener("beforeinstallprompt", function (e) {
     '#b0645e',
     '#9a7b4f',
   ];
-  var STEPS = ['name', 'grade', 'classes', 'routines'];
+  var STEPS = ['name', 'grade', 'classes', 'routine'];
 
   var answers = {
     name: '',
     grade: '',
     classes: [],
     extra: [],
-    routines: ['after'],
+    list: {
+      name: 'After school',
+      reset: 'daily',
+      tasks: ['Homework', 'Read for 20 minutes', 'Tidy my desk'],
+    },
   };
   var step = 0;
   var open = false;
@@ -3039,6 +3065,18 @@ window.addEventListener("beforeinstallprompt", function (e) {
     var d = new Date(startOfDay(ts));
     d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
     return d.getTime();
+  }
+  function startOfMonth(ts) {
+    var d = new Date(startOfDay(ts));
+    d.setDate(1);
+    return d.getTime();
+  }
+  /* The checklists page works out the current cycle the same way. Handing
+     it a matching stamp stops a brand new list resetting on sight. */
+  function cycleFor(reset, ts) {
+    if (reset === 'weekly') return startOfWeek(ts);
+    if (reset === 'monthly') return startOfMonth(ts);
+    return startOfDay(ts);
   }
 
   /* Someone who has been using the app already answered all of this by
@@ -3083,11 +3121,13 @@ window.addEventListener("beforeinstallprompt", function (e) {
   function gradeLabel(g) {
     return g === 'College' ? 'College' : 'Grade ' + g;
   }
-  function chip(label, val, on) {
+  function chip(label, val, on, attr) {
     return (
       '<button type="button" class="ee-setup-chip' +
       (on ? ' is-on' : '') +
-      '" data-pick="' +
+      '" ' +
+      attr +
+      '="' +
       esc(val) +
       '">' +
       esc(label) +
@@ -3101,6 +3141,72 @@ window.addEventListener("beforeinstallprompt", function (e) {
   }
   function pool() {
     return SUBJECTS.concat(answers.extra);
+  }
+  function usePreset(id) {
+    for (var i = 0; i < PRESETS.length; i++) {
+      if (PRESETS[i].id !== id) continue;
+      answers.list = {
+        name: PRESETS[i].name,
+        reset: PRESETS[i].reset,
+        tasks: PRESETS[i].tasks.slice(),
+      };
+      return;
+    }
+  }
+  function matchesPreset(id) {
+    for (var i = 0; i < PRESETS.length; i++) {
+      if (PRESETS[i].id === id) return PRESETS[i].name === answers.list.name;
+    }
+    return false;
+  }
+
+  function routineHtml() {
+    var html = '<p class="ee-setup-mini">Start from</p><div class="ee-setup-chips">';
+    var i;
+    for (i = 0; i < PRESETS.length; i++) {
+      html += chip(
+        PRESETS[i].name,
+        PRESETS[i].id,
+        matchesPreset(PRESETS[i].id),
+        'data-preset'
+      );
+    }
+    html +=
+      '</div><input id="eeSetupListName" class="ee-setup-field ee-setup-gap" ' +
+      'type="text" placeholder="What is this list called?" value="' +
+      esc(answers.list.name) +
+      '" /><p class="ee-setup-mini">Starts over</p><div class="ee-setup-chips">';
+    for (i = 0; i < CADENCE.length; i++) {
+      html += chip(
+        CADENCE[i].label,
+        CADENCE[i].id,
+        answers.list.reset === CADENCE[i].id,
+        'data-reset'
+      );
+    }
+    html += '</div>';
+    if (answers.list.tasks.length) {
+      html += '<ul class="ee-setup-tasks">';
+      for (i = 0; i < answers.list.tasks.length; i++) {
+        html +=
+          '<li><span>' +
+          esc(answers.list.tasks[i]) +
+          '</span><button type="button" class="ee-setup-drop" data-drop="' +
+          i +
+          '" title="Remove">\u00d7</button></li>';
+      }
+      html += '</ul>';
+    }
+    html +=
+      '<div class="ee-setup-add">' +
+      '<input id="eeSetupTask" class="ee-setup-field" type="text" placeholder="Add a task" />' +
+      '<button type="button" id="eeSetupTaskBtn">Add</button></div>';
+    if (!answers.list.tasks.length) {
+      html +=
+        '<p class="ee-setup-hint">No tasks yet, so no list gets made. ' +
+        'Add one, or skip this step.</p>';
+    }
+    return html;
   }
 
   function draw() {
@@ -3129,7 +3235,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
         html += chip(
           gradeLabel(GRADES[i]),
           GRADES[i],
-          answers.grade === GRADES[i]
+          answers.grade === GRADES[i],
+          'data-pick'
         );
       }
       body.innerHTML = '<div class="ee-setup-chips">' + html + '</div>';
@@ -3139,7 +3246,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
         'Tap the ones you have. Each becomes a class in your gradebook and in your assignments.';
       var p = pool();
       for (i = 0; i < p.length; i++) {
-        html += chip(p[i], p[i], answers.classes.indexOf(p[i]) > -1);
+        html += chip(p[i], p[i], answers.classes.indexOf(p[i]) > -1, 'data-pick');
       }
       body.innerHTML =
         '<div class="ee-setup-chips">' +
@@ -3148,22 +3255,10 @@ window.addEventListener("beforeinstallprompt", function (e) {
         '<input id="eeSetupAdd" class="ee-setup-field" type="text" placeholder="Another class" />' +
         '<button type="button" id="eeSetupAddBtn">Add</button></div>';
     } else {
-      h.textContent = 'Last one: any routines to keep?';
+      h.textContent = 'Last one: set up a routine';
       sub.textContent =
-        'Checklists that untick themselves on their own, so you are not rewriting the same list every day.';
-      for (i = 0; i < ROUTINES.length; i++) {
-        html +=
-          '<button type="button" class="ee-setup-pick' +
-          (answers.routines.indexOf(ROUTINES[i].id) > -1 ? ' is-on' : '') +
-          '" data-pick="' +
-          ROUTINES[i].id +
-          '"><b>' +
-          esc(ROUTINES[i].name) +
-          '</b><span>' +
-          esc(ROUTINES[i].tasks.join(' \u00b7 ')) +
-          '</span></button>';
-      }
-      body.innerHTML = '<div class="ee-setup-picks">' + html + '</div>';
+        'A checklist that unticks itself, so you never rewrite it. Change any of this.';
+      body.innerHTML = routineHtml();
     }
     document.getElementById('eeSetupNext').textContent =
       step === STEPS.length - 1 ? 'Finish setup' : 'Continue';
@@ -3173,11 +3268,15 @@ window.addEventListener("beforeinstallprompt", function (e) {
       html += '<span' + (i <= step ? ' class="is-on"' : '') + '></span>';
     }
     document.getElementById('eeSetupDots').innerHTML = html;
-    var first = body.querySelector('input');
-    if (first) {
-      try {
-        first.focus();
-      } catch (e) {}
+    /* Only the very first field grabs focus. Doing it on every redraw would
+       throw the phone keyboard up every time a chip is tapped. */
+    if (kind === 'name') {
+      var f = document.getElementById('eeSetupName');
+      if (f) {
+        try {
+          f.focus();
+        } catch (e) {}
+      }
     }
   }
 
@@ -3189,8 +3288,15 @@ window.addEventListener("beforeinstallprompt", function (e) {
     if (pool().indexOf(name) < 0) answers.extra.push(name);
     if (answers.classes.indexOf(name) < 0) answers.classes.push(name);
   }
+  function addTask(raw) {
+    var text = String(raw || '')
+      .trim()
+      .slice(0, 90);
+    if (!text) return;
+    if (answers.list.tasks.indexOf(text) < 0) answers.list.tasks.push(text);
+  }
   /* Whatever is typed but not yet confirmed still counts. Nobody should
-     lose a class because they did not press Add. */
+     lose a class or a task because they did not press Add. */
   function stash() {
     var n = document.getElementById('eeSetupName');
     if (n) answers.name = n.value.trim().slice(0, 24);
@@ -3198,6 +3304,13 @@ window.addEventListener("beforeinstallprompt", function (e) {
     if (a && a.value.trim()) {
       addExtra(a.value);
       a.value = '';
+    }
+    var ln = document.getElementById('eeSetupListName');
+    if (ln) answers.list.name = ln.value.trim().slice(0, 40);
+    var tk = document.getElementById('eeSetupTask');
+    if (tk && tk.value.trim()) {
+      addTask(tk.value);
+      tk.value = '';
     }
   }
 
@@ -3251,33 +3364,30 @@ window.addEventListener("beforeinstallprompt", function (e) {
     put('elevate_assignments_classes', arr);
   }
 
-  function buildRoutines() {
+  function buildRoutine() {
+    var L = answers.list;
+    if (!L.name || !L.tasks.length) return;
     var ck = readJSON('elevate_checklists');
     if (!ck || !Array.isArray(ck.lists)) ck = { lists: [] };
     if (ck.lists.length) return;
     var ts = Date.now();
-    for (var i = 0; i < ROUTINES.length; i++) {
-      var r = ROUTINES[i];
-      if (answers.routines.indexOf(r.id) < 0) continue;
-      var tasks = [];
-      for (var j = 0; j < r.tasks.length; j++) {
-        tasks.push({ id: cid(), text: r.tasks[j], done: false });
-      }
-      ck.lists.push({
-        id: cid(),
-        name: r.name,
-        reset: r.reset,
-        customNum: 1,
-        customUnit: 'days',
-        created: ts,
-        anchor: startOfDay(ts),
-        days: [],
-        lastReset: r.reset === 'weekly' ? startOfWeek(ts) : startOfDay(ts),
-        tasks: tasks,
-        history: [],
-      });
+    var tasks = [];
+    for (var j = 0; j < L.tasks.length; j++) {
+      tasks.push({ id: cid(), text: L.tasks[j], done: false });
     }
-    if (!ck.lists.length) return;
+    ck.lists.push({
+      id: cid(),
+      name: L.name,
+      reset: L.reset,
+      customNum: 1,
+      customUnit: 'days',
+      created: ts,
+      anchor: startOfDay(ts),
+      days: [],
+      lastReset: cycleFor(L.reset, ts),
+      tasks: tasks,
+      history: [],
+    });
     put('elevate_checklists', ck);
   }
 
@@ -3294,7 +3404,7 @@ window.addEventListener("beforeinstallprompt", function (e) {
   function finish() {
     buildGradebook();
     buildClasses();
-    buildRoutines();
+    buildRoutine();
     markAsked({ name: answers.name, grade: answers.grade });
     var go = document.getElementById('eeSetupNext');
     go.disabled = true;
@@ -3308,17 +3418,27 @@ window.addEventListener("beforeinstallprompt", function (e) {
 
   box.addEventListener('click', function (ev) {
     var t = ev.target;
-    var hit = t.closest ? t.closest('[data-pick]') : null;
+    var hit = t.closest
+      ? t.closest('[data-pick],[data-preset],[data-reset],[data-drop]')
+      : null;
     if (hit) {
-      var val = hit.getAttribute('data-pick');
-      if (STEPS[step] === 'grade')
-        answers.grade = answers.grade === val ? '' : val;
-      else if (STEPS[step] === 'classes') toggle(answers.classes, val);
-      else toggle(answers.routines, val);
+      if (hit.hasAttribute('data-pick')) {
+        var val = hit.getAttribute('data-pick');
+        if (STEPS[step] === 'grade')
+          answers.grade = answers.grade === val ? '' : val;
+        else toggle(answers.classes, val);
+      } else if (hit.hasAttribute('data-preset')) {
+        usePreset(hit.getAttribute('data-preset'));
+      } else if (hit.hasAttribute('data-reset')) {
+        answers.list.reset = hit.getAttribute('data-reset');
+      } else {
+        stash();
+        answers.list.tasks.splice(Number(hit.getAttribute('data-drop')), 1);
+      }
       draw();
       return;
     }
-    if (t.id === 'eeSetupAddBtn') {
+    if (t.id === 'eeSetupAddBtn' || t.id === 'eeSetupTaskBtn') {
       stash();
       draw();
       return;
@@ -3347,7 +3467,8 @@ window.addEventListener("beforeinstallprompt", function (e) {
   box.addEventListener('keydown', function (ev) {
     if (ev.key !== 'Enter') return;
     ev.preventDefault();
-    if (ev.target.id === 'eeSetupAdd') {
+    var id = ev.target.id;
+    if (id === 'eeSetupAdd' || id === 'eeSetupTask' || id === 'eeSetupListName') {
       stash();
       draw();
       return;
