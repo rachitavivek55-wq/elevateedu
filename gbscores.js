@@ -984,10 +984,11 @@
       '#gbClassView #gbGradesPage{margin-top:0 !important;padding-top:0 !important;border-top:none !important;}',
       '#gbClassView .gb-grades-head{display:none;}',
       '#gbClassView .gb-grades-hint{display:none;}',
+      '#gbClassView .gb-gr-mhint{font:500 11.5px/1.4 Poppins,sans-serif;color:#9a8570;}',
       '.gbcp-calc{background:#efe2c8;border-radius:16px;padding:15px 16px;margin:2px 0 14px;}',
       '.gbcp-calc-row{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}',
       '.gbcp-calc-lbl{color:#7a6553;font:600 12.5px/1 Poppins,sans-serif;}',
-      '.gbcp-calc-val{color:#4b3832;font:700 17px/1 Poppins,sans-serif;text-align:right;}',
+      '.gbcp-calc-val{color:#4b3832;font:800 20px/1 Poppins,sans-serif;text-align:right;}',
       '.gbcp-set-lbl{display:block;color:#7a6553;font:600 12px/1.3 Poppins,sans-serif;margin-bottom:8px;}',
       '.gbcp-set-row{display:flex;gap:8px;margin-bottom:10px;}',
       '.gbcp-set-type{flex:0 0 auto;border:1px solid rgba(111,78,55,0.22);background:#fffdf7;color:#4b3832;border-radius:10px;padding:9px 10px;font:600 12.5px/1 Poppins,sans-serif;cursor:pointer;}',
@@ -1026,7 +1027,10 @@
         window.eeGradebookRefresh();
       } catch (e) {}
     }
+    if (typeof window.eeGbSyncHead === 'function') window.eeGbSyncHead();
   }
+  window.eeGbBackToBook = gbBackToBook;
+
 
   function gbGradeBadge(cls) {
     if (!cls) return '';
@@ -1051,7 +1055,7 @@
     var valEl = wrap.querySelector('#gbcpCalcVal');
     if (valEl) {
       valEl.textContent =
-        avg === null ? 'No scores yet' : fmtPct(avg) + '  ' + pctToLetter(avg);
+        avg === null ? 'No scores yet' : fmtPct(avg) + ' · ' + pctToLetter(avg);
     }
   }
 
@@ -1097,20 +1101,17 @@
     view.innerHTML = '';
     var wrap = document.createElement('div');
     var head =
-      '<div class="gbcp-top"><button class="gbcp-back" type="button"><i data-lucide="chevron-left"></i>All classes</button></div>' +
-      // Grade badge and Edit share the title row, so Edit no longer costs a
-      // whole empty line of its own.
+      /* The bar at the very top of the screen is the way back to the class
+         list now, so this page only shows the class itself */
       '<div class="gbcp-titlerow"><h2 class="gbcp-title">' +
       esc(cls.name || 'Class') +
       '</h2><div class="gbcp-titleside">' +
-      (badge ? '<span class="gbcp-grade">' + badge + '</span>' : '') +
       '<button class="gbcp-edit" type="button"><i data-lucide="pencil"></i>Edit</button>' +
       '</div></div>' +
       (cls.teacher
         ? '<p class="gbcp-teacher">' + esc(cls.teacher) + '</p>'
         : '') +
-      '<p class="gbcp-instr">Track this class here. Add categories like tests or homework, then log each score as a letter, a percentage, or points out of a total.</p>' +
-      '<div class="gbcp-calc" id="gbcpCalc"><div class="gbcp-calc-row"><span class="gbcp-calc-lbl">Calculated total</span><span class="gbcp-calc-val" id="gbcpCalcVal"></span></div></div>';
+      '<div class="gbcp-calc" id="gbcpCalc"><div class="gbcp-calc-row"><span class="gbcp-calc-lbl">Class grade</span><span class="gbcp-calc-val" id="gbcpCalcVal"></span></div></div>';
     wrap.innerHTML = head;
     view.appendChild(wrap);
     var gsec = buildSection(cls);
@@ -1118,7 +1119,7 @@
     view.appendChild(gsec);
     view.hidden = false;
     gbWireCalc(wrap, cls);
-    wrap.querySelector('.gbcp-back').addEventListener('click', gbBackToBook);
+    if (typeof window.eeGbSyncHead === 'function') window.eeGbSyncHead();
     wrap.querySelector('.gbcp-edit').addEventListener('click', function () {
       gbOpenEditSheet();
     });

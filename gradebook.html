@@ -41,7 +41,6 @@
         <!-- ===== BOOKS (grade years) view ===== -->
         <section id="booksView">
           <section class="greeting-card">
-            <p class="greeting-eyebrow">Gradebook</p>
             <h2 class="greeting-title">Your Grade Books</h2>
             <p class="greeting-sub">
               One book for every year of school — tap a book to open it.
@@ -56,19 +55,19 @@
 
         <!-- ===== INSIDE A BOOK ===== -->
         <section id="bookView" hidden>
-          <div class="gb-book-head">
-            <button class="gb-link" id="gbBackToBooks">
-              <i data-lucide="chevron-left"></i> All books
-            </button>
+          <div class="gb-book-title-row">
+            <h2 class="gb-book-title" id="gbBookTitle">9th Grade</h2>
+            <span class="gb-book-gpa" id="gbBookGpa">—</span>
             <button class="gb-icon-btn" id="gbBookMenu" title="Book options">
               <i data-lucide="settings-2"></i>
             </button>
           </div>
 
-          <div class="gb-book-title-row">
-            <h2 class="gb-book-title" id="gbBookTitle">9th Grade</h2>
-            <span class="gb-book-gpa" id="gbBookGpa">—</span>
-          </div>
+          <!-- the bar at the very top is the way back to the shelf now, so
+               this button only stays around for that tap to reuse -->
+          <button class="gb-link" id="gbBackToBooks" hidden>
+            <i data-lucide="chevron-left"></i> All books
+          </button>
 
           <!-- period / category tabs, with the add button on the same line -->
           <div class="gb-period-row">
@@ -96,11 +95,9 @@
 
         <!-- ===== PROGRESS view ===== -->
         <section id="progressView" hidden>
-          <div class="gb-book-head">
-            <button class="gb-link" id="gbBackFromProgress">
-              <i data-lucide="chevron-left"></i> Back
-            </button>
-          </div>
+          <button class="gb-link" id="gbBackFromProgress" hidden>
+            <i data-lucide="chevron-left"></i> Back
+          </button>
           <div class="gb-book-title-row">
             <h2 class="gb-book-title">Progress over time</h2>
           </div>

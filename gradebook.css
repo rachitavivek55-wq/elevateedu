@@ -810,3 +810,24 @@
 .gb-books {
   grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 }
+
+/* ===== v92: the top bar is the way back up, so the extra row is gone ===== */
+.gb-book-title-row {
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.gb-book-title-row .gb-book-title {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+.gb-book-title-row .gb-icon-btn {
+  flex: 0 0 auto;
+}
+/* the old in-page back chips still exist so the title bar can tap them */
+.gb-link[hidden] {
+  display: none !important;
+}
+.titlebar.gb-up .brand {
+  cursor: pointer;
+}

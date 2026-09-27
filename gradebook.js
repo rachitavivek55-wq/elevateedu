@@ -395,11 +395,52 @@ function letterToPct(l) {
   }
 
   /* ---------- view switching ---------- */
+  /* ========== the title bar doubles as the way back up ========== */
+  function headUp() {
+    var cv = $('gbClassView');
+    if (cv && !cv.hidden) return { label: 'All classes', act: 'class' };
+    var pv = $('progressView');
+    if (pv && !pv.hidden)
+      return { label: 'All classes', act: 'gbBackFromProgress' };
+    var bv = $('bookView');
+    if (bv && !bv.hidden) return { label: 'All books', act: 'gbBackToBooks' };
+    return null;
+  }
+
+  function syncHead() {
+    var bar = document.querySelector('.titlebar');
+    var name = document.querySelector('.brand-name');
+    if (!bar || !name) return;
+    var up = headUp();
+    name.textContent = up ? up.label : 'Gradebook';
+    if (up) bar.classList.add('gb-up');
+    else bar.classList.remove('gb-up');
+  }
+
+  function wireHeadUp() {
+    var brand = document.querySelector('.brand');
+    if (!brand) return;
+    brand.addEventListener('click', function (e) {
+      var up = headUp();
+      if (!up) return;
+      e.preventDefault();
+      if (up.act === 'class') {
+        if (typeof window.eeGbBackToBook === 'function')
+          window.eeGbBackToBook();
+        return;
+      }
+      var btn = $(up.act);
+      if (btn) btn.click();
+    });
+  }
+  window.eeGbSyncHead = syncHead;
+
   function show(view) {
     ['booksView', 'bookView', 'progressView'].forEach(function (v) {
       var n = $(v);
       if (n) n.hidden = v !== view;
     });
+    syncHead();
   }
 
   /* ---------- render: books grid ---------- */
@@ -1377,6 +1418,7 @@ function letterToPct(l) {
 
   document.addEventListener('DOMContentLoaded', function () {
     wire();
+    wireHeadUp();
     renderBooks();
     show('booksView');
   });
